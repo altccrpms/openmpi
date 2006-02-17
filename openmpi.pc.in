@@ -1,0 +1,7 @@
+# pkg-config file for openmpi
+Name: 		openmpi
+Description:	Open Message Passing Interface headers and libraries
+URL:		http://www.open-mpi.org/
+Version:	@VERSION@
+Libs:		-L@LIBDIR@ -lmpi
+Cflags: 	-I@INCLUDEDIR@
