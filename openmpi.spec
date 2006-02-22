@@ -1,6 +1,7 @@
+%{?!dist:       %define dist .fe5}
 Name:           openmpi
 Version:        1.0.1
-Release:        1%{?dist}
+Release:        1%{dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
@@ -46,23 +47,23 @@ XCFLAGS="$RPM_OPT_FLAGS -fPIC"
 XCXXFLAGS="$RPM_OPT_FLAGS -fPIC"
 XFFLAGS="$RPM_OPT_FLAGS -fPIC"
 %endif
-%configure --includedir=%{_includedir}/%{name} --libdir=%{_libdir}/%{name} \
+%configure \
+	--includedir=%{_includedir}/%{name} \
+	--libdir=%{_libdir}/%{name} \
+	--datadir=%{_datadir}/%{name}/help \
 	LDFLAGS='-Wl,-z,noexecstack' \
 	CFLAGS="$CFLAGS $XCFLAGS" \
 	CXXFLAGS="$CFLAGS $XCFLAGS" \
 	FFLAGS="$FFLAGS $XFLAGS";
+# ${datadir}/openmpi will be used ONLY for the english help*.txt files
 make %{?_smp_mflags}
 
-%{?!OMbinpfx: %define OMbinpfx 'om-'}   # prefix for OpenMPI binaries that clash with LAM
-%{?!LAMbinpfx: %define LAMbinpfx 'lam-'} # prefix for LAM binaries that clash with OpenMPI
+%{?!OMbinpfx: %define OMbinpfx om-}   # prefix for OpenMPI binaries that clash with LAM
+%{?!LAMbinpfx: %define LAMbinpfx lam-} # prefix for LAM binaries that clash with OpenMPI
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
 make install DESTDIR=$RPM_BUILD_ROOT 
-#
-# Make the help*.txt get picked up by %doc:
-mkdir -p doc
-mv -f ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/*.txt doc
 #
 # Resolve LAM clashes and create %{_datadir}/openmpi/{bin,lib,include} :
 . %SOURCE1
@@ -83,6 +84,7 @@ for b in mpic++ mpicc mpif77 mpif90; do
   mv ${RPM_BUILD_ROOT}/%{_bindir}/$b  ${RPM_BUILD_ROOT}/%{_bindir}/%{OMbinpfx}$b;
   ln -s ${rpath}/%{OMbinpfx}$b ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/bin/$b;
 done
+ln -s ./%{OMbinpfx}mpif90 ${RPM_BUILD_ROOT}/%{_bindir}/mpif90
 ln -s ${rpath}/%{OMbinpfx}mpic++ ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/bin/mpiCC
 ln -s ./%{OMbinpfx}mpic++ ${RPM_BUILD_ROOT}/%{_bindir}/%{OMbinpfx}mpiCC
 ln -s ${rpath}/%{OMbinpfx}mpic++ ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/bin/mpicxx
@@ -91,9 +93,11 @@ ln -s ${rpath}/orterun   ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/bin/mpirun
 ln -s ./orterun ${RPM_BUILD_ROOT}/%{_bindir}/%{OMbinpfx}mpirun
 ln -s ${rpath}/orterun   ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/bin/mpiexec
 ln -s ./orterun ${RPM_BUILD_ROOT}/%{_bindir}/%{OMbinpfx}mpiexec
-# Point the dynamic linker to the library dir
 mkdir -p ${RPM_BUILD_ROOT}/%{_sysconfdir}/ld.so.conf.d
-echo %{_libdir}/%{name} > ${RPM_BUILD_ROOT}/%{_sysconfdir}/ld.so.conf.d/%{name}.conf
+# Create ld.so config file for selection with mpi_alternatives:
+echo %{_libdir}/%{name} > ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/ld.conf
+# Create ghost mpi.conf ld.so config file:
+touch ${RPM_BUILD_ROOT}/%{_sysconfdir}/ld.so.conf.d/mpi.conf
 # We don't like .la files
 find ${RPM_BUILD_ROOT}%{_libdir} -name \*.la | xargs rm
 # Make the pkgconfig files
@@ -101,7 +105,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/pkgconfig;
 sed 's#@VERSION@#'%{version}'#;s#@LIBDIR@#'%{_libdir}/%{name}'#;s#@INCLUDEDIR@#'%{_includedir}/%{name}'#' < %SOURCE2 > ${RPM_BUILD_ROOT}/%{_libdir}/pkgconfig/%{name}.pc;
 # Make the alternatives utility script:
 mkdir -p ${RPM_BUILD_ROOT}/%{_sbindir}
-sed 's#@BINDIR@#'%{_bindir}'#;s#@OMBINPFX@#'%{OMbinpfx}'#;s#@LAMBINPFX@#'%{LAMbinpfx}'#'  < %SOURCE3 > ${RPM_BUILD_ROOT}/%{_sbindir}/mpi_alternatives;
+sed 's#@BINDIR@#'%{_bindir}'#;s#@OMBINPFX@#'%{OMbinpfx}'#;s#@LAMBINPFX@#'%{LAMbinpfx}'#;s#@DATADIR@#'%{_datadir}'#;s#@SYSCONFDIR@#'%{_sysconfdir}'#'  < %SOURCE3 > ${RPM_BUILD_ROOT}/%{_sbindir}/mpi_alternatives;
 chmod +x ${RPM_BUILD_ROOT}/%{_sbindir}/mpi_alternatives;
 sed 's#@DATADIR@#'%{_datadir}/%{name}'#;s#@NAME@#'%{name}'#' < %SOURCE4 > ${RPM_BUILD_ROOT}/%{_datadir}/%{name}/%{name}.module
 :;
@@ -110,6 +114,12 @@ sed 's#@DATADIR@#'%{_datadir}/%{name}'#;s#@NAME@#'%{name}'#' < %SOURCE4 > ${RPM_
 rm -rf ${RPM_BUILD_ROOT}
 
 %post
+if [ "$1" -ge 1 ]; then
+   if [ ! -e %{_sysconfdir}/ld.so.conf.d/mpi.conf ]; then
+   # handle the case where openmpi is installed without lam:
+	ln -s %{_datadir}/%{name}/ld.conf %{_sysconfdir}/ld.so.conf.d/mpi.conf;
+   fi;
+fi;
 /sbin/ldconfig
 
 %preun
@@ -124,8 +134,8 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README doc/*
-%config %{_sysconfdir}/ld.so.conf.d/%{name}.conf
+%doc LICENSE README
+%ghost  %{_sysconfdir}/ld.so.conf.d/mpi.conf
 %config %{_sysconfdir}/openmpi-*
 %{_bindir}/orte*
 %{_bindir}/*run
@@ -140,7 +150,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_datadir}/%{name}/bin
 %{_datadir}/%{name}/lib
 %{_datadir}/%{name}/man
+%{_datadir}/%{name}/help
 %{_datadir}/%{name}/%{name}.module
+%{_datadir}/%{name}/ld.conf
 
 %files devel
 %defattr(-,root,root,-)
