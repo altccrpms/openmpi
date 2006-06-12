@@ -1,6 +1,6 @@
-%{?!dist:       %define dist .fe5}
+%{?!dist:       %define dist .fc6}
 Name:           openmpi
-Version:        1.0.1
+Version:        1.0.2
 Release:        1%{dist}
 Summary:        Open Message Passing Interface
 
@@ -13,7 +13,7 @@ Source2:	openmpi.pc.in
 Source3:	mpi_alternatives.in
 Source4:	openmpi.module.in
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  gcc-gfortran
+BuildRequires:  gcc-gfortran, autoconf, automake, libtool
 Requires(post): /sbin/ldconfig
 
 %package devel
@@ -170,6 +170,9 @@ fi;
 
 
 %changelog
+* Mon Jun 12 2006 Jason Vas Dias <jvdias@redhat.com> - 1.0.2-1
+- Upgrade to 1.0.2
+
 * Wed Feb 15 2006 Jason Vas Dias <jvdias@redhat.com> - 1.0.1-1
 - Import into Fedora Core
 - Resolve LAM clashes 
