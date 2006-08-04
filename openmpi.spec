@@ -1,19 +1,18 @@
-%{?!dist:       %define dist .fc6}
 Name:           openmpi
-Version:        1.0.2
+Version:        1.1
 Release:        1%{dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
 License:        BSD
 URL:            http://www.open-mpi.org/
-Source0:       	http://www.open-mpi.org/software/ompi/v1.0/downloads/%{name}-%{version}.tar.bz2
+Source0:       	http://www.open-mpi.org/software/ompi/v1.1/downloads/%{name}-%{version}.tar.bz2
 Source1:	relpath.sh
 Source2:	openmpi.pc.in
 Source3:	mpi_alternatives.in
 Source4:	openmpi.module.in
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  gcc-gfortran, autoconf, automake, libtool
+BuildRequires:  gcc-g77, autoconf, automake, libtool, libibverbs-devel, opensm-devel
 Requires(post): /sbin/ldconfig
 
 %package devel
@@ -51,6 +50,8 @@ XFFLAGS="$RPM_OPT_FLAGS -fPIC"
 	--includedir=%{_includedir}/%{name} \
 	--libdir=%{_libdir}/%{name} \
 	--datadir=%{_datadir}/%{name}/help \
+	--mandir=%{_datadir}/%{name}/man \
+	--with-openib=/usr \
 	LDFLAGS='-Wl,-z,noexecstack' \
 	CFLAGS="$CFLAGS $XCFLAGS" \
 	CXXFLAGS="$CFLAGS $XCFLAGS" \
@@ -138,7 +139,7 @@ fi;
 %ghost  %{_sysconfdir}/ld.so.conf.d/mpi.conf
 %config %{_sysconfdir}/openmpi-*
 %{_bindir}/orte*
-%{_bindir}/*run
+#%{_bindir}/*run
 %{_bindir}/*exec
 %{_bindir}/*info
 %{_sbindir}/mpi_alternatives
@@ -146,7 +147,7 @@ fi;
 %dir %{_libdir}/%{name}/%{name}
 %{_libdir}/%{name}/*.so.*
 %{_libdir}/%{name}/%{name}/*.so
-%{_libdir}/%{name}/*.mod
+#%{_libdir}/%{name}/*.mod
 %{_datadir}/%{name}/bin
 %{_datadir}/%{name}/lib
 %{_datadir}/%{name}/man
@@ -164,12 +165,16 @@ fi;
 %{_includedir}/*
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/*.so
-%{_libdir}/%{name}/*.a
+# %{_libdir}/%{name}/*.a
 %{_libdir}/pkgconfig/%{name}.pc
 %{_datadir}/%{name}/include
 
 
 %changelog
+* Wed Aug  2 2006 Doug Ledford <dledford@redhat.com> - 1.1-1
+- Upgrade to 1.1
+- Build with Infiniband support via openib
+
 * Mon Jun 12 2006 Jason Vas Dias <jvdias@redhat.com> - 1.0.2-1
 - Upgrade to 1.0.2
 
