@@ -12,7 +12,7 @@ Source2:	openmpi.pc.in
 Source3:	mpi_alternatives.in
 Source4:	openmpi.module.in
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  gcc-g77, autoconf, automake, libtool
+BuildRequires:  gcc-gfortran, autoconf, automake, libtool
 %ifarch i386 ia64 x86_64 ppc ppc64
 BuildRequires: libibverbs-devel, opensm-devel
 %endif
