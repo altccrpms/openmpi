@@ -12,7 +12,10 @@ Source2:	openmpi.pc.in
 Source3:	mpi_alternatives.in
 Source4:	openmpi.module.in
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  gcc-g77, autoconf, automake, libtool, libibverbs-devel, opensm-devel
+BuildRequires:  gcc-g77, autoconf, automake, libtool
+%ifarch i386 ia64 x86_64 ppc ppc64
+BuildRequires: libibverbs-devel, opensm-devel
+%endif
 Requires(post): /sbin/ldconfig
 
 %package devel
@@ -46,6 +49,7 @@ XCFLAGS="$RPM_OPT_FLAGS -fPIC"
 XCXXFLAGS="$RPM_OPT_FLAGS -fPIC"
 XFFLAGS="$RPM_OPT_FLAGS -fPIC"
 %endif
+%ifarch i386 x86_64 ia64 ppc ppc64 # arches with openib support
 %configure \
 	--includedir=%{_includedir}/%{name} \
 	--libdir=%{_libdir}/%{name} \
@@ -56,6 +60,17 @@ XFFLAGS="$RPM_OPT_FLAGS -fPIC"
 	CFLAGS="$CFLAGS $XCFLAGS" \
 	CXXFLAGS="$CFLAGS $XCFLAGS" \
 	FFLAGS="$FFLAGS $XFLAGS";
+%else # no openib support, but plain tcp/ip still works and is usefull
+%configure \
+	--includedir=%{_includedir}/%{name} \
+	--libdir=%{_libdir}/%{name} \
+	--datadir=%{_datadir}/%{name}/help \
+	--mandir=%{_datadir}/%{name}/man \
+	LDFLAGS='-Wl,-z,noexecstack' \
+	CFLAGS="$CFLAGS $XCFLAGS" \
+	CXXFLAGS="$CFLAGS $XCFLAGS" \
+	FFLAGS="$FFLAGS $XFLAGS";
+%endif
 # ${datadir}/openmpi will be used ONLY for the english help*.txt files
 make %{?_smp_mflags}
 
