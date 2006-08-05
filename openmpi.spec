@@ -162,7 +162,7 @@ fi;
 %dir %{_libdir}/%{name}/%{name}
 %{_libdir}/%{name}/*.so.*
 %{_libdir}/%{name}/%{name}/*.so
-#%{_libdir}/%{name}/*.mod
+%{_libdir}/%{name}/*.mod
 %{_datadir}/%{name}/bin
 %{_datadir}/%{name}/lib
 %{_datadir}/%{name}/man
@@ -180,7 +180,7 @@ fi;
 %{_includedir}/*
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/*.so
-# %{_libdir}/%{name}/*.a
+%{_libdir}/%{name}/*.a
 %{_libdir}/pkgconfig/%{name}.pc
 %{_datadir}/%{name}/include
 
