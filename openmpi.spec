@@ -13,11 +13,9 @@ Source3:	mpi_alternatives.in
 Source4:	openmpi.module.in
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  gcc-gfortran, autoconf, automake, libtool
-%ifarch i386 ia64 x86_64 ppc ppc64
-BuildRequires: libibverbs-devel, opensm-devel, libsysfs-devel
-%endif
+BuildRequires:  libibverbs-devel, opensm-devel, libsysfs-devel
 Requires(post): /sbin/ldconfig
-ExclusiveArch: i386 x86_64 ia64 ppc ppc64 s390
+ExclusiveArch: i386 x86_64 ia64 ppc ppc64
 
 %package devel
 Summary:        Development files for openmpi
