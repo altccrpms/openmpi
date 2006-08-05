@@ -17,6 +17,7 @@ BuildRequires:  gcc-gfortran, autoconf, automake, libtool
 BuildRequires: libibverbs-devel, opensm-devel, libsysfs-devel
 %endif
 Requires(post): /sbin/ldconfig
+ExclusiveArch: i386 x86_64 ia64 ppc ppc64 s390
 
 %package devel
 Summary:        Development files for openmpi
