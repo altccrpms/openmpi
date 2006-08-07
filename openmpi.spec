@@ -1,6 +1,6 @@
 Name:           openmpi
 Version:        1.1
-Release:        1%{dist}
+Release:        1%{?dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
@@ -78,7 +78,7 @@ make %{?_smp_mflags}
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
-make install DESTDIR=$RPM_BUILD_ROOT 
+make install DESTDIR=${RPM_BUILD_ROOT} 
 #
 # Resolve LAM clashes and create %{_datadir}/openmpi/{bin,lib,include} :
 . %SOURCE1
@@ -137,13 +137,9 @@ if [ "$1" -ge 1 ]; then
 fi;
 /sbin/ldconfig
 
-%preun
-
 %postun -p /sbin/ldconfig
 
 %post devel -p /sbin/ldconfig
-
-%preun devel
 
 %postun devel -p /sbin/ldconfig
 
@@ -151,7 +147,7 @@ fi;
 %defattr(-,root,root,-)
 %doc LICENSE README
 %ghost  %{_sysconfdir}/ld.so.conf.d/mpi.conf
-%config %{_sysconfdir}/openmpi-*
+%config(noreplace) %{_sysconfdir}/openmpi-*
 %{_bindir}/orte*
 #%{_bindir}/*run
 %{_bindir}/*exec
