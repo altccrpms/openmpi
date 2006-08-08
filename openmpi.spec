@@ -149,7 +149,7 @@ fi
 %dir %{_libdir}/%{name}/%{name}
 %{_libdir}/%{name}/*.so.*
 %{_libdir}/%{name}/%{name}/*.so
-#%{_libdir}/%{name}/*.mod
+%{_libdir}/%{name}/*.mod
 %{_libdir}/%{name}/*.conf
 %{_mandir}/man1/*
 %{_datadir}/%{name}
