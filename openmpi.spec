@@ -1,6 +1,6 @@
 Name:           openmpi
 Version:        1.1
-Release:        2%{?dist}
+Release:        4%{?dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
@@ -21,11 +21,6 @@ Group:          Development/Libraries
 Requires:       %{name} = %{version}-%{release}
 
 %description
-Open MPI provides a programming and runtime environment for  
-parallel and/or distributed networked multi-computer systems .
-MPI stands for the Message Passing Interface. Written by the MPI Forum,
-MPI is a standardized API typically used for parallel and/or distributed 
-computing - see http://www.mpi-forum.org/ .
 Open MPI is an open source, freely available implementation of both the 
 MPI-1 and MPI-2 standards, combining technologies and resources from
 several other projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in
@@ -85,10 +80,6 @@ rm ${RPM_BUILD_ROOT}%{_bindir}/mpi*
 # Remove the unnecessary compiler common names
 rm ${RPM_BUILD_ROOT}%{_bindir}/*{cc,c++,CC}
 
-# Create ld.so config file for selection with mpi_alternatives:
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/ld.so.conf.d
-# Create ghost mpi.conf ld.so config file:
-touch ${RPM_BUILD_ROOT}%{_sysconfdir}/ld.so.conf.d/mpi.conf
 echo %{_libdir}/%{name} > ${RPM_BUILD_ROOT}%{_libdir}/%{name}/%{name}.ld.conf
 # Make the pkgconfig files
 mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/pkgconfig;
@@ -99,7 +90,7 @@ sed 's#@DATADIR@#'%{_datadir}/%{name}'#;s#@NAME@#'%{name}'#' < %SOURCE2 > ${RPM_
 [ ! -z "${RPM_BUILD_ROOT}" ] && rm -rf ${RPM_BUILD_ROOT}
 
 %post
-if [ "$1" -ge 1 ]; then
+if [ "$1" -eq 1 ]; then
 	alternatives --install %{_sysconfdir}/ld.so.conf.d/mpi.conf mpi \
 				%{_libdir}/openmpi/openmpi.ld.conf 10 \
 		--slave %{_bindir}/mpirun mpi-run %{_bindir}/orterun \
@@ -112,14 +103,14 @@ fi;
 /sbin/ldconfig
 
 %preun
-if [ "$1" -ge 1 ]; then
+if [ "$1" -eq 0 ]; then
 	alternatives --remove mpi %{_libdir}/openmpi/openmpi.ld.conf
 fi
 
 %postun -p /sbin/ldconfig
 
 %post devel
-if [ "$1" -ge 1 ]; then
+if [ "$1" -eq 1 ]; then
 	alternatives --install  %{_bindir}/mpicc mpicc \
 				%{_bindir}/opal_wrapper 10 \
 		--slave %{_bindir}/mpic++ mpic++ %{_bindir}/opal_wrapper \
@@ -130,14 +121,15 @@ if [ "$1" -ge 1 ]; then
 fi
 
 %preun devel
-if [ "$1" -ge 1 ]; then
+if [ "$1" -eq 0 ]; then
 	alternatives --remove mpicc %{_bindir}/opal_wrapper
 fi
+
+%postun devel -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
 %doc LICENSE README
-%ghost  %{_sysconfdir}/ld.so.conf.d/mpi.conf
 %config(noreplace) %{_sysconfdir}/openmpi-*
 %{_bindir}/orteconsole
 %{_bindir}/orted
@@ -149,7 +141,6 @@ fi
 %dir %{_libdir}/%{name}/%{name}
 %{_libdir}/%{name}/*.so.*
 %{_libdir}/%{name}/%{name}/*.so
-%{_libdir}/%{name}/*.mod
 %{_libdir}/%{name}/*.conf
 %{_mandir}/man1/*
 %{_datadir}/%{name}
@@ -164,9 +155,19 @@ fi
 %{_libdir}/%{name}/*.la
 %{_libdir}/%{name}/%{name}/*.la
 %{_libdir}/pkgconfig/%{name}.pc
+%{_libdir}/%{name}/*.mod
 
 
 %changelog
+* Sun Aug 27 2006 Doug Ledford <dledford@redhat.com> - 1.1-4
+- Make sure the post/preun scripts only add/remove alternatives on initial
+  install and final removal, otherwise don't touch.
+
+* Fri Aug 25 2006 Doug Ledford <dledford@redhat.com> - 1.1-3
+- Don't ghost the mpi.conf file as that means it will get removed when
+  you remove 1 out of a number of alternatives based packages
+- Put the .mod file in -devel
+
 * Mon Aug  7 2006 Doug Ledford <dledford@redhat.com> - 1.1-2
 - Various lint cleanups
 - Switch to using the standard alternatives mechanism instead of a home
