@@ -11,9 +11,9 @@ Source1:	openmpi.pc.in
 Source2:	openmpi.module.in
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  gcc-gfortran, autoconf, automake, libtool
-BuildRequires:  libibverbs-devel, opensm-devel, libsysfs-devel
+#BuildRequires:  libibverbs-devel, opensm-devel, libsysfs-devel
 Requires(post): /sbin/ldconfig, /usr/sbin/alternatives
-ExclusiveArch: i386 x86_64 ia64 ppc ppc64
+#ExclusiveArch: i386 x86_64 ia64 ppc ppc64
 
 %package devel
 Summary:        Development files for openmpi
@@ -34,34 +34,34 @@ Contains development headers and libraries for openmpi
 
 %prep
 %setup -q
-
-%build
 %ifarch x86_64
 XCFLAGS="$RPM_OPT_FLAGS -fPIC"
 XCXXFLAGS="$RPM_OPT_FLAGS -fPIC"
 XFFLAGS="$RPM_OPT_FLAGS -fPIC"
 %endif
-%ifarch i386 x86_64 ia64 ppc ppc64 # arches with openib support
+#%ifarch i386 x86_64 ia64 ppc ppc64 # arches with openib support
+#%configure \
+#	--includedir=%{_includedir}/%{name} \
+#	--libdir=%{_libdir}/%{name} \
+#	--datadir=%{_datadir}/%{name}/help \
+#	--with-openib=/usr \
+#	LDFLAGS='-Wl,-z,noexecstack' \
+#	CFLAGS="$CFLAGS $XCFLAGS" \
+#	CXXFLAGS="$CFLAGS $XCFLAGS" \
+#	FFLAGS="$FFLAGS $XFLAGS";
+#%else # no openib support, but plain tcp/ip still works and is usefull
 %configure \
 	--includedir=%{_includedir}/%{name} \
 	--libdir=%{_libdir}/%{name} \
 	--datadir=%{_datadir}/%{name}/help \
-	--with-openib=/usr \
 	LDFLAGS='-Wl,-z,noexecstack' \
 	CFLAGS="$CFLAGS $XCFLAGS" \
 	CXXFLAGS="$CFLAGS $XCFLAGS" \
 	FFLAGS="$FFLAGS $XFLAGS";
-%else # no openib support, but plain tcp/ip still works and is usefull
-%configure \
-	--includedir=%{_includedir}/%{name} \
-	--libdir=%{_libdir}/%{name} \
-	--datadir=%{_datadir}/%{name}/help \
-	LDFLAGS='-Wl,-z,noexecstack' \
-	CFLAGS="$CFLAGS $XCFLAGS" \
-	CXXFLAGS="$CFLAGS $XCFLAGS" \
-	FFLAGS="$FFLAGS $XFLAGS";
-%endif
+#%endif
 # ${datadir}/openmpi will be used ONLY for the english help*.txt files
+
+%build
 make %{?_smp_mflags}
 
 %install
