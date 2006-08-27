@@ -13,7 +13,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  gcc-gfortran, autoconf, automake, libtool
 #BuildRequires:  libibverbs-devel, opensm-devel, libsysfs-devel
 Requires(post): /sbin/ldconfig, /usr/sbin/alternatives
-#ExclusiveArch: i386 x86_64 ia64 ppc ppc64
+ExclusiveArch: i386 x86_64 ia64 ppc ppc64
 
 %package devel
 Summary:        Development files for openmpi
