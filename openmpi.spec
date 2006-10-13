@@ -1,6 +1,6 @@
 Name:           openmpi
 Version:        1.1
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
@@ -124,10 +124,13 @@ for i in ${RPM_BUILD_ROOT}%{_datadir}/%{name}/help%{mode}/openmpi/mpif{77,90}-wr
   mv $i.out $i
 done
 # and we also need to force the compile mode via the wrapper-data.txt files
+# (except on ia64 where the -m64 flag is not allowed by gcc)
+%ifnarch ia64
 for i in ${RPM_BUILD_ROOT}%{_datadir}/%{name}/help%{mode}/openmpi/*wrapper-data.txt; do
   sed -e 's#compiler_flags=#compiler_flags=-m'%{mode}' #' < $i > $i.out
   mv $i.out $i
 done
+%endif
 
 echo %{_libdir}/%{name} > ${RPM_BUILD_ROOT}%{_libdir}/%{name}/%{name}.ld.conf
 # Make the pkgconfig files
@@ -215,6 +218,9 @@ alternatives --remove mpicc %{_bindir}/opal_wrapper-%{mode}
 
 
 %changelog
+* Fri Oct 13 2006 Doug Ledford <dledford@redhat.com> - 1.1-7
+- ia64 can't take -m64 on the gcc command line, so don't set it there
+
 * Wed Oct 11 2006 Doug Ledford <dledford@redhat.com> - 1.1-6
 - Bump rev to match fc6 rev
 - Fixup some issue with alternatives support
