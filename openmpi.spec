@@ -1,6 +1,6 @@
 Name:           openmpi
 Version:        1.1
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
@@ -13,17 +13,23 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  gcc-gfortran, autoconf, automake, libtool
 #BuildRequires:  libibverbs-devel, opensm-devel, libsysfs-devel
 Requires(post): /sbin/ldconfig, /usr/sbin/alternatives
+Requires(preun):  /usr/sbin/alternatives
+Requires(postun): /sbin/ldconfig
 Requires:	%{name}-libs = %{version}-%{release}
 ExclusiveArch: i386 x86_64 ia64 ppc ppc64
 
 %package libs
 Summary:	Libraries used by openmpi programs
 Group:		Development/Libraries
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 
 %package devel
 Summary:        Development files for openmpi
 Group:          Development/Libraries
 Requires:       %{name} = %{version}-%{release}
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 
 %description
 Open MPI is an open source, freely available implementation of both the 
@@ -218,6 +224,9 @@ alternatives --remove mpicc %{_bindir}/opal_wrapper-%{mode}
 
 
 %changelog
+* Tue Feb 06 2007 Florian La Roche <laroche@redhat.com> - 1.1-8
+- also add requires for sub-packages for "alternatives"
+
 * Fri Oct 13 2006 Doug Ledford <dledford@redhat.com> - 1.1-7
 - ia64 can't take -m64 on the gcc command line, so don't set it there
 
