@@ -1,6 +1,6 @@
 Name:           openmpi
 Version:        1.2.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
@@ -136,7 +136,7 @@ mv ${RPM_BUILD_ROOT}%{_bindir}/opal_wrapper{,-%{version}-%{opt_cc}-%{mode}}
 # make the proper symlinks from %{_datadir}/%{name}/bin to the wrapper
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{mpidir}/bin%{mode}
 for i in mpicc mpic++ mpicxx mpiCC mpif77 mpif90 ; do
-  ln -s %{_bindir}/opal_wrapper-%{version}-%{cc}-%{mode} \
+  ln -s %{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode} \
   	${RPM_BUILD_ROOT}%{_datadir}/%{mpidir}/bin%{mode}/$i
 done
 # The fortran include file differs between 32/64bit environments, so make
@@ -251,6 +251,10 @@ alternatives --remove mpicc %{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode}
 
 
 %changelog
+* Mon Jul 02 2007 Doug Ledford <dledford@redhat.com> - 1.2.3-2
+- Fix dangling symlink issue caused by a bad macro usage
+- Resolves: bz246450
+
 * Wed Jun 27 2007 Doug Ledford <dledford@redhat.com> - 1.2.3-1
 - Update to latest upstream version
 - Fix file ownership on -libs package
