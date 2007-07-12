@@ -1,6 +1,6 @@
 Name:           openmpi
 Version:        1.2.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
@@ -16,17 +16,22 @@ BuildRequires:  gcc-gfortran, libtool, numactl-devel, libsysfs-devel
 #BuildRequires:  dapl-devel
 #%endif
 Requires(post): /sbin/ldconfig, /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 Requires:	%{name}-libs = %{version}-%{release}
 
 %package libs
 Summary:	Libraries used by openmpi programs
 Group:		Development/Libraries
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 
 %package devel
 Summary:        Development files for openmpi
 Group:          Development/Libraries
 Requires:       %{name} = %{version}-%{release}
 Provides:	mpi-devel
+Requires(post): /usr/sbin/alternatives
+Requires(preun): /usr/sbin/alternatives
 
 %description
 Open MPI is an open source, freely available implementation of both the 
@@ -251,6 +256,9 @@ alternatives --remove mpicc %{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode}
 
 
 %changelog
+* Thu Jul 12 2007 Florian La Roche <laroche@redhat.com> - 1.2.3-3
+- requires alternatives for various sub-rpms
+
 * Mon Jul 02 2007 Doug Ledford <dledford@redhat.com> - 1.2.3-2
 - Fix dangling symlink issue caused by a bad macro usage
 - Resolves: bz246450
