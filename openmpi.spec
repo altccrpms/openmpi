@@ -131,6 +131,13 @@ make %{?_smp_mflags}
 rm -rf ${RPM_BUILD_ROOT}
 make install DESTDIR=${RPM_BUILD_ROOT}
 
+# Because no package owns the base openmpi directories, the install sets
+# the mode wrong.  This will cause problems when the first copy of openmpi
+# is installed on a system.  Correct the directory permissions here.
+chmod 755 ${RPM_BUILD_ROOT}/%{_libdir}/openmpi
+chmod 755 ${RPM_BUILD_ROOT}/%{_includedir}/openmpi
+chmod 755 ${RPM_BUILD_ROOT}/%{_datadir}/openmpi
+
 # Remove the symlinks from common names to the unique name in /usr/bin too
 rm ${RPM_BUILD_ROOT}%{_bindir}/mpi*
 # Move the wrapper program to a name that denotes the mode it compiles
@@ -256,6 +263,9 @@ alternatives --remove mpicc %{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode}
 
 
 %changelog
+* Mon Jul 16 2007 Doug Ledford <dledford@redhat.com> - 1.2.3-4
+- Fix a directory permission problem on the base openmpi directories
+
 * Thu Jul 12 2007 Florian La Roche <laroche@redhat.com> - 1.2.3-3
 - requires alternatives for various sub-rpms
 
