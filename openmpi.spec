@@ -1,6 +1,6 @@
 Name:           openmpi
 Version:        1.2.3
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
