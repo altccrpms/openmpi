@@ -1,6 +1,6 @@
 Name:           openmpi
 Version:        1.2.3
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
@@ -263,6 +263,9 @@ alternatives --remove mpicc %{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode}
 
 
 %changelog
+* Tue Aug 28 2007 Fedora Release Engineering <rel-eng at fedoraproject dot org> - 1.2.3-5
+- Rebuild for selinux ppc32 issue.
+
 * Mon Jul 16 2007 Doug Ledford <dledford@redhat.com> - 1.2.3-4
 - Fix a directory permission problem on the base openmpi directories
 
