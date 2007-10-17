@@ -9,8 +9,9 @@ URL:            http://www.open-mpi.org/
 Source0:       	http://www.open-mpi.org/software/ompi/v1.2/downloads/%{name}-%{version}.tar.bz2
 Source1:	openmpi.pc.in
 Source2:	openmpi.module.in
+Patch0:		openmpi-1.2.4-open.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:  gcc-gfortran, libtool, numactl-devel, libsysfs-devel
+BuildRequires:  gcc-gfortran, libtool, numactl-devel, libtorque-devel
 #BuildRequires:  libibverbs-devel, opensm-devel
 #%ifnarch ppc
 #BuildRequires:  dapl-devel
@@ -28,7 +29,7 @@ Requires(preun): /usr/sbin/alternatives
 %package devel
 Summary:        Development files for openmpi
 Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}-libs = %{version}-%{release}
 Provides:	mpi-devel
 Requires(post): /usr/sbin/alternatives
 Requires(preun): /usr/sbin/alternatives
@@ -107,6 +108,7 @@ Contains development headers and libraries for openmpi
 # Kill the stack protection and fortify source stuff...it slows things down
 # and openmpi hasn't been audited for it yet
 #RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/-Wp,-D_FORTIFY_SOURCE=.//' | sed -e 's/-fstack-protector//'`
+%patch0 -p1
 
 %ifarch x86_64
 XFLAGS="-fPIC"
@@ -117,6 +119,8 @@ XFLAGS="-fPIC"
 	--datadir=%{_datadir}/%{mpidir}/help%{mode} \
 	--mandir=%{_datadir}/%{mpidir}/man \
 	--with-libnuma=%{_libdir} \
+	--with-threads=posix \
+	--with-tm \
 	CC=%{opt_cc} \
 	LDFLAGS='-Wl,-z,noexecstack' \
 	CFLAGS="%{?opt_cc_cflags} $RPM_OPT_FLAGS $XFLAGS" \
@@ -265,6 +269,9 @@ alternatives --remove mpicc %{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode}
 %changelog
 * Wed Oct 17 2007 Doug Ledford <dledford@redhat.com> - 1.2.4-1
 - Update to 1.2.4 upstream version
+- Build against libtorque
+- Pass a valid mode to open
+- Resolves: bz189441, bz265141
 
 * Tue Aug 28 2007 Fedora Release Engineering <rel-eng at fedoraproject dot org> - 1.2.3-5
 - Rebuild for selinux ppc32 issue.
