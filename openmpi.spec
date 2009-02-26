@@ -1,6 +1,6 @@
 Name:           openmpi
 Version:        1.2.4
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Open Message Passing Interface
 
 Group:          Development/Libraries
@@ -267,6 +267,9 @@ alternatives --remove mpicc %{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode}
 
 
 %changelog
+* Thu Feb 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.4-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
 * Mon Feb 18 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 1.2.4-2
 - Autorebuild for GCC 4.3
 
