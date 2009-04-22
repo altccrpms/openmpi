@@ -102,6 +102,7 @@ find %{buildroot}%{_libdir}/%{mpidir}/lib -name \*.la | xargs rm
 find %{buildroot}%{_libdir}/%{mpidir}/man -type f | xargs gzip -9
 ln -s mpicc.1.gz %{buildroot}%{_libdir}/%{mpidir}/man/man1/mpiCC.1.gz
 rm -f %{buildroot}%{_libdir}/%{mpidir}/man/man1/mpiCC.1
+rm -f %{buildroot}%{_libdir}/%{mpidir}/share/vampirtrace/doc/opari/lacsi01.ps.gz
 
 # Make the pkgconfig file
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
