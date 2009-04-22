@@ -1,6 +1,24 @@
-Name:			openmpi
+# We only compile with gcc, but other people may want other compilers.
+# Set the compiler here.
+%define opt_cc gcc
+# Optional CFLAGS to use with the specific compiler...gcc doesn't need any,
+# so uncomment and define to use
+#define opt_cflags
+%define opt_cxx g++
+#define opt_cxxflags
+%define opt_f77 gfortran
+#define opt_fflags
+%define opt_fc gfortran
+#define opt_fcflags
+
+# Optional name suffix to use...we leave it off when compiling with gcc, but
+# for other compiled versions to install side by side, it will need a
+# suffix in order to keep the names from conflicting.
+#define cc_name_suffix -gcc
+
+Name:			openmpi%{?cc_name_suffix}
 Version:		1.3.1
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -9,67 +27,23 @@ Source0:		http://www.open-mpi.org/software/ompi/v1.3/downloads/%{name}-%{version
 Source1:		openmpi.pc.in
 Source2:		openmpi.module.in
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:		gcc-gfortran, libtool, numactl-devel, libtorque-devel
-#BuildRequires:		libibverbs-devel, opensm-devel
+BuildRequires:		gcc-gfortran, libtool, numactl-devel
+BuildRequires:		libibverbs-devel, opensm-devel > 3.3.0
 #%ifnarch ppc
-#BuildRequires:		dapl-devel
+#BuildRequires:		compat-dapl-devel
 #%endif
-Requires(post):		/sbin/ldconfig
-Requires(post):		%{_sbindir}/update-alternatives
-Requires(preun):	%{_sbindir}/update-alternatives
-Requires:		%{name}-libs = %{version}-%{release}
+Provides:		mpi
+Requires:		environment-modules
+Obsoletes:		openmpi-libs, openmpi-devel
 
 %description
-Open MPI is an open source, freely available implementation of both the
+Open MPI is an open source, freely available implementation of both the 
 MPI-1 and MPI-2 standards, combining technologies and resources from
 several other projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in
 order to build the best MPI library available.  A completely new MPI-2
 compliant implementation, Open MPI offers advantages for system and
 software vendors, application developers, and computer science
 researchers. For more information, see http://www.open-mpi.org/ .
-
-%package libs
-Summary:		Libraries used by openmpi programs
-Group:			Development/Libraries
-Requires(post):		%{_sbindir}/update-alternatives
-Requires(preun):	%{_sbindir}/update-alternatives
-
-%description libs
-Contains shared libraries used by openmpi applications.
-
-%package devel
-Summary:		Development files for openmpi
-Group:			Development/Libraries
-Requires:		%{name}-libs = %{version}-%{release}
-Provides:		mpi-devel = %{version}-%{release}
-Requires(post):		%{_sbindir}/update-alternatives
-Requires(preun):	%{_sbindir}/update-alternatives
-
-%description devel
-Contains development headers and libraries for openmpi.
-
-%package vt
-Summary:		VampirTrace versions of openmpi programs
-Group:			Development/Libraries
-Requires:		%{name}-libs = %{version}-%{release}
-
-%description vt
-VampirTrace consists of a tool set and a run-time library for instrumentation 
-and tracing of software applications. In particular, it is tailored towards 
-parallel and distributed High Performance Computing (HPC) applications.
-The instrumentation part modifies a given application in order to inject 
-additional measurement calls during run-time. The tracing part provides the 
-actual measurement functionality used by the instrumentation calls. By this 
-means, a variety of detailed performance properties can be collected and 
-recorded during run-time. This package contains the openmpi programs 
-with VampirTrace enabled.
-
-# We only compile with gcc, but other people may want other compilers.
-# Set the compiler here.
-%define opt_cc gcc
-# Optional CFLAGS to use with the specific compiler...gcc doesn't need any,
-# so uncomment and define to use
-#define opt_cc_cflags
 
 # When dealing with multilib installations, aka the ability to run either
 # i386 or x86_64 binaries on x86_64 machines, we install the native i386
@@ -93,25 +67,9 @@ with VampirTrace enabled.
 %ifarch ia64
 %define mode 64
 %endif
-%ifarch s390
-%define mode 31
-%endif
-%ifarch s390x
-%define mode 64
-%endif
 %ifarch x86_64 ppc64 sparc64
 %define mode 64
 %define modeflag -m64
-%endif
-
-# That alternatives system selects the highest priority item as the default.
-# Usually, that means 64bit preferred over 32bit on multilib, but ppc is an
-# exception in that 32bit is preferred over 64bit.  So, the priority values
-# selected here make that happen.
-%ifarch i386 ppc64 s390 sparc64
-%define priority 10
-%else
-%define priority 11
 %endif
 
 # We set this to for convenience, since this is the unique dir we use for this
@@ -120,222 +78,69 @@ with VampirTrace enabled.
 
 %prep
 %setup -q
-
 %ifarch x86_64
 XFLAGS="-fPIC"
 %endif
-%configure \
-	--includedir=%{_includedir}/%{mpidir} \
-	--libdir=%{_libdir}/%{mpidir} \
-	--datadir=%{_datadir}/%{mpidir}/help%{mode} \
-	--mandir=%{_datadir}/%{mpidir}/man \
-	--with-threads=posix \
-	--with-tm \
-	CC=%{opt_cc} \
+
+./configure --prefix=%{_libdir}/%{mpidir} --with-libnuma=/usr \
+	--with-openib=/usr --enable-mpirun-prefix-by-default \
+	--mandir=%{_libdir}/%{mpidir}/man \
+	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='-Wl,-z,noexecstack' \
-	CFLAGS="%{?opt_cc_cflags} $RPM_OPT_FLAGS $XFLAGS" \
-	CXXFLAGS="$RPM_OPT_FLAGS $XFLAGS" \
-	FFLAGS="$RPM_OPT_FLAGS $XFLAGS";
-# ${datadir}/openmpi will be used ONLY for the english help*.txt files
+	CFLAGS="%{?opt_cflags} $RPM_OPT_FLAGS $XFLAGS" \
+	CXXFLAGS="%{?opt_cxxflags} $RPM_OPT_FLAGS $XFLAGS" \
+	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} $RPM_OPT_FLAGS $XFLAGS" \
+	F77=%{opt_f77} FFLAGS="%{?opt_fflags} $RPM_OPT_FLAGS $XFLAGS"
 
 %build
 make %{?_smp_mflags}
 
 %install
-rm -rf ${RPM_BUILD_ROOT}
-make install DESTDIR=${RPM_BUILD_ROOT}
+rm -rf %{buildroot}
+make install DESTDIR=%{buildroot}
+find %{buildroot}%{_libdir}/%{mpidir}/lib -name \*.la | xargs rm
+find %{buildroot}%{_libdir}/%{mpidir}/man -type f | xargs gzip -9
+ln -s mpicc.1.gz %{buildroot}%{_libdir}/%{mpidir}/man/man1/mpiCC.1.gz
+rm -f %{buildroot}%{_libdir}/%{mpidir}/man/man1/mpiCC.1
 
-# Because no package owns the base openmpi directories, the install sets
-# the mode wrong.  This will cause problems when the first copy of openmpi
-# is installed on a system.  Correct the directory permissions here.
-chmod 755 ${RPM_BUILD_ROOT}/%{_libdir}/openmpi
-chmod 755 ${RPM_BUILD_ROOT}/%{_includedir}/openmpi
-chmod 755 ${RPM_BUILD_ROOT}/%{_datadir}/openmpi
+# Make the pkgconfig file
+mkdir -p %{buildroot}%{_libdir}/pkgconfig
+sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}-%{version}-%{opt_cc}.pc
+# Make the environment-modules file
+mkdir -p %{buildroot}%{_datadir}/Modules/modulefiles
+sed 's#@LIBDIR@#'%{_libdir}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE2 > %{buildroot}/%{_datadir}/Modules/modulefiles/%{name}-%{version}-%{opt_cc}-%{_arch}.module
 
-# Remove the symlinks from common names to the unique name in /usr/bin too
-rm ${RPM_BUILD_ROOT}%{_bindir}/mpi*
-# Move the wrapper program to a name that denotes the mode it compiles
-mv ${RPM_BUILD_ROOT}%{_bindir}/opal_wrapper{,-%{version}-%{opt_cc}-%{mode}}
-# But, opal_wrapper needs to be called by a name that denotes the compiler
-# type in order to work, so in order to leave it functional even when it isn't
-# the currently selected system wide default via the alternatives program,
-# make the proper symlinks from %{_datadir}/%{name}/bin to the wrapper
-mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{mpidir}/bin%{mode}
-for i in mpicc mpic++ mpicxx mpiCC mpif77 mpif90 ; do
-  ln -s %{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode} \
-	${RPM_BUILD_ROOT}%{_datadir}/%{mpidir}/bin%{mode}/$i
-done
-# The fortran include file differs between 32/64bit environments, so make
-# two copies
-mkdir -p ${RPM_BUILD_ROOT}%{_includedir}/%{mpidir}/%{mode}
-mv ${RPM_BUILD_ROOT}%{_includedir}/%{mpidir}/{mpif-config.h,%{mode}}
-# and have the wrapper include the right one by using the wrapper-data.txt
-# files for the fortran modes to signal the extra include dir
-for i in ${RPM_BUILD_ROOT}%{_datadir}/%{mpidir}/help%{mode}/openmpi/mpif{77,90}-wrapper-data.txt; do
-  sed -e 's#extra_includes=#extra_includes='%{mode}' #' < $i > $i.out
-  mv $i.out $i
-done
-# and we also need to force the compile mode via the wrapper-data.txt files
+# we need to force the compile mode via the wrapper-data.txt files
 # (except on ia64 where the -m64 flag is not allowed by gcc)
 %ifnarch ia64
-for i in ${RPM_BUILD_ROOT}%{_datadir}/%{mpidir}/help%{mode}/openmpi/*wrapper-data.txt; do
+for i in %{buildroot}%{_libdir}/%{mpidir}/share/openmpi/*wrapper-data.txt
+do
   sed -e 's#compiler_flags=#compiler_flags='%{?modeflag}' #' < $i > $i.out
   mv $i.out $i
 done
 %endif
 
-echo %{_libdir}/%{mpidir} > ${RPM_BUILD_ROOT}%{_libdir}/%{mpidir}/%{name}.ld.conf
-# Make the pkgconfig files
-mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/pkgconfig;
-sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@INCLUDEDIR@#'%{_includedir}'#g;s#@MODE@#'%{mode}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > ${RPM_BUILD_ROOT}/%{_libdir}/pkgconfig/%{name}-%{version}-%{opt_cc}-%{mode}.pc;
-sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@INCLUDEDIR@#'%{_includedir}'#g;s#@DATADIR@#'%{_datadir}'#g;s#@MODE@#'%{mode}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE2 > ${RPM_BUILD_ROOT}/%{_libdir}/%{mpidir}/%{name}.module;
-
-# Ghost files for alternatives
-touch ${RPM_BUILD_ROOT}%{_bindir}/mpirun
-touch ${RPM_BUILD_ROOT}%{_bindir}/mpiexec
-mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man1/
-touch ${RPM_BUILD_ROOT}%{_mandir}/man1/mpirun.1.gz
-touch ${RPM_BUILD_ROOT}%{_mandir}/man1/mpiexec.1.gz
-mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/ld.so.conf.d/
-touch ${RPM_BUILD_ROOT}%{_sysconfdir}/ld.so.conf.d/mpi%{mode}.conf
-touch ${RPM_BUILD_ROOT}%{_bindir}/mpicc
-touch ${RPM_BUILD_ROOT}%{_bindir}/mpic++
-touch ${RPM_BUILD_ROOT}%{_bindir}/mpiCC
-touch ${RPM_BUILD_ROOT}%{_bindir}/mpicxx
-touch ${RPM_BUILD_ROOT}%{_bindir}/mpif77
-touch ${RPM_BUILD_ROOT}%{_bindir}/mpif90
-
-# Clean up static libs
-rm -rf ${RPM_BUILD_ROOT}%{_libdir}/%{mpidir}/*.a
-
-# This file is corrupt, don't try to package it.
-rm -rf ${RPM_BUILD_ROOT}%{_datadir}/vampirtrace/doc/opari/lacsi01.ps.gz
-
-# Clean up long names
-pushd ${RPM_BUILD_ROOT}%{_bindir}
-for i in otfaux otfcompress otfconfig otfdump otfmerge; do
-	ln -s %{_arch}-redhat-linux-gnu-$i $i;
-done
-popd
-
 %clean
-[ ! -z "${RPM_BUILD_ROOT}" ] && rm -rf ${RPM_BUILD_ROOT}
-
-%post
-%{_sbindir}/update-alternatives --install %{_bindir}/mpirun mpi-run %{_bindir}/orterun \
-		%{priority} \
-	--slave %{_bindir}/mpiexec mpi-exec %{_bindir}/orterun \
-	--slave %{_mandir}/man1/mpirun.1.gz mpi-run-man \
-		%{_datadir}/%{mpidir}/man/man1/mpirun.1.gz \
-	--slave %{_mandir}/man1/mpiexec.1.gz mpi-exec-man \
-		%{_datadir}/%{mpidir}/man/man1/orterun.1.gz
-
-%preun
-if [ $1 -eq 0 ] ; then
-  %{_sbindir}/update-alternatives --remove mpi-run %{_bindir}/orterun
-fi
-
-
-%post libs
-%{_sbindir}/update-alternatives --install %{_sysconfdir}/ld.so.conf.d/mpi%{mode}.conf \
-		mpilibs%{mode} %{_libdir}/%{mpidir}/%{name}.ld.conf %{priority}
-/sbin/ldconfig
-
-%preun libs
-if [ $1 -eq 0 ] ; then
-  %{_sbindir}/update-alternatives --remove mpilibs%{mode} %{_libdir}/%{mpidir}/%{name}.ld.conf
-fi
-
-%postun libs -p /sbin/ldconfig
-
-%post devel
-%{_sbindir}/update-alternatives --install %{_bindir}/mpicc mpicc \
-			%{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode} \
-			%{priority} \
-	--slave %{_bindir}/mpic++ mpic++ \
-		%{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode} \
-	--slave %{_bindir}/mpiCC mpiCC \
-		%{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode} \
-	--slave %{_bindir}/mpicxx mpicxx \
-		%{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode} \
-	--slave %{_bindir}/mpif77 mpif77 \
-		%{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode} \
-	--slave %{_bindir}/mpif90 mpif90 \
-		%{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode}
-
-%preun devel
-if [ $1 -eq 0 ] ; then
-  %{_sbindir}/update-alternatives --remove mpicc %{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode}
-fi
-
-%postun devel -p /sbin/ldconfig
+rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE README
-%config(noreplace) %{_sysconfdir}/openmpi-*
-%dir %{_datadir}/%{mpidir}
-%{_bindir}/ompi-clean
-%{_bindir}/ompi-ps
-%{_bindir}/ompi-server
-%{_bindir}/opari
-%{_bindir}/orte-clean
-%{_bindir}/orte-iof
-%{_bindir}/orte-ps
-%{_bindir}/orted
-%{_bindir}/orterun
-%{_bindir}/ompi_info
-%{_bindir}/*otf*
-%ghost %{_bindir}/mpirun
-%ghost %{_bindir}/mpiexec
-%ghost %{_mandir}/man1/mpirun.1.gz
-%ghost %{_mandir}/man1/mpiexec.1.gz
-%{_datadir}/%{mpidir}/*
-%exclude %{_datadir}/%{mpidir}/bin%{mode}
-%exclude %{_datadir}/%{mpidir}/help%{mode}/openmpi/*-wrapper-data.txt
-%exclude %{_datadir}/%{mpidir}/man/man3
-
-%files libs
-%defattr(-,root,root,-)
 %dir %{_libdir}/%{mpidir}
-%dir %{_libdir}/%{mpidir}/%{name}
-%ghost %{_sysconfdir}/ld.so.conf.d/mpi%{mode}.conf
-%{_libdir}/%{mpidir}/*.so.*
-%{_libdir}/%{mpidir}/%{name}/*.so
-%{_libdir}/%{mpidir}/*.conf
-
-%files devel
-%defattr(-,root,root,-)
-%{_bindir}/opal_wrapper-%{version}-%{opt_cc}-%{mode}
-%ghost %{_bindir}/mpicc
-%ghost %{_bindir}/mpic++
-%ghost %{_bindir}/mpiCC
-%ghost %{_bindir}/mpicxx
-%ghost %{_bindir}/mpif77
-%ghost %{_bindir}/mpif90
-%{_datadir}/%{mpidir}/bin%{mode}/
-%{_datadir}/%{mpidir}/help%{mode}/openmpi/*-wrapper-data.txt
-%{_includedir}/%{mpidir}/
-%{_datadir}/%{mpidir}/man/man3/
-%{_libdir}/%{mpidir}/*.so
-%{_libdir}/%{mpidir}/*.la
-%{_libdir}/%{mpidir}/%{name}/*.la
-%{_libdir}/pkgconfig/%{name}-%{version}-%{opt_cc}-%{mode}.pc
-%{_libdir}/%{mpidir}/*.mod
-%{_libdir}/%{mpidir}/*.module
-
-%files vt
-%defattr(-,root,root,-)
-%{_bindir}/vtcc
-%{_bindir}/vtcxx
-%{_bindir}/vtf77
-%{_bindir}/vtf90
-%{_bindir}/vtfilter
-%{_bindir}/vtunify
-%{_datadir}/vampirtrace/
-
+%dir %{_libdir}/%{mpidir}/etc
+%config(noreplace) %{_libdir}/%{mpidir}/etc/*
+%{_libdir}/%{mpidir}/bin
+%{_libdir}/%{mpidir}/include
+%{_libdir}/%{mpidir}/lib
+%{_libdir}/%{mpidir}/man
+%{_libdir}/%{mpidir}/share
+%{_libdir}/pkgconfig/%{name}-%{version}-%{opt_cc}.pc
+%{_datadir}/Modules/modulefiles/*
 
 %changelog
+* Wed Apr 22 2009 Doug Ledford <dledford@redhat.com> - 1.3.1-2
+- fixed broken update
+- Resolves: bz496909, bz496131, bz496911
+
 * Tue Apr 14 2009 Tom "spot" Callaway <tcallawa@redhat.com> - 1.3.1-1
 - update to 1.3.1, cleanup alternatives, spec, make new vt subpackage
 
