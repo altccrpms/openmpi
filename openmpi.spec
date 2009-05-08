@@ -18,7 +18,7 @@
 
 Name:			openmpi%{?cc_name_suffix}
 Version:		1.3.1
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -60,7 +60,7 @@ researchers. For more information, see http://www.open-mpi.org/ .
 # in default arch packages (aka, the x86_64 package).  There are, however,
 # some arches that don't support forcing *any* mode, those we just leave
 # undefined.
-%ifarch i386 ppc sparcv9
+%ifarch %{ix86} ppc sparcv9
 %define mode 32
 %define modeflag -m32
 %endif
@@ -138,6 +138,9 @@ rm -rf %{buildroot}
 %{_datadir}/Modules/modulefiles/*
 
 %changelog
+* Fri May 08 2009 Lubomir Rintel <lkundrak@v3.sk> - 1.3.1-3
+- Treat i586 the same way as i386
+
 * Wed Apr 22 2009 Doug Ledford <dledford@redhat.com> - 1.3.1-2
 - fixed broken update
 - Resolves: bz496909, bz496131, bz496911
