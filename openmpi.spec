@@ -18,7 +18,7 @@
 
 Name:			openmpi%{?cc_name_suffix}
 Version:		1.3.1
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -34,6 +34,9 @@ BuildRequires:		libibverbs-devel, opensm-devel > 3.3.0
 #%endif
 Provides:		mpi
 Requires:		environment-modules
+
+# Provide the obsoleted -devel which is used by other packages
+Provides:		openmpi-devel = %{version}-%{release}
 Obsoletes:		openmpi-libs, openmpi-devel
 
 %description
@@ -138,6 +141,9 @@ rm -rf %{buildroot}
 %{_datadir}/Modules/modulefiles/*
 
 %changelog
+* Sat Jul 18 2009 Jussi Lehtola <jussilehtola@fedoraproject.org> - 1.3.1-4
+- Add Provides: openmpi-devel to fix other package builds in rawhide.
+
 * Fri May 08 2009 Lubomir Rintel <lkundrak@v3.sk> - 1.3.1-3
 - Treat i586 the same way as i386
 
