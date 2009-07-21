@@ -27,7 +27,7 @@ Source0:		http://www.open-mpi.org/software/ompi/v1.3/downloads/%{name}-%{version
 Source1:		openmpi.pc.in
 Source2:		openmpi.module.in
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:		gcc-gfortran, libtool, numactl-devel, valgrind
+BuildRequires:		gcc-gfortran, libtool, numactl-devel, valgrind-devel
 BuildRequires:		libibverbs-devel, opensm-devel > 3.3.0
 #%ifnarch ppc
 #BuildRequires:		compat-dapl-devel
