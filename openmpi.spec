@@ -18,7 +18,7 @@
 
 Name:			openmpi%{?cc_name_suffix}
 Version:		1.3.3
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -183,6 +183,9 @@ rm -rf %{buildroot}
 %{_libdir}/%{mpidir}/share/vampirtrace/*
 
 %changelog
+* Tue Jul 21 2009 Doug Ledford <dledford@redhat.com> - 1.3.3-2
+- Add MPI_BIN and MPI_LIB to the modules file (related bz511099)
+
 * Tue Jul 21 2009 Doug Ledford <dledford@redhat.com> - 1.3.3-1
 - Make sure all created dirs are owned (bz474677)
 - Fix loading of pkgconfig file (bz476844)

@@ -8,3 +8,4 @@ setenv			CFLAGS		"-I@LIBDIR@/@MPIDIR@/include @MODEFLAG@"
 setenv			LDFLAGS		"-L@LIBDIR@/@MPIDIR@/lib -lmpi"
 setenv 			MPI_BIN		@LIBDIR@/@MPIDIR@/bin
 setenv	 		MPI_LIB		@LIBDIR@/@MPIDIR@/lib
+setenv	 		MPI_HOME	@LIBDIR@/@MPIDIR@
