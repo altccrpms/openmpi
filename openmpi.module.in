@@ -6,3 +6,5 @@ prepend-path 		PATH 		@LIBDIR@/@MPIDIR@/bin
 prepend-path 		LD_LIBRARY_PATH @LIBDIR@/@MPIDIR@/lib
 setenv			CFLAGS		"-I@LIBDIR@/@MPIDIR@/include @MODEFLAG@"
 setenv			LDFLAGS		"-L@LIBDIR@/@MPIDIR@/lib -lmpi"
+setenv 			MPI_BIN		@LIBDIR@/@MPIDIR@/bin
+setenv	 		MPI_LIB		@LIBDIR@/@MPIDIR@/lib
