@@ -17,8 +17,8 @@
 #define cc_name_suffix -gcc
 
 Name:			openmpi%{?cc_name_suffix}
-Version:		1.3.1
-Release:		4%{?dist}
+Version:		1.3.3
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -34,10 +34,7 @@ BuildRequires:		libibverbs-devel, opensm-devel > 3.3.0
 #%endif
 Provides:		mpi
 Requires:		environment-modules
-
-# Provide the obsoleted -devel which is used by other packages
-Provides:		openmpi-devel = %{version}-%{release}
-Obsoletes:		openmpi-libs, openmpi-devel
+Obsoletes:		openmpi-libs
 
 %description
 Open MPI is an open source, freely available implementation of both the 
@@ -47,6 +44,15 @@ order to build the best MPI library available.  A completely new MPI-2
 compliant implementation, Open MPI offers advantages for system and
 software vendors, application developers, and computer science
 researchers. For more information, see http://www.open-mpi.org/ .
+
+%package devel
+Summary:        Development files for openmpi
+Group:          Development/Libraries
+Requires:       %{name} = %{version}-%{release}, gcc-gfortran
+Provides:	mpi-devel
+
+%description devel
+Contains development headers and libraries for openmpi
 
 # When dealing with multilib installations, aka the ability to run either
 # i386 or x86_64 binaries on x86_64 machines, we install the native i386
@@ -87,7 +93,12 @@ XFLAGS="-fPIC"
 
 ./configure --prefix=%{_libdir}/%{mpidir} --with-libnuma=/usr \
 	--with-openib=/usr --enable-mpirun-prefix-by-default \
-	--mandir=%{_libdir}/%{mpidir}/man \
+	--mandir=%{_libdir}/%{mpidir}/man --enable-mpi-threads \
+	--with-ft=cr --with-valgrind \
+	--with-wrapper-cflags="%{?opt_cflags} %{?modeflag}" \
+	--with-wrapper-cxxflags="%{?opt_cxxflags} %{?modeflag}" \
+	--with-wrapper-fflags="%{?opt_fflags} %{?modeflag}" \
+	--with-wrapper-fcflags="%{?opt_fcflags} %{?modeflag}" \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='-Wl,-z,noexecstack' \
 	CFLAGS="%{?opt_cflags} $RPM_OPT_FLAGS $XFLAGS" \
@@ -109,38 +120,80 @@ rm -f %{buildroot}%{_libdir}/%{mpidir}/share/vampirtrace/doc/opari/lacsi01.ps.gz
 
 # Make the pkgconfig file
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
-sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}-%{version}-%{opt_cc}.pc
+sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}%{?cc_name_suffix}.pc
 # Make the environment-modules file
 mkdir -p %{buildroot}%{_datadir}/Modules/modulefiles
-sed 's#@LIBDIR@#'%{_libdir}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE2 > %{buildroot}/%{_datadir}/Modules/modulefiles/%{name}-%{version}-%{opt_cc}-%{_arch}.module
-
-# we need to force the compile mode via the wrapper-data.txt files
-# (except on ia64 where the -m64 flag is not allowed by gcc)
-%ifnarch ia64
-for i in %{buildroot}%{_libdir}/%{mpidir}/share/openmpi/*wrapper-data.txt
-do
-  sed -e 's#compiler_flags=#compiler_flags='%{?modeflag}' #' < $i > $i.out
-  mv $i.out $i
-done
-%endif
+sed 's#@LIBDIR@#'%{_libdir}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE2 > %{buildroot}/%{_datadir}/Modules/modulefiles/%{name}-%{_arch}%{?cc_name_suffix}
 
 %clean
 rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
+%dir %{_libdir}/%{name}
 %dir %{_libdir}/%{mpidir}
 %dir %{_libdir}/%{mpidir}/etc
+%dir %{_libdir}/%{mpidir}/bin
+%dir %{_libdir}/%{mpidir}/lib
+%dir %{_libdir}/%{mpidir}/lib/openmpi
+%dir %{_libdir}/%{mpidir}/man
+%dir %{_libdir}/%{mpidir}/man/man1
+%dir %{_libdir}/%{mpidir}/man/man7
+%dir %{_libdir}/%{mpidir}/share
+%dir %{_libdir}/%{mpidir}/share/openmpi
 %config(noreplace) %{_libdir}/%{mpidir}/etc/*
-%{_libdir}/%{mpidir}/bin
-%{_libdir}/%{mpidir}/include
-%{_libdir}/%{mpidir}/lib
-%{_libdir}/%{mpidir}/man
-%{_libdir}/%{mpidir}/share
-%{_libdir}/pkgconfig/%{name}-%{version}-%{opt_cc}.pc
+%{_libdir}/%{mpidir}/bin/mpi[er]*
+%{_libdir}/%{mpidir}/bin/ompi*
+%{_libdir}/%{mpidir}/bin/opal-*
+%{_libdir}/%{mpidir}/bin/opari
+%{_libdir}/%{mpidir}/bin/orte*
+%{_libdir}/%{mpidir}/bin/otf*
+%{_libdir}/%{mpidir}/lib/openmpi/*
+%{_libdir}/%{mpidir}/lib/*.so.*
+%{_libdir}/%{mpidir}/man/man1/mpi[er]*
+%{_libdir}/%{mpidir}/man/man1/ompi*
+%{_libdir}/%{mpidir}/man/man1/opal-*
+%{_libdir}/%{mpidir}/man/man1/orte*
+%{_libdir}/%{mpidir}/man/man7/ompi*
+%{_libdir}/%{mpidir}/man/man7/orte*
+%{_libdir}/%{mpidir}/share/openmpi/doc
+%{_libdir}/%{mpidir}/share/openmpi/amca-param-sets
+%{_libdir}/%{mpidir}/share/openmpi/help*
+%{_libdir}/%{mpidir}/share/openmpi/mca*
 %{_datadir}/Modules/modulefiles/*
 
+%files devel
+%defattr(-,root,root,-)
+%dir %{_libdir}/%{mpidir}/include
+%dir %{_libdir}/%{mpidir}/man/man3
+%dir %{_libdir}/%{mpidir}/share/vampirtrace
+%{_libdir}/pkgconfig/%{name}%{?cc_name_suffix}.pc
+%{_libdir}/%{mpidir}/bin/mpi[cCf]*
+%{_libdir}/%{mpidir}/bin/vt*
+%{_libdir}/%{mpidir}/bin/opal_*
+%{_libdir}/%{mpidir}/include/*
+%{_libdir}/%{mpidir}/lib/*.so
+%{_libdir}/%{mpidir}/lib/lib*.a
+%{_libdir}/%{mpidir}/lib/mpi.mod
+%{_libdir}/%{mpidir}/man/man1/mpi[cCf]*
+%{_libdir}/%{mpidir}/man/man1/opal_*
+%{_libdir}/%{mpidir}/man/man3/*
+%{_libdir}/%{mpidir}/man/man7/opal*
+%{_libdir}/%{mpidir}/share/openmpi/mpi*
+%{_libdir}/%{mpidir}/share/vampirtrace/*
+
 %changelog
+* Tue Jul 21 2009 Doug Ledford <dledford@redhat.com> - 1.3.3-1
+- Make sure all created dirs are owned (bz474677)
+- Fix loading of pkgconfig file (bz476844)
+- Resolve file conflict between us and libotf (bz496131)
+- Resolve dangling symlinks issue (bz496909)
+- Resolve unexpanded %%{mode} issues (bz496911)
+- Restore -devel subpackage (bz499851)
+- Make getting the default openmpi devel environment easier (bz504357)
+- Make the -devel package pull in the base package (bz459458)
+- Make it easier to use alternative compilers to build package (bz246484)
+
 * Sat Jul 18 2009 Jussi Lehtola <jussilehtola@fedoraproject.org> - 1.3.1-4
 - Add Provides: openmpi-devel to fix other package builds in rawhide.
 
