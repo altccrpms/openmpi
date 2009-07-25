@@ -18,7 +18,7 @@
 
 Name:			openmpi%{?cc_name_suffix}
 Version:		1.3.3
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -183,6 +183,9 @@ rm -rf %{buildroot}
 %{_libdir}/%{mpidir}/share/vampirtrace/*
 
 %changelog
+* Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.3.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
 * Tue Jul 21 2009 Doug Ledford <dledford@redhat.com> - 1.3.3-2
 - Add MPI_BIN and MPI_LIB to the modules file (related bz511099)
 
