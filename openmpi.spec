@@ -11,30 +11,41 @@
 %define opt_fc gfortran
 #define opt_fcflags
 
+%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 # Optional name suffix to use...we leave it off when compiling with gcc, but
 # for other compiled versions to install side by side, it will need a
 # suffix in order to keep the names from conflicting.
-#define cc_name_suffix -gcc
+#define _cc_name_suffix -gcc
 
-Name:			openmpi%{?cc_name_suffix}
+Name:			openmpi%{?_cc_name_suffix}
 Version:		1.3.3
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
 URL:			http://www.open-mpi.org/
-Source0:		http://www.open-mpi.org/software/ompi/v1.3/downloads/%{name}-%{version}.tar.bz2
+# We can't use %{name} here because of _cc_name_suffix
+Source0:		http://www.open-mpi.org/software/ompi/v1.3/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.pc.in
 Source2:		openmpi.module.in
+Source3:		macros.openmpi
+Patch0:			openmpi-bz515567.patch
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:		gcc-gfortran, libtool, numactl-devel, valgrind-devel
 BuildRequires:		libibverbs-devel, opensm-devel > 3.3.0
+BuildRequires:		librdmacm librdmacm-devel
 #%ifnarch ppc
 #BuildRequires:		compat-dapl-devel
 #%endif
 Provides:		mpi
 Requires:		environment-modules
+# Requires: openmpi-common = %{version}-%{release}
 Obsoletes:		openmpi-libs
+
+# s390 is unlikely to have the hardware we want, and some of the -devel
+# packages we require aren't available there.
+ExcludeArch: s390 s390x
+
 
 %description
 Open MPI is an open source, freely available implementation of both the 
@@ -44,6 +55,14 @@ order to build the best MPI library available.  A completely new MPI-2
 compliant implementation, Open MPI offers advantages for system and
 software vendors, application developers, and computer science
 researchers. For more information, see http://www.open-mpi.org/ .
+
+#%package	common
+#Summary:	Common files for openmpi
+#Group:		Development/Libraries
+#BuildArch:	noarch
+
+#%description common
+#contains files that are common across installations of op
 
 %package devel
 Summary:        Development files for openmpi
@@ -83,18 +102,22 @@ Contains development headers and libraries for openmpi
 
 # We set this to for convenience, since this is the unique dir we use for this
 # particular package, version, compiler
-%define mpidir %{name}/%{version}-%{opt_cc}
+%define namearch openmpi-%{_arch}%{?_cc_name_suffix}
 
 %prep
-%setup -q
+%setup -q -n openmpi-%{version}
+%patch0 -p0 -b .bz515567
 %ifarch x86_64
 XFLAGS="-fPIC"
 %endif
 
-./configure --prefix=%{_libdir}/%{mpidir} --with-libnuma=/usr \
+./configure --prefix=%{_libdir}/%{name} --with-libnuma=/usr \
 	--with-openib=/usr --enable-mpirun-prefix-by-default \
-	--mandir=%{_libdir}/%{mpidir}/man --enable-mpi-threads \
-	--with-ft=cr --with-valgrind \
+	--mandir=%{_mandir}/%{namearch} \
+	--includedir=%{_includedir}/%{namearch} \
+	--sysconfdir=%{_sysconfdir}/%{namearch} \
+	--enable-mpi-threads \
+	--with-valgrind \
 	--with-wrapper-cflags="%{?opt_cflags} %{?modeflag}" \
 	--with-wrapper-cxxflags="%{?opt_cxxflags} %{?modeflag}" \
 	--with-wrapper-fflags="%{?opt_fflags} %{?modeflag}" \
@@ -112,77 +135,96 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
-find %{buildroot}%{_libdir}/%{mpidir}/lib -name \*.la | xargs rm
-find %{buildroot}%{_libdir}/%{mpidir}/man -type f | xargs gzip -9
-ln -s mpicc.1.gz %{buildroot}%{_libdir}/%{mpidir}/man/man1/mpiCC.1.gz
-rm -f %{buildroot}%{_libdir}/%{mpidir}/man/man1/mpiCC.1
-rm -f %{buildroot}%{_libdir}/%{mpidir}/share/vampirtrace/doc/opari/lacsi01.ps.gz
+find %{buildroot}%{_libdir}/%{name}/lib -name \*.la | xargs rm
+find %{buildroot}%{_mandir}/%{namearch} -type f | xargs gzip -9
+ln -s mpicc.1.gz %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1.gz
+rm -f %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1
+rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
 
 # Make the pkgconfig file
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
-sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}%{?cc_name_suffix}.pc
+sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{name}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}.pc
 # Make the environment-modules file
 mkdir -p %{buildroot}%{_datadir}/Modules/modulefiles
-sed 's#@LIBDIR@#'%{_libdir}'#g;s#@MPIDIR@#'%{mpidir}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE2 > %{buildroot}/%{_datadir}/Modules/modulefiles/%{name}-%{_arch}%{?cc_name_suffix}
-
+# Since we're doing our own substitution here, use our own definitions.
+sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE2 > %{buildroot}/%{_datadir}/Modules/modulefiles/%{namearch}
+# make the rpm config file
+mkdir -p %{buildroot}/%{_sysconfdir}/rpm
+cp %SOURCE3 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
+mkdir -p %{buildroot}/%{_fmoddir}/%{namearch}
+mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 %clean
 rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
 %dir %{_libdir}/%{name}
-%dir %{_libdir}/%{mpidir}
-%dir %{_libdir}/%{mpidir}/etc
-%dir %{_libdir}/%{mpidir}/bin
-%dir %{_libdir}/%{mpidir}/lib
-%dir %{_libdir}/%{mpidir}/lib/openmpi
-%dir %{_libdir}/%{mpidir}/man
-%dir %{_libdir}/%{mpidir}/man/man1
-%dir %{_libdir}/%{mpidir}/man/man7
-%dir %{_libdir}/%{mpidir}/share
-%dir %{_libdir}/%{mpidir}/share/openmpi
-%config(noreplace) %{_libdir}/%{mpidir}/etc/*
-%{_libdir}/%{mpidir}/bin/mpi[er]*
-%{_libdir}/%{mpidir}/bin/ompi*
-%{_libdir}/%{mpidir}/bin/opal-*
-%{_libdir}/%{mpidir}/bin/opari
-%{_libdir}/%{mpidir}/bin/orte*
-%{_libdir}/%{mpidir}/bin/otf*
-%{_libdir}/%{mpidir}/lib/openmpi/*
-%{_libdir}/%{mpidir}/lib/*.so.*
-%{_libdir}/%{mpidir}/man/man1/mpi[er]*
-%{_libdir}/%{mpidir}/man/man1/ompi*
-%{_libdir}/%{mpidir}/man/man1/opal-*
-%{_libdir}/%{mpidir}/man/man1/orte*
-%{_libdir}/%{mpidir}/man/man7/ompi*
-%{_libdir}/%{mpidir}/man/man7/orte*
-%{_libdir}/%{mpidir}/share/openmpi/doc
-%{_libdir}/%{mpidir}/share/openmpi/amca-param-sets
-%{_libdir}/%{mpidir}/share/openmpi/help*
-%{_libdir}/%{mpidir}/share/openmpi/mca*
-%{_datadir}/Modules/modulefiles/*
+%dir %{_sysconfdir}/%{namearch}
+%dir %{_libdir}/%{name}/bin
+%dir %{_libdir}/%{name}/lib
+%dir %{_libdir}/%{name}/lib/openmpi
+%dir %{_mandir}/%{namearch}
+%dir %{_mandir}/%{namearch}/man1
+%dir %{_mandir}/%{namearch}/man7
+%dir %{_fmoddir}/%{namearch}
+%dir %{python_sitearch}/%{name}
+%config(noreplace) %{_sysconfdir}/%{namearch}/*
+%{_libdir}/%{name}/bin/mpi[er]*
+%{_libdir}/%{name}/bin/ompi*
+#%{_libdir}/%{name}/bin/opal-*
+%{_libdir}/%{name}/bin/opari
+%{_libdir}/%{name}/bin/orte*
+%{_libdir}/%{name}/bin/otf*
+%{_libdir}/%{name}/lib/*.so.*
+%{_mandir}/%{namearch}/man1/mpi[er]*
+%{_mandir}/%{namearch}/man1/ompi*
+#%{_mandir}/%{namearch}/man1/opal-*
+%{_mandir}/%{namearch}/man1/orte*
+%{_mandir}/%{namearch}/man7/ompi*
+%{_mandir}/%{namearch}/man7/orte*
+%{_libdir}/%{name}/lib/openmpi/*
+%{_datadir}/Modules/modulefiles/%{namearch}
+#%files common
+%dir %{_libdir}/%{name}/share
+%dir %{_libdir}/%{name}/share/openmpi
+%{_libdir}/%{name}/share/openmpi/doc
+%{_libdir}/%{name}/share/openmpi/amca-param-sets
+%{_libdir}/%{name}/share/openmpi/help*
+%{_libdir}/%{name}/share/openmpi/mca*
 
 %files devel
 %defattr(-,root,root,-)
-%dir %{_libdir}/%{mpidir}/include
-%dir %{_libdir}/%{mpidir}/man/man3
-%dir %{_libdir}/%{mpidir}/share/vampirtrace
-%{_libdir}/pkgconfig/%{name}%{?cc_name_suffix}.pc
-%{_libdir}/%{mpidir}/bin/mpi[cCf]*
-%{_libdir}/%{mpidir}/bin/vt*
-%{_libdir}/%{mpidir}/bin/opal_*
-%{_libdir}/%{mpidir}/include/*
-%{_libdir}/%{mpidir}/lib/*.so
-%{_libdir}/%{mpidir}/lib/lib*.a
-%{_libdir}/%{mpidir}/lib/mpi.mod
-%{_libdir}/%{mpidir}/man/man1/mpi[cCf]*
-%{_libdir}/%{mpidir}/man/man1/opal_*
-%{_libdir}/%{mpidir}/man/man3/*
-%{_libdir}/%{mpidir}/man/man7/opal*
-%{_libdir}/%{mpidir}/share/openmpi/mpi*
-%{_libdir}/%{mpidir}/share/vampirtrace/*
+%dir %{_includedir}/%{namearch}
+%dir %{_mandir}/%{namearch}/man3
+%dir %{_libdir}/%{name}/share/vampirtrace
+%{_libdir}/pkgconfig/%{name}.pc
+%{_libdir}/%{name}/bin/mpi[cCf]*
+%{_libdir}/%{name}/bin/vt*
+%{_libdir}/%{name}/bin/opal_*
+%{_includedir}/%{namearch}/*
+%{_libdir}/%{name}/lib/*.so
+%{_libdir}/%{name}/lib/lib*.a
+%{_libdir}/%{name}/lib/mpi.mod
+%{_mandir}/%{namearch}/man1/mpi[cCf]*
+%{_mandir}/%{namearch}/man1/opal_*
+%{_mandir}/%{namearch}/man3/*
+%{_mandir}/%{namearch}/man7/opal*
+%{_libdir}/%{name}/share/openmpi/mpi*
+%{_libdir}/%{name}/share/vampirtrace/*
+%{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Wed Sep 9 2009 Jay Fenlason <fenlason@redhat.com> - 1.3.3-4
+- Modify packaging to conform to
+  https://fedoraproject.org/wiki/PackagingDrafts/MPI (bz521334).
+- remove --with-ft=cr from configure, as it was apparently causing problems
+  for some people.
+- Add librdmacm-devel and librdmacm to BuildRequires (related bz515565).
+- Add openmpi-bz515567.patch to add support for the latest Chelsio device IDs
+  (related bz515567).
+- Add exclude-arch (s390 s390x) because we don't have required -devel packages
+  there.
+
 * Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.3.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 

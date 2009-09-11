@@ -1,0 +1,13 @@
+Index: ompi/mca/btl/openib/mca-btl-openib-device-params.ini
+===================================================================
+--- ompi/mca/btl/openib/mca-btl-openib-device-params.ini	(revision 21744)
++++ ompi/mca/btl/openib/mca-btl-openib-device-params.ini	(working copy)
+@@ -212,7 +212,7 @@
+ 
+ [Chelsio T3]
+ vendor_id = 0x1425
+-vendor_part_id = 0x0020,0x0021,0x0022,0x0023,0x0024,0x0025,0x0026,0x0030,0x0031,0x0032
++vendor_part_id = 0x0020,0x0021,0x0022,0x0023,0x0024,0x0025,0x0026,0x0030,0x0031,0x0032,0x0035,0x0036
+ use_eager_rdma = 1
+ mtu = 2048
+ receive_queues = P,65536,256,192,128
