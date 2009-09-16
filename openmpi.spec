@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.3.3
-Release:		4%{?dist}
+Release:		5%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -112,7 +112,7 @@ XFLAGS="-fPIC"
 %endif
 
 ./configure --prefix=%{_libdir}/%{name} --with-libnuma=/usr \
-	--with-openib=/usr --enable-mpirun-prefix-by-default \
+	--with-openib=/usr \
 	--mandir=%{_mandir}/%{namearch} \
 	--includedir=%{_includedir}/%{namearch} \
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
@@ -145,14 +145,15 @@ rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
 sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{name}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}.pc
 # Make the environment-modules file
-mkdir -p %{buildroot}%{_datadir}/Modules/modulefiles
+mkdir -p %{buildroot}%{_sysconfdir}/modulefiles
 # Since we're doing our own substitution here, use our own definitions.
-sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE2 > %{buildroot}/%{_datadir}/Modules/modulefiles/%{namearch}
+sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE2 > %{buildroot}%{_sysconfdir}/modulefiles/%{namearch}
 # make the rpm config file
 mkdir -p %{buildroot}/%{_sysconfdir}/rpm
 cp %SOURCE3 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
 mkdir -p %{buildroot}/%{_fmoddir}/%{namearch}
 mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
+
 %clean
 rm -rf %{buildroot}
 
@@ -183,7 +184,7 @@ rm -rf %{buildroot}
 %{_mandir}/%{namearch}/man7/ompi*
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
-%{_datadir}/Modules/modulefiles/%{namearch}
+%{_sysconfdir}/modulefiles/%{namearch}
 #%files common
 %dir %{_libdir}/%{name}/share
 %dir %{_libdir}/%{name}/share/openmpi
@@ -195,7 +196,9 @@ rm -rf %{buildroot}
 %files devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/%{namearch}
+%dir %{_mandir}/%{namearch}/man1
 %dir %{_mandir}/%{namearch}/man3
+%dir %{_mandir}/%{namearch}/man7
 %dir %{_libdir}/%{name}/share/vampirtrace
 %{_libdir}/pkgconfig/%{name}.pc
 %{_libdir}/%{name}/bin/mpi[cCf]*
@@ -214,6 +217,13 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Wed Sep 16 2009 Jay Fenlason <fenlason@redhat.com> - 1.3.3-5
+- Move the module file from %{_datadir}/Modules/modulefiles/%{namearch} to
+  %{_sysconfdir}/modulefiles/%{namearch} where it belongs.
+- Have the -devel subpackage own the man1 and man7 directories for completeness.
+- Add a blank line before the clean section.
+- Remove --enable-mpirun-prefix-by-default from configure.
+
 * Wed Sep 9 2009 Jay Fenlason <fenlason@redhat.com> - 1.3.3-4
 - Modify packaging to conform to
   https://fedoraproject.org/wiki/PackagingDrafts/MPI (bz521334).
