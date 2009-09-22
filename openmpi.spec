@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.3.3
-Release:		5%{?dist}
+Release:		6%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -140,6 +140,7 @@ find %{buildroot}%{_mandir}/%{namearch} -type f | xargs gzip -9
 ln -s mpicc.1.gz %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1.gz
 rm -f %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1
 rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
+mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 
 # Make the pkgconfig file
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
@@ -165,8 +166,7 @@ rm -rf %{buildroot}
 %dir %{_libdir}/%{name}/lib
 %dir %{_libdir}/%{name}/lib/openmpi
 %dir %{_mandir}/%{namearch}
-%dir %{_mandir}/%{namearch}/man1
-%dir %{_mandir}/%{namearch}/man7
+%dir %{_mandir}/%{namearch}/man*
 %dir %{_fmoddir}/%{namearch}
 %dir %{python_sitearch}/%{name}
 %config(noreplace) %{_sysconfdir}/%{namearch}/*
@@ -196,9 +196,6 @@ rm -rf %{buildroot}
 %files devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/%{namearch}
-%dir %{_mandir}/%{namearch}/man1
-%dir %{_mandir}/%{namearch}/man3
-%dir %{_mandir}/%{namearch}/man7
 %dir %{_libdir}/%{name}/share/vampirtrace
 %{_libdir}/pkgconfig/%{name}.pc
 %{_libdir}/%{name}/bin/mpi[cCf]*
@@ -217,6 +214,9 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Tue Sep 22 2009 Jay Fenlason <fenlason@redhat.com> - 1.3.3-6
+- Create and own man* directories for use by dependent packages.
+
 * Wed Sep 16 2009 Jay Fenlason <fenlason@redhat.com> - 1.3.3-5
 - Move the module file from %{_datadir}/Modules/modulefiles/%{namearch} to
   %{_sysconfdir}/modulefiles/%{namearch} where it belongs.
