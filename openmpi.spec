@@ -18,8 +18,8 @@
 #define _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.3.3
-Release:		6%{?dist}
+Version:		1.4
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -29,11 +29,11 @@ Source0:		http://www.open-mpi.org/software/ompi/v1.3/downloads/openmpi-%{version
 Source1:		openmpi.pc.in
 Source2:		openmpi.module.in
 Source3:		macros.openmpi
-Patch0:			openmpi-bz515567.patch
+Patch0:			openmpi-changeset_r22324.patch
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:		gcc-gfortran, libtool, numactl-devel, valgrind-devel
-BuildRequires:		libibverbs-devel, opensm-devel > 3.3.0
-BuildRequires:		librdmacm librdmacm-devel
+BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
+BuildRequires:		librdmacm librdmacm-devel libibcm libibcm-devel
 #%ifnarch ppc
 #BuildRequires:		compat-dapl-devel
 #%endif
@@ -106,7 +106,7 @@ Contains development headers and libraries for openmpi
 
 %prep
 %setup -q -n openmpi-%{version}
-%patch0 -p0 -b .bz515567
+%patch0 -p2 -b .bz538199
 %ifarch x86_64
 XFLAGS="-fPIC"
 %endif
@@ -117,6 +117,8 @@ XFLAGS="-fPIC"
 	--includedir=%{_includedir}/%{namearch} \
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--enable-mpi-threads \
+	--enable-openib-ibcm \
+	--with-sge \
 	--with-valgrind \
 	--with-wrapper-cflags="%{?opt_cflags} %{?modeflag}" \
 	--with-wrapper-cxxflags="%{?opt_cxxflags} %{?modeflag}" \
@@ -214,6 +216,13 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Wed Jan 13 2010 Doug Ledford <dledford@redhat.com> - 1.4-1
+- Update to latest upstream stable version
+- Add support for libibcm usage
+- Enable sge support via configure options since it's no longer on by default
+- Add patch to resolve allreduce issue (bz538199)
+- Remove no longer needed patch for Chelsio cards
+
 * Tue Sep 22 2009 Jay Fenlason <fenlason@redhat.com> - 1.3.3-6
 - Create and own man* directories for use by dependent packages.
 
