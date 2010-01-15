@@ -146,7 +146,7 @@ mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 
 # Make the pkgconfig file
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
-sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{name}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}.pc
+sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}/%{name}/lib'#g;s#@CC@#'%{opt_cc}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}.pc
 # Make the environment-modules file
 mkdir -p %{buildroot}%{_sysconfdir}/modulefiles
 # Since we're doing our own substitution here, use our own definitions.

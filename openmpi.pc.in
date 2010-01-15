@@ -3,5 +3,5 @@ Name: 		@NAME@
 Description:	Open Message Passing Interface headers and libraries
 URL:		http://www.open-mpi.org/
 Version:	@VERSION@-@CC@
-Libs:		-L@LIBDIR@/@MPIDIR@/lib -lmpi
+Libs:		-L@LIBDIR@ -lmpi
 Cflags: 	-I@INCDIR@ @MODEFLAG@
