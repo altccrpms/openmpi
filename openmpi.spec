@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.4
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -150,7 +150,7 @@ sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}/%{na
 # Make the environment-modules file
 mkdir -p %{buildroot}%{_sysconfdir}/modulefiles
 # Since we're doing our own substitution here, use our own definitions.
-sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE2 > %{buildroot}%{_sysconfdir}/modulefiles/%{namearch}
+sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE2 > %{buildroot}%{_sysconfdir}/modulefiles/%{namearch}
 # make the rpm config file
 mkdir -p %{buildroot}/%{_sysconfdir}/rpm
 cp %SOURCE3 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
@@ -216,6 +216,10 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Fri Jan 15 2010 Doug Ledford <dledford@redhat.com> - 1.4-4
+- Fix an issue with usage of _cc_name_suffix that cause a broken define in
+  our module file
+
 * Fri Jan 15 2010 Doug Ledford <dledford@redhat.com> - 1.4-3
 - Fix pkgconfig file substitution
 - Bump version so we are later than the equivalent version from Red Hat

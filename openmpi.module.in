@@ -13,4 +13,4 @@ setenv			MPI_MAN		@MANDIR@
 setenv			MPI_PYTHON_SITEARCH	@PYSITEARCH@
 setenv			MPI_COMPILER	@COMPILER@
 setenv			MPI_SUFFIX	@SUFFIX@
-setenv	 		MPI_HOME	@LIBDIR@@
+setenv	 		MPI_HOME	@LIBDIR@
