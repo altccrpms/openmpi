@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.4
-Release:		1%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -146,7 +146,7 @@ mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 
 # Make the pkgconfig file
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
-sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{name}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}.pc
+sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}'#g;s#@CC@#'%{opt_cc}'#g;s#@MPIDIR@#'%{name}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}.pc
 # Make the environment-modules file
 mkdir -p %{buildroot}%{_sysconfdir}/modulefiles
 # Since we're doing our own substitution here, use our own definitions.
@@ -216,6 +216,11 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Fri Jan 15 2010 Doug Ledford <dledford@redhat.com> - 1.4-3
+- Fix pkgconfig file substitution
+- Bump version so we are later than the equivalent version from Red Hat
+  Enterprise Linux
+
 * Wed Jan 13 2010 Doug Ledford <dledford@redhat.com> - 1.4-1
 - Update to latest upstream stable version
 - Add support for libibcm usage

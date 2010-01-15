@@ -4,4 +4,4 @@ Description:	Open Message Passing Interface headers and libraries
 URL:		http://www.open-mpi.org/
 Version:	@VERSION@-@CC@
 Libs:		-L@LIBDIR@/@MPIDIR@/lib -lmpi
-Cflags: 	-I@LIBDIR@/@MPIDIR@/include @MODEFLAG@
+Cflags: 	-I@INCDIR@ @MODEFLAG@
