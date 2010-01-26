@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.4.1
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
@@ -33,6 +33,7 @@ BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:		gcc-gfortran, libtool, numactl-devel, valgrind-devel
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm librdmacm-devel libibcm libibcm-devel
+BuildRequires:		python
 #%ifnarch ppc
 #BuildRequires:		compat-dapl-devel
 #%endif
@@ -215,6 +216,9 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Tue Jan 26 2010 Jay Fenlason <fenlason@redhat.com> - 1.4.1-2
+- BuildRequires: python
+
 * Tue Jan 26 2010 Jay Fenlason <fenlason@redhat.com> - 1.4.1-1
 - New upstream version, which includes the changeset_r22324 patch.
 - Correct a typo in the Source0 line in this spec file.
