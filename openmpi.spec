@@ -18,18 +18,17 @@
 #define _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.4
-Release:		4%{?dist}
+Version:		1.4.1
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
 URL:			http://www.open-mpi.org/
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		http://www.open-mpi.org/software/ompi/v1.3/downloads/openmpi-%{version}.tar.bz2
+Source0:		http://www.open-mpi.org/software/ompi/v1.4/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.pc.in
 Source2:		openmpi.module.in
 Source3:		macros.openmpi
-Patch0:			openmpi-changeset_r22324.patch
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:		gcc-gfortran, libtool, numactl-devel, valgrind-devel
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
@@ -106,7 +105,6 @@ Contains development headers and libraries for openmpi
 
 %prep
 %setup -q -n openmpi-%{version}
-%patch0 -p2 -b .bz538199
 %ifarch x86_64
 XFLAGS="-fPIC"
 %endif
@@ -211,11 +209,16 @@ rm -rf %{buildroot}
 %{_mandir}/%{namearch}/man1/opal_*
 %{_mandir}/%{namearch}/man3/*
 %{_mandir}/%{namearch}/man7/opal*
+%{_libdir}/%{name}/share/openmpi/openmpi-valgrind.supp
 %{_libdir}/%{name}/share/openmpi/mpi*
 %{_libdir}/%{name}/share/vampirtrace/*
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Tue Jan 26 2010 Jay Fenlason <fenlason@redhat.com> - 1.4.1-1
+- New upstream version, which includes the changeset_r22324 patch.
+- Correct a typo in the Source0 line in this spec file.
+
 * Fri Jan 15 2010 Doug Ledford <dledford@redhat.com> - 1.4-4
 - Fix an issue with usage of _cc_name_suffix that cause a broken define in
   our module file
