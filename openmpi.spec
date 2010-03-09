@@ -19,16 +19,15 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.4.1
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD
 URL:			http://www.open-mpi.org/
 # We can't use %{name} here because of _cc_name_suffix
 Source0:		http://www.open-mpi.org/software/ompi/v1.4/downloads/openmpi-%{version}.tar.bz2
-Source1:		openmpi.pc.in
-Source2:		openmpi.module.in
-Source3:		macros.openmpi
+Source1:		openmpi.module.in
+Source2:		macros.openmpi
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:		gcc-gfortran, libtool, numactl-devel, valgrind-devel
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
@@ -143,16 +142,13 @@ rm -f %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1
 rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
 mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 
-# Make the pkgconfig file
-mkdir -p %{buildroot}%{_libdir}/pkgconfig
-sed 's#@NAME@#'%{name}'#g;s#@VERSION@#'%{version}'#g;s#@LIBDIR@#'%{_libdir}/%{name}/lib'#g;s#@CC@#'%{opt_cc}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MODEFLAG@#'%{?modeflag}'#g' < %SOURCE1 > %{buildroot}/%{_libdir}/pkgconfig/%{name}.pc
 # Make the environment-modules file
 mkdir -p %{buildroot}%{_sysconfdir}/modulefiles
 # Since we're doing our own substitution here, use our own definitions.
-sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE2 > %{buildroot}%{_sysconfdir}/modulefiles/%{namearch}
+sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/%{namearch}
 # make the rpm config file
 mkdir -p %{buildroot}/%{_sysconfdir}/rpm
-cp %SOURCE3 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
+cp %SOURCE2 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
 mkdir -p %{buildroot}/%{_fmoddir}/%{namearch}
 mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 
@@ -198,7 +194,6 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %dir %{_includedir}/%{namearch}
 %dir %{_libdir}/%{name}/share/vampirtrace
-%{_libdir}/pkgconfig/%{name}.pc
 %{_libdir}/%{name}/bin/mpi[cCf]*
 %{_libdir}/%{name}/bin/vt*
 %{_libdir}/%{name}/bin/opal_*
@@ -216,6 +211,9 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Tue Mar 9 2010 Jay Fenlason <fenlason@redhat.com> - 1.4.1-3
+- remove the pkgconfig file completely like we did in RHEL.
+
 * Tue Jan 26 2010 Jay Fenlason <fenlason@redhat.com> - 1.4.1-2
 - BuildRequires: python
 
