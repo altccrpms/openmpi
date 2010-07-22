@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.4.1
-Release:		4%{?dist}
+Release:		5%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -218,6 +218,9 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Wed Jul 21 2010 David Malcolm <dmalcolm@redhat.com> - 1.4.1-5
+- Rebuilt for https://fedoraproject.org/wiki/Features/Python_2.7/MassRebuild
+
 * Mon Mar 29 2010 Jay Fenlason <fenlason@redhat.com> - 1.4.1-4
 - Update to fix licencing and packaging issues:
   Use the system plpa and ltdl librarires rather than the ones in the tarball
