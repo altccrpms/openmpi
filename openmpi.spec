@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.4.1
-Release:		5%{?dist}
+Release:		6%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -114,6 +114,12 @@ Contains development headers and libraries for openmpi
 %prep
 %setup -q -n openmpi-%{version}
 ./autogen.sh
+
+# Workaround for rhbz#617766
+sed -i \
+  's|ofc_type_alignment=`eval.*`|ofc_type_alignment=$ac_res|g' \
+  configure
+
 %build
 %ifarch x86_64
 XFLAGS="-fPIC"
@@ -218,6 +224,9 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Sat Jul 24 2010 David Malcolm <dmalcolm@redhat.com> - 1.4.1-6
+- workaround for rhbz#617766
+
 * Wed Jul 21 2010 David Malcolm <dmalcolm@redhat.com> - 1.4.1-5
 - Rebuilt for https://fedoraproject.org/wiki/Features/Python_2.7/MassRebuild
 
