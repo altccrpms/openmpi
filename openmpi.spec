@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.4.1
-Release:		6%{?dist}
+Release:		7%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -37,7 +37,11 @@ Source0:		openmpi-%{version}-RH.tar.bz2
 Source1:		openmpi.module.in
 Source2:		macros.openmpi
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:		gcc-gfortran, libtool, numactl-devel, valgrind-devel
+BuildRequires:		gcc-gfortran, libtool, numactl-devel
+#sparc 64 doesnt have valgrind
+%ifnarch sparc64
+BuildRequires:          valgrind-devel
+%endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm librdmacm-devel libibcm libibcm-devel
 BuildRequires:		python libtool-ltdl-devel plpa-devel
@@ -132,7 +136,9 @@ XFLAGS="-fPIC"
 	--enable-mpi-threads \
 	--enable-openib-ibcm \
 	--with-sge \
+%ifnarch sparc64
 	--with-valgrind \
+%endif
 	--with-wrapper-cflags="%{?opt_cflags} %{?modeflag}" \
 	--with-wrapper-cxxflags="%{?opt_cxxflags} %{?modeflag}" \
 	--with-wrapper-fflags="%{?opt_fflags} %{?modeflag}" \
@@ -224,6 +230,9 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Sat Sep 05 2010 Dennis Gilmore <dennis@ausil.us> - 1.4.1-7
+- disable valgrind support on sparc64
+
 * Sat Jul 24 2010 David Malcolm <dmalcolm@redhat.com> - 1.4.1-6
 - workaround for rhbz#617766
 
