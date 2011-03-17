@@ -1,0 +1,11 @@
+--- openmpi-1.5/opal/config/opal_config_asm.m4.jj	2010-09-28 23:33:51.000000000 +0200
++++ openmpi-1.5/opal/config/opal_config_asm.m4	2011-02-23 01:39:21.191433509 +0100
+@@ -885,7 +885,7 @@ AC_DEFUN([OMPI_CONFIG_ASM],[
+                 ompi_cv_asm_arch="AMD64"
+             fi
+             OPAL_ASM_SUPPORT_64BIT=1
+-            OMPI_GCC_INLINE_ASSIGN='"xaddl %1,%0" : "=m"(ret), "+r"(negone)'
++            OMPI_GCC_INLINE_ASSIGN='"xaddl %1,%0" : "=m"(ret), "+r"(negone) : "m"(ret)'
+             ;;
+ 
+         ia64-*)

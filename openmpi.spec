@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.5
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -35,6 +35,7 @@ URL:			http://www.open-mpi.org/
 Source0:		openmpi-%{version}-RH.tar.bz2
 Source1:		openmpi.module.in
 Source2:		macros.openmpi
+Patch0:			openmpi-1.5-dt-textrel.patch
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:		gcc-gfortran, libtool, numactl-devel
 #sparc 64 doesnt have valgrind
@@ -44,6 +45,7 @@ BuildRequires:          valgrind-devel
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm librdmacm-devel libibcm libibcm-devel
 BuildRequires:		python libtool-ltdl-devel plpa-devel
+BuildRequires:		libesmtp-devel
 #%ifnarch ppc
 #BuildRequires:		compat-dapl-devel
 #%endif
@@ -116,6 +118,7 @@ Contains development headers and libraries for openmpi
 
 %prep
 %setup -q -n openmpi-%{version}
+%patch0 -p1 -b .dt-textrel
 ./autogen.sh
 
 %build
@@ -132,7 +135,9 @@ XFLAGS="-fPIC"
 	--with-sge \
 %ifnarch %{sparc}
 	--with-valgrind \
+	--enable-memchecker \
 %endif
+	--with-esmtp \
 	--with-wrapper-cflags="%{?opt_cflags} %{?modeflag}" \
 	--with-wrapper-cxxflags="%{?opt_cxxflags} %{?modeflag}" \
 	--with-wrapper-fflags="%{?opt_fflags} %{?modeflag}" \
@@ -227,6 +232,12 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Thu Mar 17 2011 Jay Fenlason <fenlason@redhat.com> 1.5-3
+- Add dt-textrel patch to close
+  Resolves: bz679489
+- Add memchecker and esmtp support
+  Resolves: bz647011
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
