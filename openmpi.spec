@@ -56,7 +56,8 @@ Obsoletes:		openmpi-libs
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
-ExcludeArch: s390 s390x
+# ARM has issues with a lack of "atomic primitives" so we'll exclude it as well for the moment
+ExcludeArch: s390 s390x %{arm}
 
 
 %description
@@ -232,6 +233,9 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Sat Jun 18 2011 Peter Robinson <pbrobinson@gmail.com> 1.5-4
+- Exclude ARM platforms due to current lack of "atomic primitives" on the platform
+
 * Thu Mar 17 2011 Jay Fenlason <fenlason@redhat.com> 1.5-3
 - Add dt-textrel patch to close
   Resolves: bz679489
