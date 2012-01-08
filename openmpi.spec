@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.5.4
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -236,6 +236,9 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Sun Jan 8 2012 Orion Poplawski <orion@cora.nwra.com> 1.5.4-2
+- Rebuild with gcc 4.7 (bug #772443)
+
 * Thu Nov 17 2011 Orion Poplawski <orion@cora.nwra.com> 1.5.4-1
 - Update to 1.5.4
 - Drop dt-textrel patch fixed upstream
