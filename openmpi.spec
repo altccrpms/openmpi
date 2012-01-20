@@ -167,9 +167,10 @@ rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
 mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 
 # Make the environment-modules file
-mkdir -p %{buildroot}%{_sysconfdir}/modulefiles
+mkdir -p %{buildroot}%{_sysconfdir}/modulefiles/mpi
 # Since we're doing our own substitution here, use our own definitions.
-sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/%{namearch}
+sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
+cp %{buildroot}%{_sysconfdir}/modulefiles/mpi/* %{buildroot}%{_sysconfdir}/modulefiles/
 # make the rpm config file
 mkdir -p %{buildroot}/%{_sysconfdir}/rpm
 cp %SOURCE2 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
@@ -205,6 +206,8 @@ rm -rf %{buildroot}
 %{_mandir}/%{namearch}/man7/ompi*
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
+%dir %{_sysconfdir}/modulefiles/mpi
+%{_sysconfdir}/modulefiles/mpi/%{namearch}
 %{_sysconfdir}/modulefiles/%{namearch}
 #%files common
 %dir %{_libdir}/%{name}/share
@@ -236,6 +239,10 @@ rm -rf %{buildroot}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Fri Jan 20 2012 Doug Ledford <dledford@redhat.com> - 1.5.4-3
+- Move modules file to mpi directory and make it conflict with any other
+  mpi module (bug #651074)
+
 * Sun Jan 8 2012 Orion Poplawski <orion@cora.nwra.com> 1.5.4-2
 - Rebuild with gcc 4.7 (bug #772443)
 
