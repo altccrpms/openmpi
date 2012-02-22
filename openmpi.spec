@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.5.4
-Release:		4%{?dist}
+Release:		4%{?dist}.1
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -236,8 +236,11 @@ mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Wed Feb 22 2012 Orion Poplawski <orion@cora.nwra.com> 1.5.4-4.1
+- Rebuild with hwloc 1.4
+
 * Wed Feb 15 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.5.4-4
-- Rebuild for howloc soname bump
+- Rebuild for hwloc soname bump
 
 * Fri Jan 20 2012 Doug Ledford <dledford@redhat.com> - 1.5.4-3
 - Move modules file to mpi directory and make it conflict with any other
