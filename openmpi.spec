@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.5.4
-Release:		4%{?dist}.1
+Release:		5%{?dist}.1
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -236,6 +236,9 @@ mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.4-5.1
+- Rebuilt for c++ ABI breakage
+
 * Wed Feb 22 2012 Orion Poplawski <orion@cora.nwra.com> 1.5.4-4.1
 - Rebuild with hwloc 1.4
 
