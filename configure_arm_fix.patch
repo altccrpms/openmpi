@@ -1,0 +1,16 @@
+## Description: add some description
+## Origin/Author: add some origin or author
+## Bug: bug URL
+Index: openmpi-1.5.4/configure
+===================================================================
+--- openmpi-1.5.4.orig/configure	2011-08-18 16:49:03.000000000 +0300
++++ openmpi-1.5.4/configure	2012-01-20 18:12:48.959184193 +0200
+@@ -26943,7 +26943,7 @@
+             OMPI_GCC_INLINE_ASSIGN='"bis $31,$31,%0" : "=&r"(ret)'
+             ;;
+ 
+-        armv7*)
++        arm*)
+             ompi_cv_asm_arch="ARM"
+             OPAL_ASM_SUPPORT_64BIT=1
+             OMPI_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
