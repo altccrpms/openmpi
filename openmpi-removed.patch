@@ -1,7 +1,6 @@
-diff -up openmpi-1.5.4/configure.removed openmpi-1.5.4/configure
---- openmpi-1.5.4/configure.removed	2011-08-18 07:49:03.000000000 -0600
-+++ openmpi-1.5.4/configure	2011-11-17 15:13:57.461774628 -0700
-@@ -146215,10 +146215,6 @@ ac_config_files="$ac_config_files opal/m
+--- openmpi-1.5.5/configure.orig	2012-03-20 20:05:01.000000000 +0000
++++ openmpi-1.5.5/configure	2012-04-03 12:58:28.871397855 +0100
+@@ -150328,10 +150328,6 @@
  
  
  
@@ -12,18 +11,17 @@ diff -up openmpi-1.5.4/configure.removed openmpi-1.5.4/configure
  ac_config_files="$ac_config_files opal/mca/backtrace/execinfo/Makefile"
  
  
-@@ -169069,7 +169065,6 @@ do
-     "opal/mca/paffinity/hwloc/hwloc/include/Makefile") CONFIG_FILES="$CONFIG_FILES opal/mca/paffinity/hwloc/hwloc/include/Makefile" ;;
-     "opal/mca/paffinity/hwloc/hwloc/src/Makefile") CONFIG_FILES="$CONFIG_FILES opal/mca/paffinity/hwloc/hwloc/src/Makefile" ;;
+@@ -174422,7 +174418,6 @@
+     "opal/mca/hwloc/hwloc132/hwloc/src/Makefile") CONFIG_FILES="$CONFIG_FILES opal/mca/hwloc/hwloc132/hwloc/src/Makefile" ;;
+     "opal/mca/installdirs/config/install_dirs.h") CONFIG_FILES="$CONFIG_FILES opal/mca/installdirs/config/install_dirs.h" ;;
      "opal/mca/backtrace/Makefile") CONFIG_FILES="$CONFIG_FILES opal/mca/backtrace/Makefile" ;;
 -    "opal/mca/backtrace/darwin/Makefile") CONFIG_FILES="$CONFIG_FILES opal/mca/backtrace/darwin/Makefile" ;;
      "opal/mca/backtrace/execinfo/Makefile") CONFIG_FILES="$CONFIG_FILES opal/mca/backtrace/execinfo/Makefile" ;;
      "opal/mca/backtrace/none/Makefile") CONFIG_FILES="$CONFIG_FILES opal/mca/backtrace/none/Makefile" ;;
      "opal/mca/backtrace/printstack/Makefile") CONFIG_FILES="$CONFIG_FILES opal/mca/backtrace/printstack/Makefile" ;;
-diff -up openmpi-1.5.4/Makefile.in.removed openmpi-1.5.4/Makefile.in
---- openmpi-1.5.4/Makefile.in.removed	2011-08-18 07:46:01.000000000 -0600
-+++ openmpi-1.5.4/Makefile.in	2011-11-17 15:21:13.302181490 -0700
-@@ -197,7 +197,6 @@ am__aclocal_m4_deps = $(top_srcdir)/ompi
+--- openmpi-1.5.5/Makefile.in.orig	2012-04-03 12:58:21.937232790 +0100
++++ openmpi-1.5.5/Makefile.in	2012-04-03 12:58:28.874397927 +0100
+@@ -197,7 +197,6 @@
  	$(top_srcdir)/config/ext_no_configure_components.m4 \
  	$(top_srcdir)/config/mca_m4_config_include.m4 \
  	$(top_srcdir)/opal/mca/backtrace/configure.m4 \

@@ -18,8 +18,8 @@
 #define _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.5.4
-Release:		5%{?dist}.1
+Version:		1.5.5
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -35,9 +35,14 @@ Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to handle removed items
 Patch0:			openmpi-removed.patch
+Patch1:			configure_arm_fix.patch
 
-BuildRequires:		gcc-gfortran, libtool, numactl-devel
-#sparc 64 doesnt have valgrind
+BuildRequires:		gcc-gfortran, libtool
+# ARM HW doesn't support NUMA
+%ifnarch %{arm}
+BuildRequires:          numactl-devel
+%endif
+#sparc 64 doesn't have valgrind
 %ifnarch %{sparc}
 BuildRequires:          valgrind-devel
 %endif
@@ -46,18 +51,13 @@ BuildRequires:		librdmacm librdmacm-devel libibcm libibcm-devel
 BuildRequires:		hwloc-devel
 BuildRequires:		python libtool-ltdl-devel
 BuildRequires:		libesmtp-devel
-#%ifnarch ppc
-#BuildRequires:		compat-dapl-devel
-#%endif
+
 Provides:		mpi
 Requires:		environment-modules
-# Requires: openmpi-common = %{version}-%{release}
-Obsoletes:		openmpi-libs
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
-# ARM has issues with a lack of "atomic primitives" so we'll exclude it as well for the moment
-ExcludeArch: s390 s390x %{arm}
+ExcludeArch: s390 s390x
 
 # Private openmpi libraries
 %define __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|o|v)|openmpi/).*.so
@@ -71,14 +71,6 @@ order to build the best MPI library available.  A completely new MPI-2
 compliant implementation, Open MPI offers advantages for system and
 software vendors, application developers, and computer science
 researchers. For more information, see http://www.open-mpi.org/ .
-
-#%package	common
-#Summary:	Common files for openmpi
-#Group:		Development/Libraries
-#BuildArch:	noarch
-
-#%description common
-#contains files that are common across installations of op
 
 %package devel
 Summary:        Development files for openmpi
@@ -104,6 +96,7 @@ Contains development headers and libraries for openmpi
 # in default arch packages (aka, the x86_64 package).  There are, however,
 # some arches that don't support forcing *any* mode, those we just leave
 # undefined.
+
 %ifarch %{ix86} ppc sparcv9
 %define mode 32
 %define modeflag -m32
@@ -130,7 +123,10 @@ rm -r opal/libltdl
 %ifarch x86_64
 XFLAGS="-fPIC"
 %endif
-./configure --prefix=%{_libdir}/%{name} --with-libnuma=/usr \
+./configure --prefix=%{_libdir}/%{name} \
+%ifnarch %{arm}
+	--with-libnuma=/usr \
+%endif
 	--with-openib=/usr \
 	--mandir=%{_mandir}/%{namearch} \
 	--includedir=%{_includedir}/%{namearch} \
@@ -141,8 +137,8 @@ XFLAGS="-fPIC"
 	--enable-memchecker \
 %endif
 	--with-esmtp \
-	--with-hwloc=external \
-	--with-libltdl=external \
+	--with-hwloc=/usr \
+	--with-libltdl=/usr \
 	--with-wrapper-cflags="%{?opt_cflags} %{?modeflag}" \
 	--with-wrapper-cxxflags="%{?opt_cxxflags} %{?modeflag}" \
 	--with-wrapper-fflags="%{?opt_fflags} %{?modeflag}" \
@@ -236,6 +232,9 @@ mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Tue Apr  3 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.5.5-1
+- Update to 1.5.5
+
 * Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.5.4-5.1
 - Rebuilt for c++ ABI breakage
 
