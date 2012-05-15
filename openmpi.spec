@@ -117,7 +117,7 @@ Contains development headers and libraries for openmpi
 %prep
 %setup -q -n openmpi-%{version}
 %patch0 -p1 -b .removed
-%patch1 -p0 -b .hostfile
+%patch1 -p1 -b .hostfile
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
