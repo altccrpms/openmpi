@@ -171,6 +171,11 @@ mkdir -p %{buildroot}/%{_sysconfdir}/rpm
 cp %SOURCE2 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
 mkdir -p %{buildroot}/%{_fmoddir}/%{namearch}
 mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
+# Remove extraneous wrapper link libraries (bug 814798)
+sed -i -e s/-ldl// -e s/-lhwloc// \
+  %{buildroot}%{_libdir}/%{name}/bin/orte_wrapper_script \
+  %{buildroot}%{_libdir}/%{name}/share/%{name}/*-wrapper-data.txt
+
 
 %files
 %defattr(-,root,root,-)
@@ -234,6 +239,7 @@ mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 * Tue May 15 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.0-1
 - Update to 1.6.0
 - Drop arm patch, appears to be addressed upstream
+- Remove extraneous wrapper link libraries (bug 814798)
 
 * Tue Apr  3 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.5.5-1
 - Update to 1.5.5
