@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -35,6 +35,8 @@ Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to handle removed items
 Patch0:			openmpi-removed.patch
+# Patch from upstream svn to fix default hostfile location
+Patch1:			openmpi-hostfile.patch
 
 BuildRequires:		gcc-gfortran, libtool
 # ARM HW doesn't support NUMA
@@ -115,6 +117,7 @@ Contains development headers and libraries for openmpi
 %prep
 %setup -q -n openmpi-%{version}
 %patch0 -p1 -b .removed
+%patch1 -p0 -b .hostfile
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
@@ -236,6 +239,9 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Tue May 15 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.0-2
+- Add patch from upstream to fix default hostfile location
+
 * Tue May 15 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.0-1
 - Update to 1.6.0
 - Drop arm patch, appears to be addressed upstream
