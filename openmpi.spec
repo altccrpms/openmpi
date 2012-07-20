@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -239,6 +239,9 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.6-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Tue May 15 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.0-2
 - Add patch from upstream to fix default hostfile location
 
