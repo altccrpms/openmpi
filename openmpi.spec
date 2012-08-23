@@ -36,13 +36,13 @@ Source2:		macros.openmpi
 # Patch to handle removed items
 Patch0:			openmpi-removed.patch
 
-BuildRequires:		gcc-gfortran, libtool
+BuildRequires:		gcc-gfortran
 #sparc 64 doesn't have valgrind
 %ifnarch %{sparc}
 BuildRequires:          valgrind-devel
 %endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
-BuildRequires:		librdmacm librdmacm-devel libibcm libibcm-devel
+BuildRequires:		librdmacm-devel libibcm-devel
 BuildRequires:		hwloc-devel
 BuildRequires:		python libtool-ltdl-devel
 BuildRequires:		libesmtp-devel
