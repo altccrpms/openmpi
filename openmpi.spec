@@ -3,19 +3,19 @@
 %global opt_cc gcc
 # Optional CFLAGS to use with the specific compiler...gcc doesn't need any,
 # so uncomment and define to use
-#define opt_cflags
+#global opt_cflags
 %global opt_cxx g++
-#define opt_cxxflags
+#global opt_cxxflags
 %global opt_f77 gfortran
-#define opt_fflags
+#global opt_fflags
 %global opt_fc gfortran
-#define opt_fcflags
+#global opt_fcflags
 
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 # Optional name suffix to use...we leave it off when compiling with gcc, but
 # for other compiled versions to install side by side, it will need a
 # suffix in order to keep the names from conflicting.
-#define _cc_name_suffix -gcc
+#global _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6.1
