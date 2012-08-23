@@ -1,14 +1,14 @@
 # We only compile with gcc, but other people may want other compilers.
 # Set the compiler here.
-%define opt_cc gcc
+%global opt_cc gcc
 # Optional CFLAGS to use with the specific compiler...gcc doesn't need any,
 # so uncomment and define to use
 #define opt_cflags
-%define opt_cxx g++
+%global opt_cxx g++
 #define opt_cxxflags
-%define opt_f77 gfortran
+%global opt_f77 gfortran
 #define opt_fflags
-%define opt_fc gfortran
+%global opt_fc gfortran
 #define opt_fcflags
 
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
@@ -55,8 +55,8 @@ Requires:		environment-modules
 ExcludeArch: s390 s390x
 
 # Private openmpi libraries
-%define __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|o|v)|openmpi/).*.so
-%define __requires_exclude lib(mca|o|v).*
+%global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|o|v)|openmpi/).*.so
+%global __requires_exclude lib(mca|o|v).*
 
 %description
 Open MPI is an open source, freely available implementation of both the 
@@ -93,20 +93,20 @@ Contains development headers and libraries for openmpi
 # undefined.
 
 %ifarch %{ix86} ppc sparcv9
-%define mode 32
-%define modeflag -m32
+%global mode 32
+%global modeflag -m32
 %endif
 %ifarch ia64
-%define mode 64
+%global mode 64
 %endif
 %ifarch x86_64 ppc64 sparc64
-%define mode 64
-%define modeflag -m64
+%global mode 64
+%global modeflag -m64
 %endif
 
 # We set this to for convenience, since this is the unique dir we use for this
 # particular package, version, compiler
-%define namearch openmpi-%{_arch}%{?_cc_name_suffix}
+%global namearch openmpi-%{_arch}%{?_cc_name_suffix}
 
 %prep
 %setup -q -n openmpi-%{version}
