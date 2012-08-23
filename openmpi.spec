@@ -37,10 +37,6 @@ Source2:		macros.openmpi
 Patch0:			openmpi-removed.patch
 
 BuildRequires:		gcc-gfortran, libtool
-# ARM HW doesn't support NUMA
-%ifnarch %{arm}
-BuildRequires:          numactl-devel
-%endif
 #sparc 64 doesn't have valgrind
 %ifnarch %{sparc}
 BuildRequires:          valgrind-devel
@@ -123,9 +119,6 @@ rm -r opal/libltdl
 XFLAGS="-fPIC"
 %endif
 ./configure --prefix=%{_libdir}/%{name} \
-%ifnarch %{arm}
-	--with-libnuma=/usr \
-%endif
 	--with-openib=/usr \
 	--mandir=%{_mandir}/%{namearch} \
 	--includedir=%{_includedir}/%{namearch} \
