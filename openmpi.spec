@@ -1,15 +1,36 @@
+# AltCCRPMS
+%global _prefix /opt/%{name}/%{version}
+%global _sysconfdir %{_prefix}/etc
+%global _defaultdocdir %{_prefix}/share/doc
+%global _infodir %{_prefix}/share/info
+%global _mandir %{_prefix}/share/man
+
+%global _cc_name intel
+%global _cc_name_suffix -%{_cc_name}
+
+#We don't want to be beholden to the proprietary libraries
+%global    _use_internal_dependency_generator 0
+%global    __find_requires %{nil}
+
+# Non gcc compilers don't generate build ids
+%undefine _missing_build_ids_terminate_build
+
+%global shortname openmpi
+
+%global intel_flags -O3 -axSSE2,SSE4.1,SSE4.2
+
 # We only compile with gcc, but other people may want other compilers.
 # Set the compiler here.
-%global opt_cc gcc
+%global opt_cc icc
 # Optional CFLAGS to use with the specific compiler...gcc doesn't need any,
 # so uncomment and define to use
-#global opt_cflags
-%global opt_cxx g++
-#global opt_cxxflags
-%global opt_f77 gfortran
-#global opt_fflags
-%global opt_fc gfortran
-#global opt_fcflags
+%global opt_cflags %{intel_flags}
+%global opt_cxx icpc
+%global opt_cxxflags %{intel_flags}
+%global opt_f77 ifort
+%global opt_fflags %{intel_flags}
+%global opt_fc ifort
+%global opt_fcflags %{intel_flags}
 
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 # Optional name suffix to use...we leave it off when compiling with gcc, but
@@ -17,7 +38,7 @@
 # suffix in order to keep the names from conflicting.
 #global _cc_name_suffix -gcc
 
-Name:			openmpi%{?_cc_name_suffix}
+Name:			openmpi161%{?_cc_name_suffix}
 Version:		1.6.1
 Release:		1%{?dist}
 Summary:		Open Message Passing Interface
@@ -36,19 +57,24 @@ Source2:		macros.openmpi
 # Patch to handle removed items
 Patch0:			openmpi-removed.patch
 
-BuildRequires:		gcc-gfortran
 #sparc 64 doesn't have valgrind
 %ifnarch %{sparc}
 BuildRequires:          valgrind-devel
 %endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm-devel libibcm-devel
+%if 0%{?fedora}
 BuildRequires:		hwloc-devel
+%endif
 BuildRequires:		python libtool-ltdl-devel
 BuildRequires:		libesmtp-devel
 
 Provides:		mpi
 Requires:		environment-modules
+
+# AltCCRPMS
+Provides:       %{shortname}%{?_cc_name_suffix} = %{version}-%{release}
+Provides:       %{shortname}%{?_cc_name_suffix}%{?_isa} = %{version}-%{release}
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
@@ -70,8 +96,11 @@ researchers. For more information, see http://www.open-mpi.org/ .
 %package devel
 Summary:        Development files for openmpi
 Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}, gcc-gfortran
+Requires:       %{name} = %{version}-%{release}
 Provides:	mpi-devel
+# AltCCRPMS
+Provides:       %{shortname}%{?_cc_name_suffix}-devel = %{version}-%{release}
+Provides:       %{shortname}%{?_cc_name_suffix}-devel%{?_isa} = %{version}-%{release}
 
 %description devel
 Contains development headers and libraries for openmpi
@@ -106,7 +135,7 @@ Contains development headers and libraries for openmpi
 
 # We set this to for convenience, since this is the unique dir we use for this
 # particular package, version, compiler
-%global namearch openmpi-%{_arch}%{?_cc_name_suffix}
+%global namearch openmpi%{?_cc_name_suffix}
 
 %prep
 %setup -q -n openmpi-%{version}
@@ -118,18 +147,18 @@ rm -r opal/libltdl
 %ifarch x86_64
 XFLAGS="-fPIC"
 %endif
-./configure --prefix=%{_libdir}/%{name} \
+./configure --prefix=%{_prefix} \
+	--libdir=%{_prefix}/%{_lib} \
 	--with-openib=/usr \
-	--mandir=%{_mandir}/%{namearch} \
-	--includedir=%{_includedir}/%{namearch} \
-	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--with-sge \
 %ifnarch %{sparc}
 	--with-valgrind \
 	--enable-memchecker \
 %endif
 	--with-esmtp \
+%if 0%{?fedora}
 	--with-hwloc=/usr \
+%endif
 	--with-libltdl=/usr \
 	--with-wrapper-cflags="%{?opt_cflags} %{?modeflag}" \
 	--with-wrapper-cxxflags="%{?opt_cxxflags} %{?modeflag}" \
@@ -137,95 +166,88 @@ XFLAGS="-fPIC"
 	--with-wrapper-fcflags="%{?opt_fcflags} %{?modeflag}" \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='-Wl,-z,noexecstack' \
-	CFLAGS="%{?opt_cflags} $RPM_OPT_FLAGS $XFLAGS" \
-	CXXFLAGS="%{?opt_cxxflags} $RPM_OPT_FLAGS $XFLAGS" \
-	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} $RPM_OPT_FLAGS $XFLAGS" \
-	F77=%{opt_f77} FFLAGS="%{?opt_fflags} $RPM_OPT_FLAGS $XFLAGS"
+	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS} $XFLAGS" \
+	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS} $XFLAGS" \
+	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS} $XFLAGS" \
+	F77=%{opt_f77} FFLAGS="%{?opt_fflags} %{!?opt_fflags:$RPM_OPT_FLAGS} $XFLAGS"
 make %{?_smp_mflags}
 
 %install
 make install DESTDIR=%{buildroot}
-rm -fr %{buildroot}%{_libdir}/%{name}/lib/pkgconfig
-find %{buildroot}%{_libdir}/%{name}/lib -name \*.la | xargs rm
-find %{buildroot}%{_mandir}/%{namearch} -type f | xargs gzip -9
-ln -s mpicc.1.gz %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1.gz
-rm -f %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1
-rm -f %{buildroot}%{_mandir}/%{namearch}/man1/orteCC.1*
+rm -fr %{buildroot}%{_libdir}/pkgconfig
+find %{buildroot}%{_libdir} -name \*.la | xargs rm
+find %{buildroot}%{_mandir} -type f | xargs gzip -9
+ln -s mpicc.1.gz %{buildroot}%{_mandir}/man1/mpiCC.1.gz
+rm -f %{buildroot}%{_mandir}/man1/mpiCC.1
+rm -f %{buildroot}%{_mandir}/man1/orteCC.1*
 rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
-mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
+mkdir %{buildroot}%{_mandir}/man{2,4,5,6,8,9,n}
 
 # Make the environment-modules file
-mkdir -p %{buildroot}%{_sysconfdir}/modulefiles/mpi
+mkdir -p %{buildroot}/etc/modulefiles/mpi/openmpi%{?_cc_name_suffix}/%{version}
 # Since we're doing our own substitution here, use our own definitions.
-sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
-cp %{buildroot}%{_sysconfdir}/modulefiles/mpi/* %{buildroot}%{_sysconfdir}/modulefiles/
+sed 's#@PREFIX@#%{_prefix}#;s#@LIBDIR@#%{_libdir}#g;s#@ETCDIR@#%{_sysconfdir}#g;s#@FMODDIR@#%{_libdir}#g;s#@INCDIR@#%{_includedir}#g;s#@MANDIR@#%{_mandir}#g;s#@PYSITEARCH@#%{python_sitearch}/%{name}#g;s#@COMPILER@#openmpi%{?_cc_name_suffix}#g' < %SOURCE1 > %{buildroot}/etc/modulefiles/mpi/openmpi%{_cc_name_suffix}/%{version}/%{_arch}
 # make the rpm config file
 mkdir -p %{buildroot}/%{_sysconfdir}/rpm
 cp %SOURCE2 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
-mkdir -p %{buildroot}/%{_fmoddir}/%{namearch}
-mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
+mkdir -p %{buildroot}/%{python_sitearch}/%{name}
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
-  %{buildroot}%{_libdir}/%{name}/bin/orte_wrapper_script \
-  %{buildroot}%{_libdir}/%{name}/share/%{name}/*-wrapper-data.txt
+  %{buildroot}%{_bindir}/orte_wrapper_script \
+  %{buildroot}%{_datadir}/openmpi/*-wrapper-data.txt
 
 
 %files
 %defattr(-,root,root,-)
-%dir %{_libdir}/%{name}
-%dir %{_sysconfdir}/%{namearch}
-%dir %{_libdir}/%{name}/bin
-%dir %{_libdir}/%{name}/lib
-%dir %{_libdir}/%{name}/lib/openmpi
-%dir %{_mandir}/%{namearch}
-%dir %{_mandir}/%{namearch}/man*
-%dir %{_fmoddir}/%{namearch}
+%dir %{_libdir}
+%dir %{_sysconfdir}
+%dir %{_libdir}/openmpi
+%dir %{_mandir}
+%dir %{_mandir}/man*
 %dir %{python_sitearch}/%{name}
-%config(noreplace) %{_sysconfdir}/%{namearch}/*
-%{_libdir}/%{name}/bin/mpi[er]*
-%{_libdir}/%{name}/bin/ompi*
-#%{_libdir}/%{name}/bin/opal-*
-%{_libdir}/%{name}/bin/opari
-%{_libdir}/%{name}/bin/orte*
-%{_libdir}/%{name}/bin/otf*
-%{_libdir}/%{name}/lib/*.so.*
-%{_mandir}/%{namearch}/man1/mpi[er]*
-%{_mandir}/%{namearch}/man1/ompi*
-#%{_mandir}/%{namearch}/man1/opal-*
-%{_mandir}/%{namearch}/man1/orte*
-%{_mandir}/%{namearch}/man7/ompi*
-%{_mandir}/%{namearch}/man7/orte*
-%{_libdir}/%{name}/lib/openmpi/*
-%dir %{_sysconfdir}/modulefiles/mpi
-%{_sysconfdir}/modulefiles/mpi/%{namearch}
-%{_sysconfdir}/modulefiles/%{namearch}
+%config(noreplace) %{_sysconfdir}/*
+%{_bindir}/mpi[er]*
+%{_bindir}/ompi*
+#%{_bindir}/opal-*
+%{_bindir}/opari
+%{_bindir}/orte*
+%{_bindir}/otf*
+%{_libdir}/*.so.*
+%{_mandir}/man1/mpi[er]*
+%{_mandir}/man1/ompi*
+#%{_mandir}/man1/opal-*
+%{_mandir}/man1/orte*
+%{_mandir}/man7/ompi*
+%{_mandir}/man7/orte*
+%{_libdir}/openmpi/*
+/etc/modulefiles/mpi
 #%files common
-%dir %{_libdir}/%{name}/share
-%dir %{_libdir}/%{name}/share/openmpi
-%{_libdir}/%{name}/share/openmpi/doc
-%{_libdir}/%{name}/share/openmpi/amca-param-sets
-%{_libdir}/%{name}/share/openmpi/help*.txt
-%{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
+%dir %{_datadir}/openmpi
+%dir %{_libdir}/openmpi
+%{_datadir}/openmpi/doc
+%{_datadir}/openmpi/amca-param-sets
+%{_datadir}/openmpi/help*.txt
+%{_datadir}/openmpi/mca-btl-openib-device-params.ini
 
 %files devel
 %defattr(-,root,root,-)
-%dir %{_includedir}/%{namearch}
-%dir %{_libdir}/%{name}/share/vampirtrace
-%{_libdir}/%{name}/bin/mpi[cCf]*
-%{_libdir}/%{name}/bin/vt*
-%{_libdir}/%{name}/bin/opal_*
-%{_includedir}/%{namearch}/*
-%{_libdir}/%{name}/lib/*.so
-%{_libdir}/%{name}/lib/lib*.a
-%{_libdir}/%{name}/lib/mpi.mod
-%{_mandir}/%{namearch}/man1/mpi[cCf]*
-%{_mandir}/%{namearch}/man1/opal_*
-%{_mandir}/%{namearch}/man3/*
-%{_mandir}/%{namearch}/man7/opal*
-%{_libdir}/%{name}/share/openmpi/openmpi-valgrind.supp
-%{_libdir}/%{name}/share/openmpi/mpi*.txt
-%{_libdir}/%{name}/share/openmpi/orte*.txt
-%{_libdir}/%{name}/share/vampirtrace/*
+%dir %{_includedir}
+%dir %{_datadir}/vampirtrace
+%{_bindir}/mpi[cCf]*
+%{_bindir}/vt*
+%{_bindir}/opal_*
+%{_includedir}/*
+%{_libdir}/*.so
+%{_libdir}/lib*.a
+%{_libdir}/mpi.mod
+%{_mandir}/man1/mpi[cCf]*
+%{_mandir}/man1/opal_*
+%{_mandir}/man3/*
+%{_mandir}/man7/opal*
+%{_datadir}/openmpi/openmpi-valgrind.supp
+%{_datadir}/openmpi/mpi*.txt
+%{_datadir}/openmpi/orte*.txt
+%{_datadir}/vampirtrace/*
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
