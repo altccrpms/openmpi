@@ -39,7 +39,7 @@ Patch0:			openmpi-removed.patch
 BuildRequires:		gcc-gfortran
 #sparc 64 doesn't have valgrind
 %ifnarch %{sparc}
-BuildRequires:          valgrind-devel
+BuildRequires:		valgrind-devel
 %endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm-devel libibcm-devel
