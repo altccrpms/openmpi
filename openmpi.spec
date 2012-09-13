@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6.1
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -115,14 +115,12 @@ Contains development headers and libraries for openmpi
 rm -r opal/libltdl
 
 %build
-%ifarch x86_64
-XFLAGS="-fPIC"
-%endif
 ./configure --prefix=%{_libdir}/%{name} \
-	--with-openib=/usr \
 	--mandir=%{_mandir}/%{namearch} \
 	--includedir=%{_includedir}/%{namearch} \
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
+	--disable-silent-rules \
+	--with-openib=/usr \
 	--with-sge \
 %ifnarch %{sparc}
 	--with-valgrind \
@@ -131,16 +129,16 @@ XFLAGS="-fPIC"
 	--with-esmtp \
 	--with-hwloc=/usr \
 	--with-libltdl=/usr \
-	--with-wrapper-cflags="%{?opt_cflags} %{?modeflag}" \
-	--with-wrapper-cxxflags="%{?opt_cxxflags} %{?modeflag}" \
-	--with-wrapper-fflags="%{?opt_fflags} %{?modeflag}" \
-	--with-wrapper-fcflags="%{?opt_fcflags} %{?modeflag}" \
+	--with-wrapper-cflags="%{?modeflag}" \
+	--with-wrapper-cxxflags="%{?modeflag}" \
+	--with-wrapper-fflags="%{?modeflag}" \
+	--with-wrapper-fcflags="%{?modeflag}" \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='-Wl,-z,noexecstack' \
-	CFLAGS="%{?opt_cflags} $RPM_OPT_FLAGS $XFLAGS" \
-	CXXFLAGS="%{?opt_cxxflags} $RPM_OPT_FLAGS $XFLAGS" \
-	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} $RPM_OPT_FLAGS $XFLAGS" \
-	F77=%{opt_f77} FFLAGS="%{?opt_fflags} $RPM_OPT_FLAGS $XFLAGS"
+	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
+	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}" \
+	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}" \
+	F77=%{opt_f77} FFLAGS="%{?opt_fflags} %{!?opt_fflags:$RPM_OPT_FLAGS}"
 make %{?_smp_mflags}
 
 %install
@@ -229,6 +227,12 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Thu Sep 13 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.1-2
+- Drop adding -fPIC, no longer needed
+- Set --disable-silent-rules for more verbose build logs
+- Don't add opt_*flags to the wrappers
+- Only use $RPM_OPT_FLAGS if not using the opt_*flags
+
 * Thu Aug 23 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.1-1
 - Update to 1.6.1
 - Drop hostfile patch applied upstream
