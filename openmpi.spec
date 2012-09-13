@@ -17,9 +17,8 @@
 
 %global shortname openmpi
 
-# Cannot use -g due to pgf90 issue
-# http://www.open-mpi.org/community/lists/users/2009/12/11639.php
-%global pgi_flags -fastsse
+# -Mnoref_externals is needed with -g to avoid undefined references
+%global pgi_flags -fastsse -g -Mnoref_externals
 
 # We only compile with gcc, but other people may want other compilers.
 # Set the compiler here.
