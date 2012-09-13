@@ -40,7 +40,7 @@
 
 Name:			openmpi161%{?_cc_name_suffix}
 Version:		1.6.1
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -59,7 +59,7 @@ Patch0:			openmpi-removed.patch
 
 #sparc 64 doesn't have valgrind
 %ifnarch %{sparc}
-BuildRequires:          valgrind-devel
+BuildRequires:		valgrind-devel
 %endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm-devel libibcm-devel
@@ -144,9 +144,6 @@ Contains development headers and libraries for openmpi
 rm -r opal/libltdl
 
 %build
-%ifarch x86_64
-XFLAGS="-fPIC"
-%endif
 ./configure --prefix=%{_prefix} \
 	--libdir=%{_prefix}/%{_lib} \
 	--with-openib=/usr \
@@ -166,10 +163,10 @@ XFLAGS="-fPIC"
 	--with-wrapper-fcflags="%{?modeflag}" \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='-Wl,-z,noexecstack' \
-	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS} $XFLAGS" \
-	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS} $XFLAGS" \
-	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS} $XFLAGS" \
-	F77=%{opt_f77} FFLAGS="%{?opt_fflags} %{!?opt_fflags:$RPM_OPT_FLAGS} $XFLAGS"
+	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
+	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}" \
+	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}" \
+	F77=%{opt_f77} FFLAGS="%{?opt_fflags} %{!?opt_fflags:$RPM_OPT_FLAGS}"
 make %{?_smp_mflags}
 
 %install
@@ -251,6 +248,12 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Thu Sep 13 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.1-2
+- Drop adding -fPIC, no longer needed
+- Set --disable-silent-rules for more verbose build logs
+- Don't add opt_*flags to the wrappers
+- Only use $RPM_OPT_FLAGS if not using the opt_*flags
+
 * Thu Aug 23 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.1-1
 - Update to 1.6.1
 - Drop hostfile patch applied upstream
