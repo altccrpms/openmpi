@@ -160,10 +160,10 @@ XFLAGS="-fPIC"
 	--with-hwloc=/usr \
 %endif
 	--with-libltdl=/usr \
-	--with-wrapper-cflags="%{?opt_cflags} %{?modeflag}" \
-	--with-wrapper-cxxflags="%{?opt_cxxflags} %{?modeflag}" \
-	--with-wrapper-fflags="%{?opt_fflags} %{?modeflag}" \
-	--with-wrapper-fcflags="%{?opt_fcflags} %{?modeflag}" \
+	--with-wrapper-cflags="%{?modeflag}" \
+	--with-wrapper-cxxflags="%{?modeflag}" \
+	--with-wrapper-fflags="%{?modeflag}" \
+	--with-wrapper-fcflags="%{?modeflag}" \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='-Wl,-z,noexecstack' \
 	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS} $XFLAGS" \
