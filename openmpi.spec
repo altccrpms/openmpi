@@ -5,7 +5,7 @@
 %global _infodir %{_prefix}/share/info
 %global _mandir %{_prefix}/share/man
 
-%global _cc_name intel
+%global _cc_name pgf
 %global _cc_name_suffix -%{_cc_name}
 
 #We don't want to be beholden to the proprietary libraries
@@ -17,20 +17,20 @@
 
 %global shortname openmpi
 
-%global intel_flags -O3 -axSSE2,SSE4.1,SSE4.2
+%global pgi_flags -g -fastsse
 
 # We only compile with gcc, but other people may want other compilers.
 # Set the compiler here.
-%global opt_cc icc
+%global opt_cc gcc
 # Optional CFLAGS to use with the specific compiler...gcc doesn't need any,
 # so uncomment and define to use
-%global opt_cflags %{intel_flags}
-%global opt_cxx icpc
-%global opt_cxxflags %{intel_flags}
-%global opt_f77 ifort
-%global opt_fflags %{intel_flags}
-%global opt_fc ifort
-%global opt_fcflags %{intel_flags}
+#global opt_cflags
+%global opt_cxx g++
+#global opt_cxxflags
+%global opt_f77 pgf90
+%global opt_fflags %{pgi_flags}
+%global opt_fc pgf90
+%global opt_fcflags %{pgi_flags}
 
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 # Optional name suffix to use...we leave it off when compiling with gcc, but
