@@ -1,12 +1,14 @@
 # AltCCRPMS
-%global _prefix /opt/%{name}/%{version}
+%global shortname openmpi
+
+%global _cc_name pgf
+%global _cc_name_suffix -%{_cc_name}
+
+%global _prefix /opt/%{shortname}-%{_cc_name}/%{version}
 %global _sysconfdir %{_prefix}/etc
 %global _defaultdocdir %{_prefix}/share/doc
 %global _infodir %{_prefix}/share/info
 %global _mandir %{_prefix}/share/man
-
-%global _cc_name pgf
-%global _cc_name_suffix -%{_cc_name}
 
 #We don't want to be beholden to the proprietary libraries
 %global    _use_internal_dependency_generator 0
@@ -14,8 +16,6 @@
 
 # Non gcc compilers don't generate build ids
 %undefine _missing_build_ids_terminate_build
-
-%global shortname openmpi
 
 # -Mnoref_externals is needed with -g to avoid undefined references
 %global pgi_flags -fastsse -g -Mnoref_externals
