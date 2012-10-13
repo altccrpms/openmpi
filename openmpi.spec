@@ -18,8 +18,8 @@
 #global _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.6.1
-Release:		2%{?dist}
+Version:		1.6.2
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -46,6 +46,7 @@ BuildRequires:		librdmacm-devel libibcm-devel
 BuildRequires:		hwloc-devel
 BuildRequires:		python libtool-ltdl-devel
 BuildRequires:		libesmtp-devel
+BuildRequires:		torque-devel
 
 Provides:		mpi
 Requires:		environment-modules
@@ -156,7 +157,6 @@ mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 mkdir -p %{buildroot}%{_sysconfdir}/modulefiles/mpi
 # Since we're doing our own substitution here, use our own definitions.
 sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
-cp %{buildroot}%{_sysconfdir}/modulefiles/mpi/* %{buildroot}%{_sysconfdir}/modulefiles/
 # make the rpm config file
 mkdir -p %{buildroot}/%{_sysconfdir}/rpm
 cp %SOURCE2 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
@@ -194,9 +194,7 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_mandir}/%{namearch}/man7/ompi*
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
-%dir %{_sysconfdir}/modulefiles/mpi
-%{_sysconfdir}/modulefiles/mpi/%{namearch}
-%{_sysconfdir}/modulefiles/%{namearch}
+%{_sysconfdir}/modulefiles/mpi/
 #%files common
 %dir %{_libdir}/%{name}/share
 %dir %{_libdir}/%{name}/share/openmpi
@@ -227,6 +225,11 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Sat Oct 13 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.2-1
+- Update to 1.6.2
+- Add BR torque-devel to enable torque support
+- Drop old module file location (bug #838467)
+
 * Thu Sep 13 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.1-2
 - Drop adding -fPIC, no longer needed
 - Set --disable-silent-rules for more verbose build logs
