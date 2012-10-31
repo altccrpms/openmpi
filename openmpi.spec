@@ -18,7 +18,7 @@
 #global _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.6.2
+Version:		1.6.3
 Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
@@ -225,6 +225,9 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Wed Oct 31 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.3-1
+- Update to 1.6.3
+
 * Sat Oct 13 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.2-1
 - Update to 1.6.2
 - Add BR torque-devel to enable torque support
