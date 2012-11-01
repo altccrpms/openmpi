@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6.3
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -225,6 +225,9 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Thu Nov 1 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.3-2
+- Update rpm macros to use the new module location
+
 * Wed Oct 31 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.3-1
 - Update to 1.6.3
 
