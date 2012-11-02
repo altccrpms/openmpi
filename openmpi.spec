@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6.3
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -121,6 +121,7 @@ rm -r opal/libltdl
 	--includedir=%{_includedir}/%{namearch} \
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
+	--enable-opal-multi-threads \
 	--with-openib=/usr \
 	--with-sge \
 %ifnarch %{sparc}
@@ -225,6 +226,9 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Fri Nov 2 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.3-3
+- Set enable-opal-multi-threads for IB support
+
 * Thu Nov 1 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.3-2
 - Update rpm macros to use the new module location
 
