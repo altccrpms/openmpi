@@ -40,7 +40,7 @@
 
 Name:			openmpi161%{?_cc_name_suffix}
 Version:		1.6.1
-Release:		2%{?dist}
+Release:		2%{?dist}.1
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -146,6 +146,7 @@ rm -r opal/libltdl
 %build
 ./configure --prefix=%{_prefix} \
 	--libdir=%{_prefix}/%{_lib} \
+	--enable-opal-multi-threads \
 	--with-openib=/usr \
 	--with-sge \
 %ifnarch %{sparc}
@@ -198,7 +199,6 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %defattr(-,root,root,-)
 %dir %{_libdir}
 %dir %{_sysconfdir}
-%dir %{_libdir}/openmpi
 %dir %{_mandir}
 %dir %{_mandir}/man*
 %dir %{python_sitearch}/%{name}
@@ -248,6 +248,9 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Fri Nov  2 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.1-2.1
+- Set enable-opal-multi-threads for IB support
+
 * Thu Sep 13 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.1-2
 - Drop adding -fPIC, no longer needed
 - Set --disable-silent-rules for more verbose build logs
