@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6.3
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -35,6 +35,10 @@ Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to handle removed items
 Patch0:			openmpi-removed.patch
+# Patch to use system ltdl for tests
+Patch1:                 openmpi-ltdl.patch
+# Patch to fix libmpi_f90.so so version
+Patch2:                 openmpi-f90sover.patch
 
 BuildRequires:		gcc-gfortran
 #sparc 64 doesn't have valgrind
@@ -112,6 +116,8 @@ Contains development headers and libraries for openmpi
 %prep
 %setup -q -n openmpi-%{version}
 %patch0 -p1 -b .removed
+%patch1 -p1 -b .ltdl
+%patch2 -p1 -b .f90sover
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
@@ -167,6 +173,9 @@ mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 sed -i -e s/-ldl// -e s/-lhwloc// \
   %{buildroot}%{_libdir}/%{name}/bin/orte_wrapper_script \
   %{buildroot}%{_libdir}/%{name}/share/%{name}/*-wrapper-data.txt
+
+%check
+make check
 
 
 %files
@@ -226,6 +235,11 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Mon Nov 5 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.3-4
+- Add patch to fix libmpi_f90.so version
+- Add patch to link tests with system libltdl
+- Run make check
+
 * Fri Nov 2 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.3-3
 - Set enable-opal-multi-threads for IB support
 
