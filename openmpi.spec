@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6.3
-Release:		4%{?dist}
+Release:		5%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -39,6 +39,8 @@ Patch0:			openmpi-removed.patch
 Patch1:                 openmpi-ltdl.patch
 # Patch to fix libmpi_f90.so so version
 Patch2:                 openmpi-f90sover.patch
+# Patch to fix build on ARM
+Patch3:                 openmpi-1.6.3-arm-atomics.patch
 
 BuildRequires:		gcc-gfortran
 #sparc 64 doesn't have valgrind
@@ -118,11 +120,16 @@ Contains development headers and libraries for openmpi
 %patch0 -p1 -b .removed
 %patch1 -p1 -b .ltdl
 %patch2 -p1 -b .f90sover
+%patch3 -p1 -b .arm-atomics
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
+%ifarch armv5tel
+	--build=armv5tel-redhat-linux-gnueabi \
+	--host=armv5tel-redhat-linux-gnueabi \
+%endif
 	--mandir=%{_mandir}/%{namearch} \
 	--includedir=%{_includedir}/%{namearch} \
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
@@ -147,6 +154,7 @@ rm -r opal/libltdl
 	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}" \
 	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}" \
 	F77=%{opt_f77} FFLAGS="%{?opt_fflags} %{!?opt_fflags:$RPM_OPT_FLAGS}"
+
 make %{?_smp_mflags}
 
 %install
@@ -235,6 +243,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Sun Nov 11 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.6.3-5
+- Atomics patch to fix building on ARM (thanks to Jon Masters)
+
 * Mon Nov 5 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.3-4
 - Add patch to fix libmpi_f90.so version
 - Add patch to link tests with system libltdl
