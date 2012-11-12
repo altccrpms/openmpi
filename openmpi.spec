@@ -28,9 +28,10 @@
 #global opt_cflags
 %global opt_cxx g++
 #global opt_cxxflags
-%global opt_f77 pgf90
+# -noswitcherror is needed to ignore -pthreads
+%global opt_f77 pgf90 -noswitcherror
 %global opt_fflags %{pgi_flags}
-%global opt_fc pgf90
+%global opt_fc pgf90 -noswitcherror
 %global opt_fcflags %{pgi_flags}
 
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
@@ -41,7 +42,7 @@
 
 Name:			openmpi161%{?_cc_name_suffix}
 Version:		1.6.1
-Release:		2%{?dist}.1
+Release:		2%{?dist}.2
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -165,10 +166,11 @@ rm -r opal/libltdl
 	--with-wrapper-fcflags="%{?modeflag}" \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='-Wl,-z,noexecstack' \
+	LIBS='-lgcc_eh' \
 	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
 	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}" \
-	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}" \
-	F77=%{opt_f77} FFLAGS="%{?opt_fflags} %{!?opt_fflags:$RPM_OPT_FLAGS}"
+	FC="%{opt_fc}" FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}" \
+	F77="%{opt_f77}" FFLAGS="%{?opt_fflags} %{!?opt_fflags:$RPM_OPT_FLAGS}"
 make %{?_smp_mflags}
 
 %install
@@ -249,6 +251,10 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Mon Nov 12 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.1-2.2
+- Add LIBS=-lgcc_eh needed for thread support when mixing gcc/pgf90
+- Add -noswitcherror to compiler needed to ignore -pthreads
+
 * Fri Nov  2 2012 Orion Poplawski <orion@cora.nwra.com> 1.6.1-2.1
 - Set enable-opal-multi-threads for IB support
 
