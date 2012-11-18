@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6.3
-Release:		5%{?dist}
+Release:		6%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -243,6 +243,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Sun Nov 18 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.6.3-6
+- Update atomics patch for ARM (thanks to Jon Masters)
+
 * Sun Nov 11 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.6.3-5
 - Atomics patch to fix building on ARM (thanks to Jon Masters)
 

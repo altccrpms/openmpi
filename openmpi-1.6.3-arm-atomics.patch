@@ -1,4 +1,3 @@
-Binary files openmpi-1.6.3_orig/opal/asm/.asm-data.txt.swp and openmpi-1.6.3/opal/asm/.asm-data.txt.swp differ
 diff -urNp openmpi-1.6.3_orig/opal/asm/base/ARM.asm openmpi-1.6.3/opal/asm/base/ARM.asm
 --- openmpi-1.6.3_orig/opal/asm/base/ARM.asm	2012-04-03 10:29:44.000000000 -0400
 +++ openmpi-1.6.3/opal/asm/base/ARM.asm	1969-12-31 19:00:00.000000000 -0500
@@ -158,8 +157,8 @@ diff -urNp openmpi-1.6.3_orig/opal/asm/base/ARM.asm openmpi-1.6.3/opal/asm/base/
 -END_FUNC(opal_atomic_sub_32)
 diff -urNp openmpi-1.6.3_orig/opal/asm/base/ARMV5.asm openmpi-1.6.3/opal/asm/base/ARMV5.asm
 --- openmpi-1.6.3_orig/opal/asm/base/ARMV5.asm	1969-12-31 19:00:00.000000000 -0500
-+++ openmpi-1.6.3/opal/asm/base/ARMV5.asm	2012-11-11 00:04:19.340576499 -0500
-@@ -0,0 +1,120 @@
++++ openmpi-1.6.3/opal/asm/base/ARMV5.asm	2012-11-13 14:43:17.018685692 -0500
+@@ -0,0 +1,109 @@
 +START_FILE
 +       TEXT
 +
@@ -183,102 +182,91 @@ diff -urNp openmpi-1.6.3_orig/opal/asm/base/ARMV5.asm openmpi-1.6.3/opal/asm/bas
 +
 +
 +START_FUNC(opal_atomic_cmpset_32)
++       push    {r4, lr}
 +       mov     r3, r0
 +       mov     r0, r1
 +       mov     r1, r2
 +       mov     r2, r3
-+       mov     r12, lr
 +       ldr     r3, REFLSYM(1)
 +       blx     r3
-+       cmp     r0, #0
-+       movne   r0, #0
-+       moveq   r0, #1
-+       mov     lr, r12
++       movcc   r0, #0
++       movcs   r0, #1
++       pop     {r4, lr}
 +       bx      lr
-+       LSYM(1)
 +       .align  2
-+       .word   -61504
++       LSYM(1)
++       .word   0xffff0fc0
 +END_FUNC(opal_atomic_cmpset_32)
 +
 +
 +START_FUNC(opal_atomic_cmpset_acq_32)
++       push    {r4, lr}
 +       mov     r3, r0
 +       mov     r0, r1
 +       mov     r1, r2
 +       mov     r2, r3
-+       mov     r12, lr
 +       ldr     r3, REFLSYM(2)
 +       blx     r3
-+       cmp     r0, #0
-+       movne   r0, #0
-+       moveq   r0, #1
-+       mov     lr, r12
++       movcc   r0, #0
++       movcs   r0, #1
++       pop     {r4, lr}
 +       bx      lr
-+       LSYM(2)
 +       .align  2
-+       .word   -61504
++       LSYM(2)
++       .word   0xffff0fc0
 +END_FUNC(opal_atomic_cmpset_acq_32)
 +
 +
 +START_FUNC(opal_atomic_cmpset_rel_32)
++       push    {r4, lr}
 +       mov     r3, r0
 +       mov     r0, r1
 +       mov     r1, r2
 +       mov     r2, r3
-+       mov     r12, lr
 +       ldr     r3, REFLSYM(3)
 +       blx     r3
-+       cmp     r0, #0
-+       movne   r0, #0
-+       moveq   r0, #1
-+       mov     lr, r12
++       movcc   r0, #0
++       movcs   r0, #1
++       pop     {r4, lr}
 +       bx      lr
-+       LSYM(3)
 +       .align  2
-+       .word   -61504
++       LSYM(3)
++       .word   0xffff0fc0
 +END_FUNC(opal_atomic_cmpset_rel_32)
 +
 +START_FUNC(opal_atomic_add_32)
-+       push    {r4-r7}
-+       mov     r4, r1
-+       mov     r2, r0
-+       mov     r12, lr
-+       ldr     r3, REFLSYM(5)
-+       LSYM(4)
-+       ldr     r0, [r2]
-+       add     r1, r0, r4
-+       blx     r3
-+       cmp     r0, #0
-+       movne   r0, #1
-+       bne     REFLSYM(4)
-+       mov     lr, r12
-+       pop     {r4-r7}
-+       bx      lr
-+       LSYM(5)
-+       .align  2
-+       .word   -61504
++        push    {r4, lr}
++        mov     r4, r1
++        mov     r2, r0
++        LSYM(4)
++        ldr     r0, [r2]
++        ldr     r3, REFLSYM(5)
++        add     r1, r0, r4
++        blx     r3
++        bcc     REFLSYM(4)
++        pop     {r4, lr}
++        bx      lr
++        .align  2
++        LSYM(5)
++        .word   0xffff0fc0
 +END_FUNC(opal_atomic_add_32)
 +
 +
 +START_FUNC(opal_atomic_sub_32)
-+       push    {r4-r7}
-+       mov     r4, r1
-+       mov     r2, r0
-+       mov     r12, lr
-+       ldr     r3, REFLSYM(5)
-+       LSYM(6)
-+       ldr     r0, [r2]
-+       sub     r1, r0, r4
-+       blx     r3
-+       cmp     r0, #0
-+       movne   r0, #1
-+       bne     REFLSYM(4)
-+       mov     lr, r12
-+       pop     {r4-r7}
-+       bx      lr
-+       LSYM(7)
-+       .align  2
-+       .word   -61504
++        push    {r4, lr}
++        mov     r4, r1
++        mov     r2, r0
++        LSYM(6)
++        ldr     r0, [r2]
++        ldr     r3, REFLSYM(7)
++        sub     r1, r0, r4
++        blx     r3
++        bcc     REFLSYM(6)
++        pop     {r4, lr}
++        bx      lr
++        .align  2
++        LSYM(7)
++        .word   0xffff0fc0
 +END_FUNC(opal_atomic_sub_32)
 diff -urNp openmpi-1.6.3_orig/opal/asm/base/ARMV6.asm openmpi-1.6.3/opal/asm/base/ARMV6.asm
 --- openmpi-1.6.3_orig/opal/asm/base/ARMV6.asm	1969-12-31 19:00:00.000000000 -0500
@@ -649,3 +637,5 @@ diff -urNp openmpi-1.6.3_orig/opal/config/opal_config_asm.m4 openmpi-1.6.3/opal/
              AC_DEFINE_UNQUOTED([OPAL_ASM_ARM_VERSION], [$OPAL_ASM_ARM_VERSION],
                                 [What ARM assembly version to use])
              OMPI_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
+Binary files openmpi-1.6.3_orig/opal/include/opal/sys/arm/.atomic.h.swp and openmpi-1.6.3/opal/include/opal/sys/arm/.atomic.h.swp differ
+
