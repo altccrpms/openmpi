@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6.3
-Release:		6%{?dist}
+Release:		7%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -63,7 +63,7 @@ ExcludeArch: s390 s390x
 
 # Private openmpi libraries
 %global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|o|v)|openmpi/).*.so
-%global __requires_exclude lib(mca|o|v).*
+%global __requires_exclude lib(mca|ompi|open-pal|open-rte|otf|vt).*
 
 %description
 Open MPI is an open source, freely available implementation of both the 
@@ -243,6 +243,10 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Mon Jan 28 2013 Orion Poplawski <orion@cora.nwra.com> 1.6.3-7
+- Make __requires_exclude more specific so we don't exclude needed libs
+  (bug #905263)
+
 * Sun Nov 18 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.6.3-6
 - Update atomics patch for ARM (thanks to Jon Masters)
 
