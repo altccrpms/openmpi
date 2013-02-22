@@ -59,7 +59,7 @@ ExcludeArch: s390 s390x
 
 # Private openmpi libraries
 %global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|o|v)|openmpi/).*.so
-%global __requires_exclude lib(mca|o|v).*
+%global __requires_exclude lib(mca|ompi|open-pal|open-rte|otf|vt).*
 
 %description
 Open MPI is an open source, freely available implementation of both the 
@@ -240,6 +240,10 @@ make check
 * Fri Feb 22 2013 Orion Poplawski <orion@cora.nwra.com> 1.6.4-1
 - Update to 1.6.4
 - Drop f90sover and arm-atomics patch fixed upstream
+
+* Mon Jan 28 2013 Orion Poplawski <orion@cora.nwra.com> 1.6.3-7
+- Make __requires_exclude more specific so we don't exclude needed libs
+  (bug #905263)
 
 * Sun Nov 18 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.6.3-6
 - Update atomics patch for ARM (thanks to Jon Masters)
