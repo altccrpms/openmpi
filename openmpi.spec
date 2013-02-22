@@ -18,8 +18,8 @@
 #global _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.6.3
-Release:		6%{?dist}
+Version:		1.6.4
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -37,10 +37,6 @@ Source2:		macros.openmpi
 Patch0:			openmpi-removed.patch
 # Patch to use system ltdl for tests
 Patch1:                 openmpi-ltdl.patch
-# Patch to fix libmpi_f90.so so version
-Patch2:                 openmpi-f90sover.patch
-# Patch to fix build on ARM
-Patch3:                 openmpi-1.6.3-arm-atomics.patch
 
 BuildRequires:		gcc-gfortran
 #sparc 64 doesn't have valgrind
@@ -119,8 +115,6 @@ Contains development headers and libraries for openmpi
 %setup -q -n openmpi-%{version}
 %patch0 -p1 -b .removed
 %patch1 -p1 -b .ltdl
-%patch2 -p1 -b .f90sover
-%patch3 -p1 -b .arm-atomics
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
@@ -243,6 +237,10 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Fri Feb 22 2013 Orion Poplawski <orion@cora.nwra.com> 1.6.4-1
+- Update to 1.6.4
+- Drop f90sover and arm-atomics patch fixed upstream
+
 * Sun Nov 18 2012 Peter Robinson <pbrobinson@fedoraproject.org> 1.6.3-6
 - Update atomics patch for ARM (thanks to Jon Masters)
 
