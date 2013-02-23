@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.6.4
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -59,7 +59,7 @@ ExcludeArch: s390 s390x
 
 # Private openmpi libraries
 %global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|o|v)|openmpi/).*.so
-%global __requires_exclude lib(mca|ompi|open-pal|open-rte|otf|vt).*
+%global __requires_exclude lib(mca|ompi|open-(pal|rte|trace)|otf|vt).*
 
 %description
 Open MPI is an open source, freely available implementation of both the 
@@ -237,6 +237,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Sat Feb 23 2013 Orion Poplawski <orion@cora.nwra.com> 1.6.4-2
+- Exclude libopen-trace.* from requires
+
 * Fri Feb 22 2013 Orion Poplawski <orion@cora.nwra.com> 1.6.4-1
 - Update to 1.6.4
 - Drop f90sover and arm-atomics patch fixed upstream
