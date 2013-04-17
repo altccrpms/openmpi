@@ -138,7 +138,6 @@ rm -r opal/libltdl
 	--with-libltdl=/usr \
 	--with-wrapper-cflags="%{?modeflag}" \
 	--with-wrapper-cxxflags="%{?modeflag}" \
-	--with-wrapper-fflags="%{?modeflag}" \
 	--with-wrapper-fcflags="%{?modeflag}" \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='-Wl,-z,noexecstack' \
