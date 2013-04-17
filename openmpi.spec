@@ -47,7 +47,6 @@ BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm-devel libibcm-devel
 BuildRequires:		hwloc-devel
 BuildRequires:		python libtool-ltdl-devel
-BuildRequires:		libesmtp-devel
 BuildRequires:		torque-devel
 
 Provides:		mpi
@@ -135,7 +134,6 @@ rm -r opal/libltdl
 	--with-valgrind \
 	--enable-memchecker \
 %endif
-	--with-esmtp \
 	--with-hwloc=/usr \
 	--with-libltdl=/usr \
 	--with-wrapper-cflags="%{?modeflag}" \
@@ -240,6 +238,7 @@ make check
 * Tue Apr 16 2013 Orion Poplawski <orion@cora.nwra.com> 1.7-1
 - Update to 1.7
 - Rebase patch to handle removed components
+- Drop esmtp - no longer used
 
 * Sat Feb 23 2013 Orion Poplawski <orion@cora.nwra.com> 1.6.4-2
 - Exclude libopen-trace.* from requires
