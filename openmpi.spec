@@ -18,7 +18,7 @@
 #global _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.7
+Version:		1.7.1
 Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
@@ -46,6 +46,9 @@ BuildRequires:		valgrind-devel
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm-devel libibcm-devel
 BuildRequires:		hwloc-devel
+# So configure can find lstopo
+BuildRequires:		hwloc
+BuildRequires:		papi-devel
 BuildRequires:		python libtool-ltdl-devel
 BuildRequires:		torque-devel
 
@@ -235,6 +238,11 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Wed Apr 17 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.1-1
+- Update to 1.7.1
+- Add BR on hwloc
+- Add BR on papi-devel
+
 * Tue Apr 16 2013 Orion Poplawski <orion@cora.nwra.com> 1.7-1
 - Update to 1.7
 - Rebase patch to handle removed components
