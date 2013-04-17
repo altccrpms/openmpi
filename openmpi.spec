@@ -128,7 +128,7 @@ rm -r opal/libltdl
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
 	--enable-opal-multi-threads \
-	--with-openib=/usr \
+	--with-verbs=/usr \
 	--with-sge \
 %ifnarch %{sparc}
 	--with-valgrind \
