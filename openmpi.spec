@@ -211,6 +211,7 @@ make check
 %{_libdir}/%{name}/share/openmpi/amca-param-sets
 %{_libdir}/%{name}/share/openmpi/help*.txt
 %{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
+%{_libdir}/%{name}/share/openmpi/mca-coll-ml.config
 
 %files devel
 %defattr(-,root,root,-)
