@@ -18,7 +18,7 @@
 #global _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.7.1
+Version:		1.7.2
 Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
@@ -238,6 +238,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Thu Jun 27 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.2-1
+- Update to 1.7.2
+
 * Wed Apr 17 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.1-1
 - Update to 1.7.1
 - Add BR on hwloc
