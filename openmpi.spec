@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.2
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -174,7 +174,7 @@ mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
   %{buildroot}%{_libdir}/%{name}/bin/orte_wrapper_script \
-  %{buildroot}%{_libdir}/%{name}/share/%{name}/*-wrapper-data.txt
+  %{buildroot}%{_libdir}/%{name}/share/openmpi/*-wrapper-data.txt
 
 %check
 make check
@@ -238,6 +238,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Fri Jul 26 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.2-2
+- Fix build issue with _cc_name_suffix (bug #986664)
+
 * Thu Jun 27 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.2-1
 - Update to 1.7.2
 
