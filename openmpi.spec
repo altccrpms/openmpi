@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.2
-Release:		4%{?dist}
+Release:		5%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -238,6 +238,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Sat Aug 03 2013 Petr Pisar <ppisar@redhat.com> - 1.7.2-5
+- Perl 5.18 rebuild
+
 * Fri Jul 26 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.2-4
 - Fix build issue with _cc_name_suffix (bug #986664)
 
