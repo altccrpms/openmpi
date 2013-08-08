@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.2
-Release:		5%{?dist}
+Release:		6%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -238,6 +238,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Thu Aug 08 2013 Dennis Gilmore <dennis@ausil.us> - 1.7.2-6
+- rebuild for papi soname bump bz#995092
+
 * Sat Aug 03 2013 Petr Pisar <ppisar@redhat.com> - 1.7.2-5
 - Perl 5.18 rebuild
 
