@@ -376,7 +376,7 @@ make check
 - Adjust the files entries for share/openmpi/mpi*
 - Add files entry for share/openmpi/orte*.txt
 
-* Sat Sep 05 2010 Dennis Gilmore <dennis@ausil.us> - 1.4.1-7
+* Sun Sep 05 2010 Dennis Gilmore <dennis@ausil.us> - 1.4.1-7
 - disable valgrind support on sparc arches
 
 * Sat Jul 24 2010 David Malcolm <dmalcolm@redhat.com> - 1.4.1-6
