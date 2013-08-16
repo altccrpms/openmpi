@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.2
-Release:		6%{?dist}
+Release:		7%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -196,13 +196,13 @@ make check
 %{_libdir}/%{name}/bin/ompi*
 #%{_libdir}/%{name}/bin/opal-*
 %{_libdir}/%{name}/bin/opari
-%{_libdir}/%{name}/bin/orte*
+%{_libdir}/%{name}/bin/orte[-dr_]*
 %{_libdir}/%{name}/bin/otf*
 %{_libdir}/%{name}/lib/*.so.*
 %{_mandir}/%{namearch}/man1/mpi[er]*
 %{_mandir}/%{namearch}/man1/ompi*
 #%{_mandir}/%{namearch}/man1/opal-*
-%{_mandir}/%{namearch}/man1/orte*
+%{_mandir}/%{namearch}/man1/orte[-dr_]*
 %{_mandir}/%{namearch}/man7/ompi*
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
@@ -221,8 +221,9 @@ make check
 %dir %{_includedir}/%{namearch}
 %dir %{_libdir}/%{name}/share/vampirtrace
 %{_libdir}/%{name}/bin/mpi[cCf]*
-%{_libdir}/%{name}/bin/vt*
 %{_libdir}/%{name}/bin/opal_*
+%{_libdir}/%{name}/bin/orte[cCf]*
+%{_libdir}/%{name}/bin/vt*
 %{_includedir}/%{namearch}/*
 %{_libdir}/%{name}/lib/*.so
 %{_libdir}/%{name}/lib/lib*.a
@@ -238,6 +239,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Fri Aug 16 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.2-7
+- Move orte* compiler wrappers to devel sub-package (bug #997330)
+
 * Thu Aug 08 2013 Dennis Gilmore <dennis@ausil.us> - 1.7.2-6
 - rebuild for papi soname bump bz#995092
 
