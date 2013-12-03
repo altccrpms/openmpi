@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.3
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -30,7 +30,10 @@ Source0:		http://www.open-mpi.org/software/ompi/v1.7/downloads/openmpi-%{version
 Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to use system ltdl for tests
-Patch1:                 openmpi-ltdl.patch
+Patch1:			openmpi-ltdl.patch
+# Patch to fix compilation with -Werror=format-security
+# https://bugzilla.redhat.com/show_bug.cgi?id=1037231
+Patch2:			openmpi-format.patch
 
 BuildRequires:		gcc-gfortran
 #sparc 64 doesn't have valgrind
@@ -67,9 +70,9 @@ software vendors, application developers, and computer science
 researchers. For more information, see http://www.open-mpi.org/ .
 
 %package devel
-Summary:        Development files for openmpi
-Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}, gcc-gfortran
+Summary:	Development files for openmpi
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}, gcc-gfortran
 Provides:	mpi-devel
 
 %description devel
@@ -110,6 +113,7 @@ Contains development headers and libraries for openmpi
 %prep
 %setup -q -n openmpi-%{version}
 %patch1 -p1 -b .ltdl
+%patch2 -p1 -b .format
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
@@ -232,6 +236,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Tue Dec 2 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.3-2
+- Fix compilation with -Werror=format-security (bug #1037231)
+
 * Sun Oct 20 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.3-1
 - Update to 1.7.3
 - Upstream no longer ships license incompatible files
