@@ -236,7 +236,7 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
-* Tue Dec 2 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.3-2
+* Tue Dec 3 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.3-2
 - Fix compilation with -Werror=format-security (bug #1037231)
 
 * Sun Oct 20 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.3-1
