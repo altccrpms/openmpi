@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.3
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -37,7 +37,7 @@ Patch2:			openmpi-format.patch
 
 BuildRequires:		gcc-gfortran
 #sparc 64 doesn't have valgrind
-%ifnarch %{sparc}
+%ifnarch %{sparc} aarch64
 BuildRequires:		valgrind-devel
 %endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
@@ -130,7 +130,7 @@ rm -r opal/libltdl
 	--enable-opal-multi-threads \
 	--with-verbs=/usr \
 	--with-sge \
-%ifnarch %{sparc}
+%ifnarch %{sparc} aarch64
 	--with-valgrind \
 	--enable-memchecker \
 %endif
@@ -236,6 +236,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Wed Dec  4 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.7.3-3
+- valgrind not currently supported on aarch64
+
 * Tue Dec 3 2013 Orion Poplawski <orion@cora.nwra.com> 1.7.3-2
 - Fix compilation with -Werror=format-security (bug #1037231)
 
