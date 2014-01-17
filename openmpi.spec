@@ -19,7 +19,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.3
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -236,6 +236,9 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Thu Jan 16 2014 Orion Poplawski <orion@cora.nwra.com> 1.7.3-4
+- Rebuild with papi 5.3.0
+
 * Wed Dec  4 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.7.3-3
 - valgrind not currently supported on aarch64
 
