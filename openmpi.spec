@@ -1,3 +1,4 @@
+%global _hardened_build 1
 # We only compile with gcc, but other people may want other compilers.
 # Set the compiler here.
 %global opt_cc gcc
@@ -19,7 +20,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.3
-Release:		4%{?dist}
+Release:		5%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -36,7 +37,7 @@ Patch1:			openmpi-ltdl.patch
 Patch2:			openmpi-format.patch
 
 BuildRequires:		gcc-gfortran
-#sparc 64 doesn't have valgrind
+#sparc64 and aarch64 don't have valgrind
 %ifnarch %{sparc} aarch64
 BuildRequires:		valgrind-devel
 %endif
@@ -78,34 +79,6 @@ Provides:	mpi-devel
 %description devel
 Contains development headers and libraries for openmpi
 
-# When dealing with multilib installations, aka the ability to run either
-# i386 or x86_64 binaries on x86_64 machines, we install the native i386
-# openmpi libs/compilers and the native x86_64 libs/compilers.  Obviously,
-# on i386 you can only run i386, so you don't really need the -m32 flag
-# to gcc in order to force 32 bit mode.  However, since we use the native
-# i386 package to support i386 operation on x86_64, and since on x86_64
-# the default is x86_64, the i386 package needs to force i386 mode.  This
-# is true of all the multilib arches, hence the non-default arch (aka i386
-# on x86_64) must force the non-default mode (aka 32 bit compile) in it's
-# native-arch package (aka, when built on i386) so that it will work
-# properly on the non-native arch as a multilib package (aka i386 installed
-# on x86_64).  Just to be safe, we also force the default mode (aka 64 bit)
-# in default arch packages (aka, the x86_64 package).  There are, however,
-# some arches that don't support forcing *any* mode, those we just leave
-# undefined.
-
-%ifarch %{ix86} ppc sparcv9
-%global mode 32
-%global modeflag -m32
-%endif
-%ifarch ia64
-%global mode 64
-%endif
-%ifarch x86_64 ppc64 sparc64
-%global mode 64
-%global modeflag -m64
-%endif
-
 # We set this to for convenience, since this is the unique dir we use for this
 # particular package, version, compiler
 %global namearch openmpi-%{_arch}%{?_cc_name_suffix}
@@ -119,10 +92,6 @@ rm -r opal/libltdl
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
-%ifarch armv5tel
-	--build=armv5tel-redhat-linux-gnueabi \
-	--host=armv5tel-redhat-linux-gnueabi \
-%endif
 	--mandir=%{_mandir}/%{namearch} \
 	--includedir=%{_includedir}/%{namearch} \
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
@@ -136,17 +105,14 @@ rm -r opal/libltdl
 %endif
 	--with-hwloc=/usr \
 	--with-libltdl=/usr \
-	--with-wrapper-cflags="%{?modeflag}" \
-	--with-wrapper-cxxflags="%{?modeflag}" \
-	--with-wrapper-fcflags="%{?modeflag}" \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
-	LDFLAGS='-Wl,-z,noexecstack' \
+	LDFLAGS='%{__global_ldflags}' \
 	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
 	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}" \
 	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}" \
 	F77=%{opt_f77} FFLAGS="%{?opt_fflags} %{!?opt_fflags:$RPM_OPT_FLAGS}"
 
-make %{?_smp_mflags}
+make %{?_smp_mflags} V=1
 
 %install
 make install DESTDIR=%{buildroot}
@@ -163,6 +129,7 @@ mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 mkdir -p %{buildroot}%{_sysconfdir}/modulefiles/mpi
 # Since we're doing our own substitution here, use our own definitions.
 sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
+
 # make the rpm config file
 mkdir -p %{buildroot}/%{_sysconfdir}/rpm
 cp %SOURCE2 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
@@ -176,9 +143,7 @@ sed -i -e s/-ldl// -e s/-lhwloc// \
 %check
 make check
 
-
 %files
-%defattr(-,root,root,-)
 %dir %{_libdir}/%{name}
 %dir %{_sysconfdir}/%{namearch}
 %dir %{_libdir}/%{name}/bin
@@ -204,7 +169,6 @@ make check
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
 %{_sysconfdir}/modulefiles/mpi/
-#%files common
 %dir %{_libdir}/%{name}/share
 %dir %{_libdir}/%{name}/share/openmpi
 %{_libdir}/%{name}/share/openmpi/doc
@@ -214,7 +178,6 @@ make check
 %{_libdir}/%{name}/share/openmpi/mca-coll-ml.config
 
 %files devel
-%defattr(-,root,root,-)
 %dir %{_includedir}/%{namearch}
 %dir %{_libdir}/%{name}/share/vampirtrace
 %{_libdir}/%{name}/bin/mpi[cCf]*
@@ -236,6 +199,12 @@ make check
 %{_sysconfdir}/rpm/macros.%{namearch}
 
 %changelog
+* Tue Jan 28 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.7.3-5
+- Drop mode/modeflag. mode no longer used, modeflag obsolete as set in CFLAGS
+- Use distro LDFLAGS for hardened build
+- Drop armv5tel options
+- General spec cleanups
+
 * Thu Jan 16 2014 Orion Poplawski <orion@cora.nwra.com> 1.7.3-4
 - Rebuild with papi 5.3.0
 
