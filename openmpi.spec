@@ -19,8 +19,8 @@
 #global _cc_name_suffix -gcc
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.7.3
-Release:		5%{?dist}
+Version:		1.7.4
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -32,9 +32,6 @@ Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to use system ltdl for tests
 Patch1:			openmpi-ltdl.patch
-# Patch to fix compilation with -Werror=format-security
-# https://bugzilla.redhat.com/show_bug.cgi?id=1037231
-Patch2:			openmpi-format.patch
 
 BuildRequires:		gcc-gfortran
 #sparc64 and aarch64 don't have valgrind
@@ -46,6 +43,8 @@ BuildRequires:		librdmacm-devel libibcm-devel
 BuildRequires:		hwloc-devel
 # So configure can find lstopo
 BuildRequires:		hwloc
+BuildRequires:		java-devel
+BuildRequires:		libevent-devel
 BuildRequires:		papi-devel
 BuildRequires:		python libtool-ltdl-devel
 BuildRequires:		torque-devel
@@ -77,7 +76,25 @@ Requires:	%{name} = %{version}-%{release}, gcc-gfortran
 Provides:	mpi-devel
 
 %description devel
-Contains development headers and libraries for openmpi
+Contains development headers and libraries for openmpi.
+
+%package java
+Summary:	Java library
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+Requires:	java
+
+%description java
+Java library.
+
+%package java-devel
+Summary:	Java development files for openmpi
+Group:		Development/Libraries
+Requires:	%{name}-java = %{version}-%{release}
+Requires:	java-devel
+
+%description java-devel
+Contains development wrapper for compiling Java with openmpi.
 
 # We set this to for convenience, since this is the unique dir we use for this
 # particular package, version, compiler
@@ -86,7 +103,6 @@ Contains development headers and libraries for openmpi
 %prep
 %setup -q -n openmpi-%{version}
 %patch1 -p1 -b .ltdl
-%patch2 -p1 -b .format
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
@@ -96,7 +112,9 @@ rm -r opal/libltdl
 	--includedir=%{_includedir}/%{namearch} \
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
+	--enable-mpi-java \
 	--enable-opal-multi-threads \
+	--with-libevent=/usr \
 	--with-verbs=/usr \
 	--with-sge \
 %ifnarch %{sparc} aarch64
@@ -137,7 +155,6 @@ mkdir -p %{buildroot}/%{_fmoddir}/%{namearch}
 mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
-  %{buildroot}%{_libdir}/%{name}/bin/orte_wrapper_script \
   %{buildroot}%{_libdir}/%{name}/share/openmpi/*-wrapper-data.txt
 
 %check
@@ -198,7 +215,21 @@ make check
 %{_libdir}/%{name}/share/vampirtrace/*
 %{_sysconfdir}/rpm/macros.%{namearch}
 
+%files java
+%{_libdir}/%{name}/lib/mpi.jar
+
+%files java-devel
+%{_libdir}/%{name}/bin/mpijavac
+%{_libdir}/%{name}/bin/mpijavac.pl
+%{_mandir}/%{namearch}/man1/mpijavac.1.gz
+
 %changelog
+* Wed Feb 5 2014 Orion Poplawski <orion@cora.nwra.com> 1.7.4-4
+- Update to 1.7.4
+- Drop format patch fixed upstream
+- Build against system libevent
+- Build Java mpi bindings, ship in -java sub-package
+
 * Tue Jan 28 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.7.3-5
 - Drop mode/modeflag. mode no longer used, modeflag obsolete as set in CFLAGS
 - Use distro LDFLAGS for hardened build
