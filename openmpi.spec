@@ -51,6 +51,9 @@ BuildRequires:		torque-devel
 
 Provides:		mpi
 Requires:		environment-modules
+# openmpi currently requires ssh to run
+# https://svn.open-mpi.org/trac/ompi/ticket/4228
+Requires:		openssh-clients
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
@@ -229,6 +232,7 @@ make check
 - Drop format patch fixed upstream
 - Build against system libevent
 - Build Java mpi bindings, ship in -java sub-package
+- Add requires openssh-clients
 
 * Tue Jan 28 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.7.3-5
 - Drop mode/modeflag. mode no longer used, modeflag obsolete as set in CFLAGS
