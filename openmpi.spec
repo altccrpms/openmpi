@@ -18,9 +18,11 @@
 # suffix in order to keep the names from conflicting.
 #global _cc_name_suffix -gcc
 
+%global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
+
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.4
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -152,8 +154,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/modulefiles/mpi
 sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
 
 # make the rpm config file
-mkdir -p %{buildroot}/%{_sysconfdir}/rpm
-cp %SOURCE2 %{buildroot}/%{_sysconfdir}/rpm/macros.%{namearch}
+install -Dpm 644 %{SOURCE2} %{buildroot}/%{macrosdir}/macros.%{namearch}
 mkdir -p %{buildroot}/%{_fmoddir}/%{namearch}
 mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 # Remove extraneous wrapper link libraries (bug 814798)
@@ -216,7 +217,7 @@ make check
 %{_libdir}/%{name}/share/openmpi/mpi*.txt
 %{_libdir}/%{name}/share/openmpi/orte*.txt
 %{_libdir}/%{name}/share/vampirtrace/*
-%{_sysconfdir}/rpm/macros.%{namearch}
+%{macrosdir}/macros.%{namearch}
 
 %files java
 %{_libdir}/%{name}/lib/mpi.jar
@@ -227,7 +228,10 @@ make check
 %{_mandir}/%{namearch}/man1/mpijavac.1.gz
 
 %changelog
-* Wed Feb 5 2014 Orion Poplawski <orion@cora.nwra.com> 1.7.4-4
+* Sat Feb  8 2014 Ville Skyttä <ville.skytta@iki.fi> - 1.7.4-2
+- Install macros to %%{_rpmconfdir}/macros.d where available.
+
+* Wed Feb 5 2014 Orion Poplawski <orion@cora.nwra.com> 1.7.4-1
 - Update to 1.7.4
 - Drop format patch fixed upstream
 - Build against system libevent
