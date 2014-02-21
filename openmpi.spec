@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.4
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -87,7 +87,11 @@ Contains development headers and libraries for openmpi.
 Summary:	Java library
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
+%if 0%{?fedora} >= 20 || 0%{?rhel} >= 7
+Requires:	java-headless
+%else
 Requires:	java
+%endif
 
 %description java
 Java library.
@@ -228,6 +232,9 @@ make check
 %{_mandir}/%{namearch}/man1/mpijavac.1.gz
 
 %changelog
+* Fri Feb 21 2014 Orion Poplawski <orion@cora.nwra.com> - 1.7.4-3
+- Require java-headless
+
 * Sat Feb  8 2014 Ville Skyttä <ville.skytta@iki.fi> - 1.7.4-2
 - Install macros to %%{_rpmconfdir}/macros.d where available.
 
