@@ -21,8 +21,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.7.4
-Release:		3%{?dist}
+Version:		1.7.5
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -181,15 +181,17 @@ make check
 %config(noreplace) %{_sysconfdir}/%{namearch}/*
 %{_libdir}/%{name}/bin/mpi[er]*
 %{_libdir}/%{name}/bin/ompi*
-#%{_libdir}/%{name}/bin/opal-*
 %{_libdir}/%{name}/bin/opari
 %{_libdir}/%{name}/bin/orte[-dr_]*
+%{_libdir}/%{name}/bin/oshmem_info
+%{_libdir}/%{name}/bin/oshrun
 %{_libdir}/%{name}/bin/otf*
+%{_libdir}/%{name}/bin/shmemrun
 %{_libdir}/%{name}/lib/*.so.*
 %{_mandir}/%{namearch}/man1/mpi[er]*
 %{_mandir}/%{namearch}/man1/ompi*
-#%{_mandir}/%{namearch}/man1/opal-*
 %{_mandir}/%{namearch}/man1/orte[-dr_]*
+%{_mandir}/%{namearch}/man1/oshmem_info*
 %{_mandir}/%{namearch}/man7/ompi*
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
@@ -208,6 +210,8 @@ make check
 %{_libdir}/%{name}/bin/mpi[cCf]*
 %{_libdir}/%{name}/bin/opal_*
 %{_libdir}/%{name}/bin/orte[cCf]*
+%{_libdir}/%{name}/bin/osh[cf]*
+%{_libdir}/%{name}/bin/shmem[cf]*
 %{_libdir}/%{name}/bin/vt*
 %{_includedir}/%{namearch}/*
 %{_libdir}/%{name}/lib/*.so
@@ -218,8 +222,7 @@ make check
 %{_mandir}/%{namearch}/man3/*
 %{_mandir}/%{namearch}/man7/opal*
 %{_libdir}/%{name}/share/openmpi/openmpi-valgrind.supp
-%{_libdir}/%{name}/share/openmpi/mpi*.txt
-%{_libdir}/%{name}/share/openmpi/orte*.txt
+%{_libdir}/%{name}/share/openmpi/*-wrapper-data.txt
 %{_libdir}/%{name}/share/vampirtrace/*
 %{macrosdir}/macros.%{namearch}
 
@@ -229,9 +232,15 @@ make check
 %files java-devel
 %{_libdir}/%{name}/bin/mpijavac
 %{_libdir}/%{name}/bin/mpijavac.pl
+# Currently this only contaings openmpi/javadoc
+%{_libdir}/%{name}/share/doc/
 %{_mandir}/%{namearch}/man1/mpijavac.1.gz
 
+
 %changelog
+* Mon Mar 24 2014 Orion Poplawski <orion@cora.nwra.com> 1.7.5-1
+- Update to 1.7.5
+
 * Fri Feb 21 2014 Orion Poplawski <orion@cora.nwra.com> - 1.7.4-3
 - Require java-headless
 
