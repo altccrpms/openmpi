@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.7.5
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -62,7 +62,7 @@ Requires:		openssh-clients
 ExcludeArch: s390 s390x
 
 # Private openmpi libraries
-%global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|o|v)|openmpi/).*.so
+%global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|ompi|open-(pal|rte|trace)|otf|v)|openmpi/).*.so
 %global __requires_exclude lib(mca|ompi|open-(pal|rte|trace)|otf|vt).*
 
 %description
@@ -238,6 +238,9 @@ make check
 
 
 %changelog
+* Tue Mar 25 2014 Orion Poplawski <orion@cora.nwra.com> 1.7.5-2
+- Update provides filter
+
 * Mon Mar 24 2014 Orion Poplawski <orion@cora.nwra.com> 1.7.5-1
 - Update to 1.7.5
 
