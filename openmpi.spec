@@ -21,15 +21,15 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.7.5
-Release:		2%{?dist}
+Version:		1.8
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		http://www.open-mpi.org/software/ompi/v1.7/downloads/openmpi-%{version}.tar.bz2
+Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to use system ltdl for tests
@@ -238,6 +238,9 @@ make check
 
 
 %changelog
+* Tue Apr 1 2014 Orion Poplawski <orion@cora.nwra.com> 1.8-1
+- Update to 1.8
+
 * Tue Mar 25 2014 Orion Poplawski <orion@cora.nwra.com> 1.7.5-2
 - Update provides filter
 
