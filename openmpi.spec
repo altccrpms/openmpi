@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.1
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -34,6 +34,9 @@ Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to use system ltdl for tests
 Patch1:			openmpi-ltdl.patch
+# Fix shmem wrappers from adding extra libs
+# https://svn.open-mpi.org/trac/ompi/ticket/4796
+Patch2:                 openmpi-wrapper.patch
 
 BuildRequires:		gcc-gfortran
 #sparc64 and aarch64 don't have valgrind
@@ -112,6 +115,7 @@ Contains development wrapper for compiling Java with openmpi.
 %prep
 %setup -q -n openmpi-%{version}
 %patch1 -p1 -b .ltdl
+%patch2 -p1 -b .wrapper
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
@@ -238,6 +242,9 @@ make check
 
 
 %changelog
+* Thu Jul 17 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.1-3
+- Add patch to prevent shmem wrappers from adding extra libs
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.8.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
