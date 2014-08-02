@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.1
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -40,7 +40,7 @@ Patch2:                 openmpi-wrapper.patch
 
 BuildRequires:		gcc-gfortran
 #sparc64 and aarch64 don't have valgrind
-%ifnarch %{sparc} aarch64
+%ifnarch %{sparc}
 BuildRequires:		valgrind-devel
 %endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
@@ -130,7 +130,7 @@ rm -r opal/libltdl
 	--with-libevent=/usr \
 	--with-verbs=/usr \
 	--with-sge \
-%ifnarch %{sparc} aarch64
+%ifnarch %{sparc}
 	--with-valgrind \
 	--enable-memchecker \
 %endif
@@ -242,6 +242,9 @@ make check
 
 
 %changelog
+* Sat Aug  2 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.8.1-4
+- aarch64 now has valgrind
+
 * Thu Jul 17 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.1-3
 - Add patch to prevent shmem wrappers from adding extra libs
 
