@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.1
-Release:		4%{?dist}
+Release:		5%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -39,8 +39,8 @@ Patch1:			openmpi-ltdl.patch
 Patch2:                 openmpi-wrapper.patch
 
 BuildRequires:		gcc-gfortran
-#sparc64 and aarch64 don't have valgrind
-%ifnarch %{sparc}
+#sparc64 and ppc64le don't have valgrind
+%ifnarch %{sparc} ppc64le
 BuildRequires:		valgrind-devel
 %endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
@@ -130,7 +130,7 @@ rm -r opal/libltdl
 	--with-libevent=/usr \
 	--with-verbs=/usr \
 	--with-sge \
-%ifnarch %{sparc}
+%ifnarch %{sparc} ppc64le
 	--with-valgrind \
 	--enable-memchecker \
 %endif
@@ -242,6 +242,9 @@ make check
 
 
 %changelog
+* Mon Aug  4 2014 Dan Horák <dan[at]danny.cz> 1.8.1-5
+- no valgrind on ppc64le yet
+
 * Sat Aug  2 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.8.1-4
 - aarch64 now has valgrind
 
