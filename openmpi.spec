@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.1
-Release:		5%{?dist}
+Release:		6%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -242,6 +242,9 @@ make check
 
 
 %changelog
+* Wed Aug  6 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.8.1-6
+- Rebuild (papi)
+
 * Mon Aug  4 2014 Dan Horák <dan[at]danny.cz> 1.8.1-5
 - no valgrind on ppc64le yet
 
