@@ -34,9 +34,6 @@ Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to use system ltdl for tests
 Patch1:			openmpi-ltdl.patch
-# Fix shmem wrappers from adding extra libs
-# https://svn.open-mpi.org/trac/ompi/ticket/4796
-Patch2:                 openmpi-wrapper.patch
 
 BuildRequires:		gcc-gfortran
 #sparc64 and ppc64le don't have valgrind
@@ -115,7 +112,6 @@ Contains development wrapper for compiling Java with openmpi.
 %prep
 %setup -q -n openmpi-%{version}
 %patch1 -p1 -b .ltdl
-%patch2 -p1 -b .wrapper
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
