@@ -216,7 +216,7 @@ make check
 %{_includedir}/%{namearch}/*
 %{_libdir}/%{name}/lib/*.so
 %{_libdir}/%{name}/lib/lib*.a
-%{_libdir}/%{name}/lib/mpi.mod
+%{_libdir}/%{name}/lib/*.mod
 %{_mandir}/%{namearch}/man1/mpi[cCf]*
 %{_mandir}/%{namearch}/man1/opal_*
 %{_mandir}/%{namearch}/man3/*
