@@ -21,8 +21,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.8.2
-Release:		2%{?dist}
+Version:		1.8.3
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -238,6 +238,9 @@ make check
 
 
 %changelog
+* Sat Sep 27 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.3-1
+- Update to 1.8.3
+
 * Tue Sep 16 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.8.2-2
 - ppc64le now has valgrind
 
