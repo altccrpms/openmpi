@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.3
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -34,6 +34,9 @@ Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to use system ltdl for tests
 Patch1:			openmpi-ltdl.patch
+# Fix typo in liboshmem name
+# https://github.com/open-mpi/ompi/pull/221
+Patch2:                 openmpi-oshmem.patch
 
 BuildRequires:		gcc-gfortran
 #sparc64 don't have valgrind
@@ -112,6 +115,7 @@ Contains development wrapper for compiling Java with openmpi.
 %prep
 %setup -q -n openmpi-%{version}
 %patch1 -p1 -b .ltdl
+%patch2 -p1 -b .oshmem
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
@@ -238,6 +242,9 @@ make check
 
 
 %changelog
+* Fri Oct 3 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.3-2
+- Fix typo in oshmem library name
+
 * Sat Sep 27 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.3-1
 - Update to 1.8.3
 
