@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.3
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -242,6 +242,9 @@ make check
 
 
 %changelog
+* Mon Nov 17 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.3-3
+- Rebuild for papi soname change
+
 * Fri Oct 3 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.3-2
 - Fix typo in oshmem library name
 
