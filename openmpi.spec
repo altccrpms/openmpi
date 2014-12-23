@@ -21,8 +21,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.8.3
-Release:		3%{?dist}
+Version:		1.8.4
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -242,6 +242,9 @@ make check
 
 
 %changelog
+* Tue Dec 23 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.4-1
+- Update to 1.8.4
+
 * Mon Nov 17 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.3-3
 - Rebuild for papi soname change
 
