@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.4
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -159,11 +159,11 @@ mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 # Make the environment-modules file
 mkdir -p %{buildroot}%{_sysconfdir}/modulefiles/mpi
 # Since we're doing our own substitution here, use our own definitions.
-sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{namearch}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
+sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{name}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
 
 # make the rpm config file
 install -Dpm 644 %{SOURCE2} %{buildroot}/%{macrosdir}/macros.%{namearch}
-mkdir -p %{buildroot}/%{_fmoddir}/%{namearch}
+mkdir -p %{buildroot}/%{_fmoddir}/%{name}
 mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
@@ -180,7 +180,7 @@ make check
 %dir %{_libdir}/%{name}/lib/openmpi
 %dir %{_mandir}/%{namearch}
 %dir %{_mandir}/%{namearch}/man*
-%dir %{_fmoddir}/%{namearch}
+%dir %{_fmoddir}/%{name}
 %dir %{python_sitearch}/%{name}
 %config(noreplace) %{_sysconfdir}/%{namearch}/*
 %{_libdir}/%{name}/bin/mpi[er]*
@@ -242,6 +242,9 @@ make check
 
 
 %changelog
+* Fri Feb 13 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.4-2
+- Fix MPI_FORTRAN_MOD_DIR (bug #1154982)
+
 * Tue Dec 23 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.4-1
 - Update to 1.8.4
 
