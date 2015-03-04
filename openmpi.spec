@@ -22,14 +22,15 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.4
-Release:		2%{?dist}
+Release:		3.20150228gitgd83fb30%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}.tar.bz2
+#Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}.tar.bz2
+Source0:		http://www.open-mpi.org/nightly/v1.8/openmpi-v%{version}-99-gd83fb30.tar.gz
 Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Patch to use system ltdl for tests
@@ -113,7 +114,7 @@ Contains development wrapper for compiling Java with openmpi.
 %global namearch openmpi-%{_arch}%{?_cc_name_suffix}
 
 %prep
-%setup -q -n openmpi-%{version}
+%setup -q -n openmpi-v%{version}-99-gd83fb30
 %patch1 -p1 -b .ltdl
 %patch2 -p1 -b .oshmem
 # Make sure we don't use the local libltdl library
@@ -242,7 +243,10 @@ make check
 
 
 %changelog
-* Fri Feb 13 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.4-2
+* Wed Mar 4 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.4-3.99.20150228gitgd83fb30
+- Update to 1.8.4.99 snapshot
+
+* Fri Feb 13 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.4-2
 - Fix MPI_FORTRAN_MOD_DIR (bug #1154982)
 
 * Tue Dec 23 2014 Orion Poplawski <orion@cora.nwra.com> 1.8.4-1
