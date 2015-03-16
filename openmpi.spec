@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.4
-Release:		3.20150228gitgd83fb30%{?dist}
+Release:		4.20150228gitgd83fb30%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -127,7 +127,6 @@ rm -r opal/libltdl
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
 	--enable-mpi-java \
-	--enable-opal-multi-threads \
 	--with-libevent=/usr \
 	--with-verbs=/usr \
 	--with-sge \
@@ -141,14 +140,12 @@ rm -r opal/libltdl
 	LDFLAGS='%{__global_ldflags}' \
 	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
 	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}" \
-	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}" \
-	F77=%{opt_f77} FFLAGS="%{?opt_fflags} %{!?opt_fflags:$RPM_OPT_FLAGS}"
+	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}"
 
 make %{?_smp_mflags} V=1
 
 %install
 make install DESTDIR=%{buildroot}
-rm -fr %{buildroot}%{_libdir}/%{name}/lib/pkgconfig
 find %{buildroot}%{_libdir}/%{name}/lib -name \*.la | xargs rm
 find %{buildroot}%{_mandir}/%{namearch} -type f | xargs gzip -9
 ln -s mpicc.1.gz %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1.gz
@@ -222,6 +219,7 @@ make check
 %{_libdir}/%{name}/lib/*.so
 %{_libdir}/%{name}/lib/lib*.a
 %{_libdir}/%{name}/lib/*.mod
+%{_libdir}/%{name}/lib/pkgconfig/
 %{_mandir}/%{namearch}/man1/mpi[cCf]*
 %{_mandir}/%{namearch}/man1/opal_*
 %{_mandir}/%{namearch}/man3/*
@@ -243,6 +241,10 @@ make check
 
 
 %changelog
+* Mon Mar 16 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.4-4.99.20150228gitgd83fb30
+- Own and ship pkgconfig files, set PKG_CONFIG_PATH in modulefile (bug #1113626)
+- Drop old configure settings
+
 * Wed Mar 4 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.4-3.99.20150228gitgd83fb30
 - Update to 1.8.4.99 snapshot
 
