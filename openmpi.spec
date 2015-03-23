@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.4
-Release:		4.20150228gitgd83fb30%{?dist}
+Release:		5.20150228gitgd83fb30%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -241,6 +241,9 @@ make check
 
 
 %changelog
+* Mon Mar 23 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 1.8.4-5.20150228gitgd83fb30
+- Rebuild for fortran update (#1204420)
+
 * Mon Mar 16 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.4-4.99.20150228gitgd83fb30
 - Own and ship pkgconfig files, set PKG_CONFIG_PATH in modulefile (bug #1113626)
 - Drop old configure settings
