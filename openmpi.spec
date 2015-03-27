@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.4
-Release:		5.20150228gitgd83fb30%{?dist}
+Release:		6.20150324gitg9ad2aa8%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -30,9 +30,11 @@ URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
 #Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}.tar.bz2
-Source0:		http://www.open-mpi.org/nightly/v1.8/openmpi-v%{version}-99-gd83fb30.tar.gz
+Source0:		http://www.open-mpi.org/nightly/v1.8/openmpi-v1.8.4-134-g9ad2aa8.tar.bz2
 Source1:		openmpi.module.in
 Source2:		macros.openmpi
+# Upstream patch to fix atomics on 32bit
+Patch0:			openmpi-atomic.patch
 # Patch to use system ltdl for tests
 Patch1:			openmpi-ltdl.patch
 # Fix typo in liboshmem name
@@ -114,7 +116,8 @@ Contains development wrapper for compiling Java with openmpi.
 %global namearch openmpi-%{_arch}%{?_cc_name_suffix}
 
 %prep
-%setup -q -n openmpi-v%{version}-99-gd83fb30
+%setup -q -n openmpi-v%{version}-134-g9ad2aa8
+%patch0 -p1 -b .atomic
 %patch1 -p1 -b .ltdl
 %patch2 -p1 -b .oshmem
 # Make sure we don't use the local libltdl library
@@ -241,6 +244,10 @@ make check
 
 
 %changelog
+* Fri Mar 27 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.4-6.20150324gitg9ad2aa8
+- Update to latest 1.8.4 snapshot
+- Add upstream patch to fix atomics on 32bit
+
 * Mon Mar 23 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 1.8.4-5.20150228gitgd83fb30
 - Rebuild for fortran update (#1204420)
 
