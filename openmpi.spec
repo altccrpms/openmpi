@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.4
-Release:		6.20150324gitg9ad2aa8%{?dist}
+Release:		7.20150324gitg9ad2aa8%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
