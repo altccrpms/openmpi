@@ -40,6 +40,9 @@ Patch1:			openmpi-ltdl.patch
 # Fix typo in liboshmem name
 # https://github.com/open-mpi/ompi/pull/221
 Patch2:                 openmpi-oshmem.patch
+# Upstream patch to fix race/hang on 32-bit
+# https://github.com/open-mpi/ompi/pull/503
+Patch3:                 openmpi-vader.patch
 
 BuildRequires:		gcc-gfortran
 #sparc64 don't have valgrind
@@ -120,6 +123,7 @@ Contains development wrapper for compiling Java with openmpi.
 %patch0 -p1 -b .atomic
 %patch1 -p1 -b .ltdl
 %patch2 -p1 -b .oshmem
+%patch3 -p1 -b .vader
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
@@ -244,6 +248,9 @@ make check
 
 
 %changelog
+* Mon Mar 30 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.4-7.20150324gitg9ad2aa8
+- Add upstream patch to fix race/hang on 32bit machines
+
 * Fri Mar 27 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.4-6.20150324gitg9ad2aa8
 - Update to latest 1.8.4 snapshot
 - Add upstream patch to fix atomics on 32bit
