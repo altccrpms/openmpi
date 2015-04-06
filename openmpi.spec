@@ -21,16 +21,15 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.8.4
-Release:		7.20150324gitg9ad2aa8%{?dist}
+Version:		1.8.5
+Release:		0.1.rc1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-#Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}.tar.bz2
-Source0:		http://www.open-mpi.org/nightly/v1.8/openmpi-v1.8.4-134-g9ad2aa8.tar.bz2
+Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}rc1.tar.bz2
 Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Upstream patch to fix atomics on 32bit
@@ -40,9 +39,6 @@ Patch1:			openmpi-ltdl.patch
 # Fix typo in liboshmem name
 # https://github.com/open-mpi/ompi/pull/221
 Patch2:                 openmpi-oshmem.patch
-# Upstream patch to fix race/hang on 32-bit
-# https://github.com/open-mpi/ompi/pull/503
-Patch3:                 openmpi-vader.patch
 
 BuildRequires:		gcc-gfortran
 #sparc64 don't have valgrind
@@ -119,11 +115,10 @@ Contains development wrapper for compiling Java with openmpi.
 %global namearch openmpi-%{_arch}%{?_cc_name_suffix}
 
 %prep
-%setup -q -n openmpi-v%{version}-134-g9ad2aa8
+%setup -q -n openmpi-%{version}rc1
 %patch0 -p1 -b .atomic
 %patch1 -p1 -b .ltdl
 %patch2 -p1 -b .oshmem
-%patch3 -p1 -b .vader
 # Make sure we don't use the local libltdl library
 rm -r opal/libltdl
 
@@ -248,6 +243,9 @@ make check
 
 
 %changelog
+* Sun Apr 5 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.5-0.1.rc1
+- Update to 1.8.5rc1
+
 * Mon Mar 30 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.4-7.20150324gitg9ad2aa8
 - Add upstream patch to fix race/hang on 32bit machines
 
