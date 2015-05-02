@@ -22,23 +22,18 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.5
-Release:		0.1.rc1%{?dist}
+Release:		0.2.rc3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}rc1.tar.bz2
+Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}rc3.tar.bz2
 Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Upstream patch to fix atomics on 32bit
 Patch0:			openmpi-atomic.patch
-# Patch to use system ltdl for tests
-Patch1:			openmpi-ltdl.patch
-# Fix typo in liboshmem name
-# https://github.com/open-mpi/ompi/pull/221
-Patch2:                 openmpi-oshmem.patch
 
 BuildRequires:		gcc-gfortran
 #sparc64 don't have valgrind
@@ -115,12 +110,8 @@ Contains development wrapper for compiling Java with openmpi.
 %global namearch openmpi-%{_arch}%{?_cc_name_suffix}
 
 %prep
-%setup -q -n openmpi-%{version}rc1
+%setup -q -n openmpi-%{version}rc3
 %patch0 -p1 -b .atomic
-%patch1 -p1 -b .ltdl
-%patch2 -p1 -b .oshmem
-# Make sure we don't use the local libltdl library
-rm -r opal/libltdl
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
@@ -243,6 +234,9 @@ make check
 
 
 %changelog
+* Fri May 1 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.5-0.2.rc3
+- Update to 1.8.5rc3
+
 * Sun Apr 5 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.5-0.1.rc1
 - Update to 1.8.5rc1
 
