@@ -22,14 +22,14 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.5
-Release:		0.2.rc3%{?dist}
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}rc3.tar.bz2
+Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		macros.openmpi
 # Upstream patch to fix atomics on 32bit
@@ -110,7 +110,7 @@ Contains development wrapper for compiling Java with openmpi.
 %global namearch openmpi-%{_arch}%{?_cc_name_suffix}
 
 %prep
-%setup -q -n openmpi-%{version}rc3
+%setup -q -n openmpi-%{version}
 %patch0 -p1 -b .atomic
 
 %build
@@ -234,6 +234,9 @@ make check
 
 
 %changelog
+* Tue May 5 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.5-1
+- Update to 1.8.5
+
 * Fri May 1 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.5-0.2.rc3
 - Update to 1.8.5rc3
 
