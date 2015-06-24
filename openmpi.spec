@@ -21,8 +21,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.8.5
-Release:		2%{?dist}
+Version:		1.8.6
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -234,6 +234,9 @@ make check
 
 
 %changelog
+* Tue Jun 23 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.6-1
+- Update to 1.8.6
+
 * Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.8.5-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
