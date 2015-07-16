@@ -21,7 +21,7 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.8.6
+Version:		1.8.7
 Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
@@ -234,6 +234,9 @@ make check
 
 
 %changelog
+* Wed Jul 15 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.7-1
+- Update to 1.8.7
+
 * Tue Jun 23 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.6-1
 - Update to 1.8.6
 
