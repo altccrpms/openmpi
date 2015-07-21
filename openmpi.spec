@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.8
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -49,6 +49,7 @@ BuildRequires:		papi-devel
 BuildRequires:		perl(Getopt::Long)
 BuildRequires:		python libtool-ltdl-devel
 BuildRequires:		torque-devel
+BuildRequires:		rpm-mpi-hooks
 
 Provides:		mpi
 Requires:		environment-modules
@@ -78,6 +79,7 @@ Summary:	Development files for openmpi
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}, gcc-gfortran
 Provides:	mpi-devel
+Requires:	rpm-mpi-hooks
 
 %description devel
 Contains development headers and libraries for openmpi.
@@ -232,6 +234,9 @@ make check
 
 
 %changelog
+* Mon Aug 10 2015 Sandro Mani <manisandro@gmail.com> - 1.8.8-2
+- Require, BuildRequire: rpm-mpi-hooks
+
 * Mon Aug 10 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.8-1
 - Update to 1.8.8
 - Drop atomic patch applied upstream
