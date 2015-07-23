@@ -21,15 +21,15 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.8.8
-Release:		5%{?dist}
+Version:		1.10.0
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}.tar.bz2
+Source0:		http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
@@ -41,11 +41,16 @@ BuildRequires:		valgrind-devel
 %endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm-devel libibcm-devel
+# Doesn't compile:
+# vt_dyn.cc:958:28: error: 'class BPatch_basicBlockLoop' has no member named 'getLoopHead'
+#                      loop->getLoopHead()->getStartAddress(), loop_stmts );
+#BuildRequires:		dyninst-devel
 BuildRequires:		hwloc-devel
 # So configure can find lstopo
-BuildRequires:		hwloc
+BuildRequires:		hwloc-gui
 BuildRequires:		java-devel
 BuildRequires:		libevent-devel
+BuildRequires:		libfabric-devel
 BuildRequires:		papi-devel
 BuildRequires:		perl(Getopt::Long)
 BuildRequires:		python
@@ -53,6 +58,7 @@ BuildRequires:		python2-devel
 BuildRequires:		python3-devel
 BuildRequires:		libtool-ltdl-devel
 BuildRequires:		torque-devel
+BuildRequires:		zlib-devel
 BuildRequires:		rpm-mpi-hooks
 
 Provides:		mpi
@@ -60,6 +66,8 @@ Requires:		environment-modules
 # openmpi currently requires ssh to run
 # https://svn.open-mpi.org/trac/ompi/ticket/4228
 Requires:		openssh-clients
+# otf appears to be bundled
+Provides:               bundled(otf) =  1.12.3
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
@@ -125,7 +133,6 @@ Contains development wrapper for compiling Java with openmpi.
 	--disable-silent-rules \
 	--enable-mpi-java \
 	--with-libevent=/usr \
-	--with-verbs=/usr \
 	--with-sge \
 %ifnarch s390
 	--with-valgrind \
@@ -138,6 +145,7 @@ Contains development wrapper for compiling Java with openmpi.
 	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
 	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}" \
 	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}"
+#        --with-contrib-vt-flags='CXXFLAGS="-I%{_includedir}/dyninst -L%{_libdir}/dyninst"' \
 
 make %{?_smp_mflags} V=1
 
@@ -257,10 +265,13 @@ make check
 
 
 %changelog
+* Tue Sep 15 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-1
+- Update to 1.10.0
+
 * Thu Aug 27 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 1.8.8-5
 - Use .pth files to set the python path (https://fedorahosted.org/fpc/ticket/563)
 
-* Mon Aug 23 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.8-4
+* Mon Aug 24 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.8-4
 - Disable valgrind only on s390
 
 * Mon Aug 17 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.8-3
