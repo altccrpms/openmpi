@@ -46,6 +46,7 @@ BuildRequires:		hwloc
 BuildRequires:		java-devel
 BuildRequires:		libevent-devel
 BuildRequires:		papi-devel
+BuildRequires:		perl(Getopt::Long)
 BuildRequires:		python libtool-ltdl-devel
 BuildRequires:		torque-devel
 
