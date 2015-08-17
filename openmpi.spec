@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.8
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -62,7 +62,7 @@ Requires:		openssh-clients
 ExcludeArch: s390 s390x
 
 # Private openmpi libraries
-%global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|ompi|open-(pal|rte|trace)|otf|v)|openmpi/).*.so
+%global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|ompi|open-(pal|rte|trace)|otf)|openmpi/).*.so
 %global __requires_exclude lib(mca|ompi|open-(pal|rte|trace)|otf|vt).*
 
 %description
@@ -234,6 +234,9 @@ make check
 
 
 %changelog
+* Mon Aug 17 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.8-3
+- Do not filter libvt* provides as some dependencies link to it
+
 * Mon Aug 10 2015 Sandro Mani <manisandro@gmail.com> - 1.8.8-2
 - Require, BuildRequire: rpm-mpi-hooks
 
