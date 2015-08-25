@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.8
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -34,8 +34,7 @@ Source1:		openmpi.module.in
 Source2:		macros.openmpi
 
 BuildRequires:		gcc-gfortran
-#sparc64 don't have valgrind
-%ifnarch %{sparc}
+%ifnarch s390
 BuildRequires:		valgrind-devel
 %endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
@@ -123,7 +122,7 @@ Contains development wrapper for compiling Java with openmpi.
 	--with-libevent=/usr \
 	--with-verbs=/usr \
 	--with-sge \
-%ifnarch %{sparc}
+%ifnarch s390
 	--with-valgrind \
 	--enable-memchecker \
 %endif
@@ -234,6 +233,9 @@ make check
 
 
 %changelog
+* Mon Aug 23 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.8-4
+- Disable valgrind only on s390
+
 * Mon Aug 17 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.8-3
 - Do not filter libvt* provides as some dependencies link to it
 
