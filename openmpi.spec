@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.8.8
-Release:		4%{?dist}
+Release:		5%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -31,7 +31,9 @@ URL:			http://www.open-mpi.org/
 # We can't use %{name} here because of _cc_name_suffix
 Source0:		http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
-Source2:		macros.openmpi
+Source2:		openmpi.pth.py2
+Source3:		openmpi.pth.py3
+Source4:		macros.openmpi
 
 BuildRequires:		gcc-gfortran
 %ifnarch s390
@@ -46,7 +48,10 @@ BuildRequires:		java-devel
 BuildRequires:		libevent-devel
 BuildRequires:		papi-devel
 BuildRequires:		perl(Getopt::Long)
-BuildRequires:		python libtool-ltdl-devel
+BuildRequires:		python
+BuildRequires:		python2-devel
+BuildRequires:		python3-devel
+BuildRequires:		libtool-ltdl-devel
 BuildRequires:		torque-devel
 BuildRequires:		rpm-mpi-hooks
 
@@ -149,15 +154,31 @@ mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 # Make the environment-modules file
 mkdir -p %{buildroot}%{_sysconfdir}/modulefiles/mpi
 # Since we're doing our own substitution here, use our own definitions.
-sed 's#@LIBDIR@#'%{_libdir}/%{name}'#g;s#@ETCDIR@#'%{_sysconfdir}/%{namearch}'#g;s#@FMODDIR@#'%{_fmoddir}/%{name}'#g;s#@INCDIR@#'%{_includedir}/%{namearch}'#g;s#@MANDIR@#'%{_mandir}/%{namearch}'#g;s#@PYSITEARCH@#'%{python_sitearch}/%{name}'#g;s#@COMPILER@#openmpi-'%{_arch}%{?_cc_name_suffix}'#g;s#@SUFFIX@#'%{?_cc_name_suffix}'_openmpi#g' < %SOURCE1 > %{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
+sed 's#@LIBDIR@#%{_libdir}/%{name}#;
+     s#@ETCDIR@#%{_sysconfdir}/%{namearch}#;
+     s#@FMODDIR@#%{_fmoddir}/%{name}#;
+     s#@INCDIR@#%{_includedir}/%{namearch}#;
+     s#@MANDIR@#%{_mandir}/%{namearch}#;
+     s#@PY2SITEARCH@#%{python2_sitearch}/%{name}#;
+     s#@PY3SITEARCH@#%{python3_sitearch}/%{name}#;
+     s#@COMPILER@#openmpi-%{_arch}%{?_cc_name_suffix}#;
+     s#@SUFFIX@#%{?_cc_name_suffix}_openmpi#' \
+     <%{SOURCE1} \
+     >%{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
 
 # make the rpm config file
-install -Dpm 644 %{SOURCE2} %{buildroot}/%{macrosdir}/macros.%{namearch}
+install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}
 mkdir -p %{buildroot}/%{_fmoddir}/%{name}
-mkdir -p %{buildroot}/%{python_sitearch}/openmpi%{?_cc_name_suffix}
+
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
   %{buildroot}%{_libdir}/%{name}/share/openmpi/*-wrapper-data.txt
+
+# install .pth files
+mkdir -p %{buildroot}/%{python2_sitearch}/%{name}
+install -pDm0644 %{SOURCE2} %{buildroot}/%{python2_sitearch}/openmpi.pth
+mkdir -p %{buildroot}/%{python3_sitearch}/%{name}
+install -pDm0644 %{SOURCE3} %{buildroot}/%{python3_sitearch}/openmpi.pth
 
 %check
 make check
@@ -171,7 +192,10 @@ make check
 %dir %{_mandir}/%{namearch}
 %dir %{_mandir}/%{namearch}/man*
 %dir %{_fmoddir}/%{name}
-%dir %{python_sitearch}/%{name}
+%dir %{python2_sitearch}/%{name}
+%{python2_sitearch}/openmpi.pth
+%dir %{python3_sitearch}/%{name}
+%{python3_sitearch}/openmpi.pth
 %config(noreplace) %{_sysconfdir}/%{namearch}/*
 %{_libdir}/%{name}/bin/mpi[er]*
 %{_libdir}/%{name}/bin/ompi*
@@ -233,6 +257,9 @@ make check
 
 
 %changelog
+* Thu Aug 27 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 1.8.8-5
+- Use .pth files to set the python path (https://fedorahosted.org/fpc/ticket/563)
+
 * Mon Aug 23 2015 Orion Poplawski <orion@cora.nwra.com> 1.8.8-4
 - Disable valgrind only on s390
 
