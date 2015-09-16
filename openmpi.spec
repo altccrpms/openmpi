@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.0
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -34,6 +34,10 @@ Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
+
+# Add needed opal/util/argv.h include
+# https://github.com/open-mpi/ompi-release/pull/584
+Patch0:			openmpi-opal.patch
 
 BuildRequires:		gcc-gfortran
 %ifnarch s390
@@ -124,6 +128,7 @@ Contains development wrapper for compiling Java with openmpi.
 
 %prep
 %setup -q -n openmpi-%{version}
+%patch0 -p1 -b .opal
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
@@ -265,6 +270,9 @@ make check
 
 
 %changelog
+* Wed Sep 16 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-2
+- Add patch to add needed opal/util/argv.h includes
+
 * Tue Sep 15 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-1
 - Update to 1.10.0
 
