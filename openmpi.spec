@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.0
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -270,6 +270,9 @@ make check
 
 
 %changelog
+* Tue Oct 6 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-3
+- Do not set CFLAGS in %%_openmpi_load
+
 * Wed Sep 16 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-2
 - Add patch to add needed opal/util/argv.h includes
 
