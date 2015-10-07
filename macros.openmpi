@@ -1,7 +1,6 @@
 %_openmpi_load \
  . /etc/profile.d/modules.sh; \
- module load openmpi-%{_arch}; \
- export CFLAGS="$CFLAGS %{optflags}";
+ module load mpi/openmpi%{_cc_name_suffix};
 %_openmpi_unload \
  . /etc/profile.d/modules.sh; \
- module unload openmpi-%{_arch};
+ module unload mpi/openmpi%{_cc_name_suffix};
