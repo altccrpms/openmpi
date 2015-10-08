@@ -19,3 +19,10 @@ setenv			MPI_PYTHON3_SITEARCH	@PY3SITEARCH@
 setenv			MPI_COMPILER	@COMPILER@
 setenv			MPI_SUFFIX	@SUFFIX@
 setenv	 		MPI_HOME	@PREFIX@
+
+set name [lrange [split [ module-info name ] / ] 0 0 ]
+set ver [lrange [split [ module-info name ] / ] 1 1 ]
+
+prepend-path 		MODULEPATH 	@MODULEPATH@
+setenv                  MPI_NAME        $name
+setenv                  MPI_VERSION     $ver

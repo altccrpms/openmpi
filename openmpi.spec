@@ -1,12 +1,12 @@
-%global _hardened_build 1
-
 # AltCCRPMS
 %global shortname openmpi
 
-%global _cc_name intel
+%global _cc_name %{getenv:COMPILER_NAME}
 %global _cc_name_suffix -%{_cc_name}
 
-%global _prefix /opt/%{shortname}-%{_cc_name}/%{version}
+%global _cc_version %{getenv:COMPILER_VERSION}
+%global _cc_name_ver %{_cc_name}-%{_cc_version}
+%global _prefix /opt/%{_cc_name_ver}/%{shortname}-%{version}
 %global _sysconfdir %{_prefix}/etc
 %global _defaultdocdir %{_prefix}/share/doc
 %global _infodir %{_prefix}/share/info
@@ -19,19 +19,11 @@
 # Non gcc compilers don't generate build ids
 %undefine _missing_build_ids_terminate_build
 
-# We only compile with gcc, but other people may want other compilers.
-# Set the compiler here.
-%global opt_cc icc
-
-# Optional CFLAGS to use with the specific compiler...gcc doesn't need any,
-# so uncomment and define to use
-#global opt_cflags
-%global opt_cxx icpc
-#global opt_cxxflags
-%global opt_f77 ifort
-#global opt_fflags
-%global opt_fc ifort
-#global opt_fcflags
+%if 0%{?rhel} && 0%{?rhel} <= 6
+%{!?__python2: %global __python2 /usr/bin/python2}
+%{!?python2_sitearch: %global python2_sitearch %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
+%{!?python2_version: %global python2_version %(%{__python2} -c "import sys; sys.stdout.write(sys.version[:3])")}
+%endif
 
 # Optional name suffix to use...we leave it off when compiling with gcc, but
 # for other compiled versions to install side by side, it will need a
@@ -40,7 +32,7 @@
 
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
-Name:			openmpi-1.10.0%{?_cc_name_suffix}
+Name:			openmpi-1.10.0-%{_cc_name_ver}
 Version:		1.10.0
 Release:		2%{?dist}
 Summary:		Open Message Passing Interface
@@ -68,11 +60,16 @@ BuildRequires:		librdmacm-devel libibcm-devel
 # vt_dyn.cc:958:28: error: 'class BPatch_basicBlockLoop' has no member named 'getLoopHead'
 #                      loop->getLoopHead()->getStartAddress(), loop_stmts );
 #BuildRequires:		dyninst-devel
+%if 0%{?fedora} || 0%{?rhel} >= 7
 BuildRequires:		hwloc-devel
 # So configure can find lstopo
 BuildRequires:		hwloc-gui
+%endif
 BuildRequires:		java-devel
+%if 0%{?fedora} || 0%{?rhel} >= 7
+# Not compiled with thread support on EL6
 BuildRequires:		libevent-devel
+%endif
 BuildRequires:		libfabric-devel
 BuildRequires:		papi-devel
 BuildRequires:		perl(Getopt::Long)
@@ -97,10 +94,16 @@ Requires:		openssh-clients
 Provides:               bundled(otf) =  1.12.3
 
 # AltCCRPMS
-Provides:       %{shortname}%{?_cc_name_suffix} = %{version}-%{release}
-Provides:       %{shortname}%{?_cc_name_suffix}%{?_isa} = %{version}-%{release}
+Provides:       %{shortname}-%{_cc_name} = %{version}-%{release}
+Provides:       %{shortname}-%{_cc_name}%{?_isa} = %{version}-%{release}
+%if 0%{?fedora} || 0%{?rhel} >= 7
 Requires:       hwloc-libs
 Requires:       libevent
+%endif
+Requires:       libfabric
+Requires:       libibverbs
+Requires:       opensm-libs
+Requires:       torque-libs
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
@@ -128,8 +131,8 @@ Provides:	mpi-devel
 Requires:	rpm-mpi-hooks
 %endif
 # AltCCRPMS
-Provides:       %{shortname}%{?_cc_name_suffix}-devel = %{version}-%{release}
-Provides:       %{shortname}%{?_cc_name_suffix}-devel%{?_isa} = %{version}-%{release}
+Provides:       %{shortname}-%{_cc_name}-devel = %{version}-%{release}
+Provides:       %{shortname}-%{_cc_name}-devel%{?_isa} = %{version}-%{release}
 
 %description devel
 Contains development headers and libraries for openmpi.
@@ -165,23 +168,22 @@ Contains development wrapper for compiling Java with openmpi.
 %patch0 -p1 -b .opal
 
 %build
+[ "${FC/pgf/}" != "$FC" ] && export FC="$FC -noswitcherror"
 ./configure --prefix=%{_prefix} \
 	--libdir=%{_prefix}/%{_lib} \
 	--disable-silent-rules \
 	--enable-mpi-java \
+%if 0%{?fedora} || 0%{?rhel} >= 7
+	--with-hwloc=/usr \
 	--with-libevent=/usr \
+%endif
 	--with-sge \
 %ifnarch s390
 	--with-valgrind \
 	--enable-memchecker \
 %endif
-	--with-hwloc=/usr \
 	--with-libltdl=/usr \
-	CC=%{opt_cc} CXX=%{opt_cxx} \
-	LDFLAGS='%{__global_ldflags}' \
-	CFLAGS="${CFLAGS:-%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}} -gcc-sys" \
-	CXXFLAGS="${CXXFLAGS:-%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}} -gcc-sys" \
-	FC=%{opt_fc} FCFLAGS="${FCFLAGS:-%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}}"
+	LDFLAGS='%{?__global_ldflags}'
 #        --with-contrib-vt-flags='CXXFLAGS="-I%{_includedir}/dyninst -L%{_libdir}/dyninst"' \
 
 make %{?_smp_mflags} V=1
@@ -197,9 +199,10 @@ rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
 mkdir %{buildroot}%{_mandir}/man{2,4,5,6,8,9,n}
 
 # Make the environment-modules file
-mkdir -p %{buildroot}/etc/modulefiles/mpi/openmpi%{?_cc_name_suffix}
+mkdir -p %{buildroot}/opt/modulefiles/Compiler/%{_cc_name}/%{_cc_version}/%{shortname}
 # Since we're doing our own substitution here, use our own definitions.
 sed 's#@PREFIX@#%{_prefix}#;
+     s#@MODULEPATH@#/opt/modulefiles/MPI/%{_cc_name}/%{_cc_version}/%{shortname}/%{version}#;
      s#@LIBDIR@#%{_libdir}#g;
      s#@ETCDIR@#%{_sysconfdir}#g;
      s#@FMODDIR@#%{_libdir}#g;
@@ -212,10 +215,11 @@ sed 's#@PREFIX@#%{_prefix}#;
      s#@COMPILER@#openmpi%{?_cc_name_suffix}#g
      s#@SUFFIX@#%{?_cc_name_suffix}_openmpi#' \
      <%{SOURCE1} \
-     >%{buildroot}/etc/modulefiles/mpi/openmpi%{_cc_name_suffix}/%{version}
+     >%{buildroot}/opt/modulefiles/Compiler/%{_cc_name}/%{_cc_version}/%{shortname}/%{version}
+mkdir -p %{buildroot}/opt/modulefiles/MPI/%{_cc_name}/%{_cc_version}/%{shortname}/%{version}
 
 # make the rpm config file
-install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}%{?_cc_name_suffix}
+install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}
 mkdir -p %{buildroot}/%{_fmoddir}/%{name}
 
 # Remove extraneous wrapper link libraries (bug 814798)
@@ -235,6 +239,7 @@ make check
 
 %files
 %dir %{_prefix}
+%dir %{_bindir}
 %dir %{_libdir}
 %dir %{_sysconfdir}
 %dir %{_mandir}
@@ -261,8 +266,10 @@ make check
 %{_mandir}/man1/oshmem_info*
 %{_mandir}/man7/ompi*
 %{_mandir}/man7/orte*
+%dir %{_libdir}/openmpi
 %{_libdir}/openmpi/*
-/etc/modulefiles/mpi/
+/opt/modulefiles/Compiler/
+/opt/modulefiles/MPI/%{_cc_name}/%{_cc_version}
 %dir %{_datadir}
 %dir %{_datadir}/openmpi
 %{_datadir}/openmpi/doc
@@ -292,7 +299,7 @@ make check
 %{_datadir}/openmpi/openmpi-valgrind.supp
 %{_datadir}/openmpi/*-wrapper-data.txt
 %{_datadir}/vampirtrace/*
-%{macrosdir}/macros.%{namearch}%{?_cc_name_suffix}
+%{macrosdir}/macros.%{namearch}
 
 %files java
 %{_libdir}/mpi.jar
