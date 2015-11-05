@@ -21,8 +21,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.10.0
-Release:		3%{?dist}
+Version:		1.10.1
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -34,10 +34,6 @@ Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
-
-# Add needed opal/util/argv.h include
-# https://github.com/open-mpi/ompi-release/pull/584
-Patch0:			openmpi-opal.patch
 
 BuildRequires:		gcc-gfortran
 %ifnarch s390
@@ -128,7 +124,6 @@ Contains development wrapper for compiling Java with openmpi.
 
 %prep
 %setup -q -n openmpi-%{version}
-%patch0 -p1 -b .opal
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
@@ -223,6 +218,8 @@ make check
 %{_mandir}/%{namearch}/man1/ompi*
 %{_mandir}/%{namearch}/man1/orte[-dr_]*
 %{_mandir}/%{namearch}/man1/oshmem_info*
+%{_mandir}/%{namearch}/man1/oshrun*
+%{_mandir}/%{namearch}/man1/shmemrun*
 %{_mandir}/%{namearch}/man7/ompi*
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
@@ -250,6 +247,8 @@ make check
 %{_libdir}/%{name}/lib/*.mod
 %{_libdir}/%{name}/lib/pkgconfig/
 %{_mandir}/%{namearch}/man1/mpi[cCf]*
+%{_mandir}/%{namearch}/man1/osh[cCf]*
+%{_mandir}/%{namearch}/man1/shmem[cCf]*
 %{_mandir}/%{namearch}/man1/opal_*
 %{_mandir}/%{namearch}/man3/*
 %{_mandir}/%{namearch}/man7/opal*
@@ -270,6 +269,9 @@ make check
 
 
 %changelog
+* Thu Nov 5 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-1
+- Update to 1.10.1
+
 * Tue Oct 6 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-3
 - Do not set CFLAGS in %%_openmpi_load
 
