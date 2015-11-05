@@ -32,9 +32,9 @@
 
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
-Name:			openmpi-1.10.0-%{_cc_name_ver}
-Version:		1.10.0
-Release:		2%{?dist}
+Name:			openmpi-1.10.1-%{_cc_name_ver}
+Version:		1.10.1
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -46,10 +46,6 @@ Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
-
-# Add needed opal/util/argv.h include
-# https://github.com/open-mpi/ompi-release/pull/584
-Patch0:			openmpi-opal.patch
 
 %ifnarch s390
 BuildRequires:		valgrind-devel
@@ -86,7 +82,7 @@ BuildRequires:		rpm-mpi-hooks
 %endif
 
 Provides:		mpi
-Requires:		environment-modules
+Requires:		environment(modules)
 # openmpi currently requires ssh to run
 # https://svn.open-mpi.org/trac/ompi/ticket/4228
 Requires:		openssh-clients
@@ -165,7 +161,6 @@ Contains development wrapper for compiling Java with openmpi.
 
 %prep
 %setup -q -n openmpi-%{version}
-%patch0 -p1 -b .opal
 
 %build
 [ "${FC/pgf/}" != "$FC" ] && export FC="$FC -noswitcherror"
@@ -220,7 +215,14 @@ mkdir -p %{buildroot}/opt/modulefiles/MPI/%{_cc_name}/%{_cc_version}/%{shortname
 
 # make the rpm config file
 install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}
+
+# Link the fortran module to proper location
 mkdir -p %{buildroot}/%{_fmoddir}/%{name}
+for mod in %{buildroot}%{_libdir}/%{name}/lib/*.mod
+do
+  modname=$(basename $mod)
+  ln -s ../../../%{name}/lib/${modname} %{buildroot}/%{_fmoddir}/%{name}/
+done
 
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
@@ -313,6 +315,14 @@ make check
 
 
 %changelog
+* Thu Nov 5 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-1
+- Update to 1.10.1
+- Require environment(modules)
+- Fixup fortran module install (bug #1154982)
+
+* Tue Oct 6 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-3
+- Do not set CFLAGS in %%_openmpi_load
+
 * Wed Sep 16 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-2
 - Add patch to add needed opal/util/argv.h includes
 
