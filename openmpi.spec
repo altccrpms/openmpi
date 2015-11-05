@@ -176,7 +176,14 @@ sed 's#@LIBDIR@#%{_libdir}/%{name}#;
 
 # make the rpm config file
 install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}
+
+# Link the fortran module to proper location
 mkdir -p %{buildroot}/%{_fmoddir}/%{name}
+for mod in %{buildroot}%{_libdir}/%{name}/lib/*.mod
+do
+  modname=$(basename $mod)
+  ln -s ../../../%{name}/lib/${modname} %{buildroot}/%{_fmoddir}/%{name}/
+done
 
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
@@ -199,7 +206,6 @@ make check
 %dir %{_libdir}/%{name}/lib/openmpi
 %dir %{_mandir}/%{namearch}
 %dir %{_mandir}/%{namearch}/man*
-%dir %{_fmoddir}/%{name}
 %dir %{python2_sitearch}/%{name}
 %{python2_sitearch}/openmpi.pth
 %dir %{python3_sitearch}/%{name}
@@ -242,6 +248,7 @@ make check
 %{_libdir}/%{name}/bin/shmem[cf]*
 %{_libdir}/%{name}/bin/vt*
 %{_includedir}/%{namearch}/*
+%{_fmoddir}/%{name}/
 %{_libdir}/%{name}/lib/*.so
 %{_libdir}/%{name}/lib/lib*.a
 %{_libdir}/%{name}/lib/*.mod
@@ -272,6 +279,7 @@ make check
 * Thu Nov 5 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-1
 - Update to 1.10.1
 - Require environment(modules)
+- Fixup fortran module install (bug #1154982)
 
 * Tue Oct 6 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-3
 - Do not set CFLAGS in %%_openmpi_load
