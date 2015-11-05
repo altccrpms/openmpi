@@ -62,7 +62,7 @@ BuildRequires:		zlib-devel
 BuildRequires:		rpm-mpi-hooks
 
 Provides:		mpi
-Requires:		environment-modules
+Requires:		environment(modules)
 # openmpi currently requires ssh to run
 # https://svn.open-mpi.org/trac/ompi/ticket/4228
 Requires:		openssh-clients
@@ -271,6 +271,7 @@ make check
 %changelog
 * Thu Nov 5 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-1
 - Update to 1.10.1
+- Require environment(modules)
 
 * Tue Oct 6 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.0-3
 - Do not set CFLAGS in %%_openmpi_load
