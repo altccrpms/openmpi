@@ -216,14 +216,6 @@ mkdir -p %{buildroot}/opt/modulefiles/MPI/%{_cc_name}/%{_cc_version}/%{shortname
 # make the rpm config file
 install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}
 
-# Link the fortran module to proper location
-mkdir -p %{buildroot}/%{_fmoddir}/%{name}
-for mod in %{buildroot}%{_libdir}/%{name}/lib/*.mod
-do
-  modname=$(basename $mod)
-  ln -s ../../../%{name}/lib/${modname} %{buildroot}/%{_fmoddir}/%{name}/
-done
-
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
   %{buildroot}%{_datadir}/openmpi/*-wrapper-data.txt
@@ -266,6 +258,8 @@ make check
 %{_mandir}/man1/ompi*
 %{_mandir}/man1/orte[-dr_]*
 %{_mandir}/man1/oshmem_info*
+%{_mandir}/man1/oshrun*
+%{_mandir}/man1/shmemrun*
 %{_mandir}/man7/ompi*
 %{_mandir}/man7/orte*
 %dir %{_libdir}/openmpi
@@ -296,6 +290,8 @@ make check
 %{_libdir}/pkgconfig/
 %{_mandir}/man1/mpi[cCf]*
 %{_mandir}/man1/opal_*
+%{_mandir}/man1/osh[cCf]*
+%{_mandir}/man1/shmem[cCf]*
 %{_mandir}/man3/*
 %{_mandir}/man7/opal*
 %{_datadir}/openmpi/openmpi-valgrind.supp
