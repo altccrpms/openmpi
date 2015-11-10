@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.1
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -276,6 +276,9 @@ make check
 
 
 %changelog
+* Tue Nov 10 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.10.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Changes/python3.5
+
 * Thu Nov 5 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-1
 - Update to 1.10.1
 - Require environment(modules)
