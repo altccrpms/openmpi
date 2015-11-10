@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.1
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -34,6 +34,9 @@ Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
+# Upstream fix for mpi4py tests
+# http://www.open-mpi.org/community/lists/users/2015/11/28027.php
+Patch0:                 http://www.open-mpi.org/community/lists/users/att-28030/nbc_copy.patch
 
 BuildRequires:		gcc-gfortran
 %ifnarch s390
@@ -124,6 +127,7 @@ Contains development wrapper for compiling Java with openmpi.
 
 %prep
 %setup -q -n openmpi-%{version}
+%patch0 -p1
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
@@ -276,6 +280,9 @@ make check
 
 
 %changelog
+* Tue Nov 10 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-3
+- Add upstream patch to fix zero size message
+
 * Tue Nov 10 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.10.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Changes/python3.5
 
