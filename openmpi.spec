@@ -96,13 +96,14 @@ Provides:               bundled(otf) =  1.12.3
 Provides:       %{shortname}-%{_cc_name} = %{version}-%{release}
 Provides:       %{shortname}-%{_cc_name}%{?_isa} = %{version}-%{release}
 %if 0%{?fedora} || 0%{?rhel} >= 7
-Requires:       hwloc-libs
-Requires:       libevent
+Requires:       hwloc-libs%{?_isa}
+Requires:       libevent%{?_isa}
 %endif
-Requires:       libfabric
-Requires:       libibverbs
-Requires:       opensm-libs
-Requires:       torque-libs
+Requires:       libfabric%{?_isa}
+Requires:       libibverbs%{?_isa}
+Requires:       papi%{?_isa}
+Requires:       opensm-libs%{?_isa}
+Requires:       torque-libs%{?_isa}
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
