@@ -12,10 +12,6 @@
 %global _infodir %{_prefix}/share/info
 %global _mandir %{_prefix}/share/man
 
-#We don't want to be beholden to the proprietary libraries
-%global    _use_internal_dependency_generator 0
-%global    __find_requires %{nil}
-
 # Non gcc compilers don't generate build ids
 %undefine _missing_build_ids_terminate_build
 
@@ -34,7 +30,7 @@
 
 Name:			openmpi-1.10.1-%{_cc_name_ver}
 Version:		1.10.1
-Release:		3%{?dist}
+Release:		3%{?dist}.1
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -316,6 +312,9 @@ make check
 
 
 %changelog
+* Mon Dec 21 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-3.1
+- Use rpm-opt-hooks for dependency handling
+
 * Tue Nov 10 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-3
 - Add upstream patch to fix zero size message
 
