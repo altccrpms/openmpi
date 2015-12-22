@@ -91,15 +91,6 @@ Provides:               bundled(otf) =  1.12.3
 # AltCCRPMS
 Provides:       %{shortname}-%{_cc_name} = %{version}-%{release}
 Provides:       %{shortname}-%{_cc_name}%{?_isa} = %{version}-%{release}
-%if 0%{?fedora} || 0%{?rhel} >= 7
-Requires:       hwloc-libs%{?_isa}
-Requires:       libevent%{?_isa}
-%endif
-Requires:       libfabric%{?_isa}
-Requires:       libibverbs%{?_isa}
-Requires:       papi%{?_isa}
-Requires:       opensm-libs%{?_isa}
-Requires:       torque-libs%{?_isa}
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
@@ -121,11 +112,7 @@ researchers. For more information, see http://www.open-mpi.org/ .
 %package devel
 Summary:	Development files for openmpi
 Group:		Development/Libraries
-Requires:       %{name} = %{version}-%{release}
 Provides:	mpi-devel
-%if 0%{?fedora} >= 23
-Requires:	rpm-mpi-hooks
-%endif
 # AltCCRPMS
 Provides:       %{shortname}-%{_cc_name}-devel = %{version}-%{release}
 Provides:       %{shortname}-%{_cc_name}-devel%{?_isa} = %{version}-%{release}
