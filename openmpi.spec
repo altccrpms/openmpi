@@ -91,6 +91,8 @@ Provides:               bundled(otf) =  1.12.3
 # AltCCRPMS
 Provides:       %{shortname}-%{_cc_name} = %{version}-%{release}
 Provides:       %{shortname}-%{_cc_name}%{?_isa} = %{version}-%{release}
+Provides:       %{shortname}-%{_cc_name_ver} = %{version}-%{release}
+Provides:       %{shortname}-%{_cc_name_ver}%{?_isa} = %{version}-%{release}
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
@@ -116,6 +118,8 @@ Provides:	mpi-devel
 # AltCCRPMS
 Provides:       %{shortname}-%{_cc_name}-devel = %{version}-%{release}
 Provides:       %{shortname}-%{_cc_name}-devel%{?_isa} = %{version}-%{release}
+Provides:       %{shortname}-%{_cc_name_ver}-devel = %{version}-%{release}
+Provides:       %{shortname}-%{_cc_name_ver}-devel%{?_isa} = %{version}-%{release}
 
 %description devel
 Contains development headers and libraries for openmpi.
