@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.2
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -276,6 +276,9 @@ make check
 
 
 %changelog
+* Tue Jan 26 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.2-2
+- Rebuild for papi 5.4.3
+
 * Thu Jan 21 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.2-1
 - Update to 1.10.2
 - Drop upsream nbc_copy patch
