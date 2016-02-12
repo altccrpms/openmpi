@@ -30,7 +30,7 @@
 
 Name:			openmpi-1.10.1-%{_cc_name_ver}
 Version:		1.10.1
-Release:		3%{?dist}.1
+Release:		3%{?dist}.2
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -169,6 +169,7 @@ Contains development wrapper for compiling Java with openmpi.
 	--with-valgrind \
 	--enable-memchecker \
 %endif
+	--enable-orterun-prefix-by-default \
 	--with-libltdl=/usr \
 	LDFLAGS='%{?__global_ldflags}'
 #        --with-contrib-vt-flags='CXXFLAGS="-I%{_includedir}/dyninst -L%{_libdir}/dyninst"' \
@@ -303,6 +304,9 @@ make check
 
 
 %changelog
+* Fri Feb 12 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-3.2
+- Use --enable-orterun-prefix-by-default
+
 * Mon Dec 21 2015 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-3.1
 - Use rpm-opt-hooks for dependency handling
 
