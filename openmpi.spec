@@ -28,9 +28,9 @@
 
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
-Name:			openmpi-1.10.1-%{_cc_name_ver}
-Version:		1.10.1
-Release:		3%{?dist}.2
+Name:			openmpi-1.10.2-%{_cc_name_ver}
+Version:		1.10.2
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -42,9 +42,6 @@ Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
-# Upstream fix for mpi4py tests
-# http://www.open-mpi.org/community/lists/users/2015/11/28027.php
-Patch0:                 http://www.open-mpi.org/community/lists/users/att-28030/nbc_copy.patch
 
 %ifnarch s390
 BuildRequires:		valgrind-devel
@@ -152,7 +149,6 @@ Contains development wrapper for compiling Java with openmpi.
 
 %prep
 %setup -q -n openmpi-%{version}
-%patch0 -p1
 
 %build
 [ "${FC/pgf/}" != "$FC" ] && export FC="$FC -noswitcherror"
@@ -304,6 +300,10 @@ make check
 
 
 %changelog
+* Wed May 18 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.2-3
+- Update to 1.10.2
+- Drop upsream nbc_copy patch
+
 * Fri Feb 12 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.1-3.2
 - Use --enable-orterun-prefix-by-default
 
