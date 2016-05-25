@@ -21,8 +21,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.10.2
-Release:		3%{?dist}
+Version:		1.10.3
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -232,7 +232,8 @@ make check
 %{_sysconfdir}/modulefiles/mpi/
 %dir %{_libdir}/%{name}/share
 %dir %{_libdir}/%{name}/share/openmpi
-%{_libdir}/%{name}/share/openmpi/doc
+%dir %{_libdir}/%{name}/share/doc
+%dir %{_libdir}/%{name}/share/doc/openmpi
 %{_libdir}/%{name}/share/openmpi/amca-param-sets
 %{_libdir}/%{name}/share/openmpi/help*.txt
 %{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
@@ -270,12 +271,15 @@ make check
 %files java-devel
 %{_libdir}/%{name}/bin/mpijavac
 %{_libdir}/%{name}/bin/mpijavac.pl
-# Currently this only contaings openmpi/javadoc
-%{_libdir}/%{name}/share/doc/
+%{_libdir}/%{name}/share/doc/openmpi/javadoc-openmpi/
 %{_mandir}/%{namearch}/man1/mpijavac.1.gz
 
 
 %changelog
+* Tue Jun 15 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-1
+- Update to 1.10.3
+- New javadoc location
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.10.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
