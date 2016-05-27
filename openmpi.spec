@@ -1,19 +1,6 @@
-# AltCCRPMS
 %global shortname openmpi
-
-%global _cc_name %{getenv:COMPILER_NAME}
-%global _cc_name_suffix -%{_cc_name}
-
-%global _cc_version %{getenv:COMPILER_VERSION}
-%global _cc_name_ver %{_cc_name}-%{_cc_version}
-%global _prefix /opt/%{_cc_name_ver}/%{shortname}-%{version}
-%global _sysconfdir %{_prefix}/etc
-%global _defaultdocdir %{_prefix}/share/doc
-%global _infodir %{_prefix}/share/info
-%global _mandir %{_prefix}/share/man
-
-# Non gcc compilers don't generate build ids
-%undefine _missing_build_ids_terminate_build
+%global ver 1.10.2
+%{?altcc_init:%altcc_init -n %{shortname} -v %{ver} -m}
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
 %{!?__python2: %global __python2 /usr/bin/python2}
@@ -21,15 +8,10 @@
 %{!?python2_version: %global python2_version %(%{__python2} -c "import sys; sys.stdout.write(sys.version[:3])")}
 %endif
 
-# Optional name suffix to use...we leave it off when compiling with gcc, but
-# for other compiled versions to install side by side, it will need a
-# suffix in order to keep the names from conflicting.
-#global _cc_name_suffix -gcc
-
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
-Name:			openmpi-1.10.2-%{_cc_name_ver}
-Version:		1.10.2
+Name:			openmpi%{?altcc_pkg_suffix}
+Version:		%{ver}
 Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
@@ -85,11 +67,7 @@ Requires:		openssh-clients
 # otf appears to be bundled
 Provides:               bundled(otf) =  1.12.3
 
-# AltCCRPMS
-Provides:       %{shortname}-%{_cc_name} = %{version}-%{release}
-Provides:       %{shortname}-%{_cc_name}%{?_isa} = %{version}-%{release}
-Provides:       %{shortname}-%{_cc_name_ver} = %{version}-%{release}
-Provides:       %{shortname}-%{_cc_name_ver}%{?_isa} = %{version}-%{release}
+%{?altcc_provide}
 
 # s390 is unlikely to have the hardware we want, and some of the -devel
 # packages we require aren't available there.
@@ -112,11 +90,7 @@ researchers. For more information, see http://www.open-mpi.org/ .
 Summary:	Development files for openmpi
 Group:		Development/Libraries
 Provides:	mpi-devel
-# AltCCRPMS
-Provides:       %{shortname}-%{_cc_name}-devel = %{version}-%{release}
-Provides:       %{shortname}-%{_cc_name}-devel%{?_isa} = %{version}-%{release}
-Provides:       %{shortname}-%{_cc_name_ver}-devel = %{version}-%{release}
-Provides:       %{shortname}-%{_cc_name_ver}-devel%{?_isa} = %{version}-%{release}
+%{?altcc:%altcc_provide devel}
 
 %description devel
 Contains development headers and libraries for openmpi.
@@ -145,7 +119,7 @@ Contains development wrapper for compiling Java with openmpi.
 
 # We set this to for convenience, since this is the unique dir we use for this
 # particular package, version, compiler
-%global namearch openmpi%{?_cc_name_suffix}
+%global namearch openmpi%{?altcc_name_suffix}
 
 %prep
 %setup -q -n openmpi-%{version}
@@ -182,25 +156,7 @@ rm -f %{buildroot}%{_mandir}/man1/orteCC.1*
 rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
 mkdir %{buildroot}%{_mandir}/man{2,4,5,6,8,9,n}
 
-# Make the environment-modules file
-mkdir -p %{buildroot}/opt/modulefiles/Compiler/%{_cc_name}/%{_cc_version}/%{shortname}
-# Since we're doing our own substitution here, use our own definitions.
-sed 's#@PREFIX@#%{_prefix}#;
-     s#@MODULEPATH@#/opt/modulefiles/MPI/%{_cc_name}/%{_cc_version}/%{shortname}/%{version}#;
-     s#@LIBDIR@#%{_libdir}#g;
-     s#@ETCDIR@#%{_sysconfdir}#g;
-     s#@FMODDIR@#%{_libdir}#g;
-     s#@INCDIR@#%{_includedir}#g;
-     s#@MANDIR@#%{_mandir}#g;
-     s#@PY2SITEARCH@#%{_libdir}/python%{python2_version}/site-packages#;
-%if 0%{?fedora}
-     s#@PY3SITEARCH@#%{_libdir}/python%{python3_version}/site-packages#;
-%endif
-     s#@COMPILER@#openmpi%{?_cc_name_suffix}#g
-     s#@SUFFIX@#%{?_cc_name_suffix}_openmpi#' \
-     <%{SOURCE1} \
-     >%{buildroot}/opt/modulefiles/Compiler/%{_cc_name}/%{_cc_version}/%{shortname}/%{version}
-mkdir -p %{buildroot}/opt/modulefiles/MPI/%{_cc_name}/%{_cc_version}/%{shortname}/%{version}
+%{?altcc:%altcc_writemodule %SOURCE1}
 
 # make the rpm config file
 install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}
@@ -221,12 +177,7 @@ install -pDm0644 %{SOURCE3} %{buildroot}/%{python3_sitearch}/openmpi.pth
 make check
 
 %files
-%dir %{_prefix}
-%dir %{_bindir}
-%dir %{_libdir}
-%dir %{_sysconfdir}
-%dir %{_mandir}
-%dir %{_mandir}/man*
+%{?altcc:%altcc_files -m %{_bindir} %{_datadir} %{_libdir} %{_sysconfdir} %{_mandir} %{_mandir}/man*}
 %dir %{python2_sitearch}/%{name}
 %{python2_sitearch}/openmpi.pth
 %if 0%{?fedora}
@@ -253,8 +204,6 @@ make check
 %{_mandir}/man7/orte*
 %dir %{_libdir}/openmpi
 %{_libdir}/openmpi/*
-/opt/modulefiles/Compiler/
-/opt/modulefiles/MPI/%{_cc_name}/%{_cc_version}
 %dir %{_datadir}
 %dir %{_datadir}/openmpi
 %{_datadir}/openmpi/doc
@@ -264,8 +213,7 @@ make check
 %{_datadir}/openmpi/mca-coll-ml.config
 
 %files devel
-%dir %{_includedir}
-%dir %{_datadir}/vampirtrace
+%{?altcc:%altcc_files %{_includedir} %{_datadir}/vampirtrace}
 %{_bindir}/mpi[cCf]*
 %{_bindir}/opal_*
 %{_bindir}/orte[cCf]*
@@ -646,8 +594,8 @@ make check
 - Create and own man* directories for use by dependent packages.
 
 * Wed Sep 16 2009 Jay Fenlason <fenlason@redhat.com> - 1.3.3-5
-- Move the module file from %{_datadir}/Modules/modulefiles/%{namearch} to
-  %{_sysconfdir}/modulefiles/%{namearch} where it belongs.
+- Move the module file from %%{_datadir}/Modules/modulefiles/%%{namearch} to
+  %%{_sysconfdir}/modulefiles/%%{namearch} where it belongs.
 - Have the -devel subpackage own the man1 and man7 directories for completeness.
 - Add a blank line before the clean section.
 - Remove --enable-mpirun-prefix-by-default from configure.
