@@ -276,7 +276,7 @@ make check
 
 
 %changelog
-* Tue Jun 15 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-1
+* Wed Jun 15 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-1
 - Update to 1.10.3
 - New javadoc location
 
