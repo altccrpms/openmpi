@@ -1,6 +1,6 @@
 %global shortname openmpi
-%global ver 1.10.2
-%{?altcc_init:%altcc_init -n %{shortname} -v %{ver} -m}
+%global ver 1.10.3
+%?altcc_init
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
 %{!?__python2: %global __python2 /usr/bin/python2}
@@ -12,7 +12,7 @@
 
 Name:			openmpi%{?altcc_pkg_suffix}
 Version:		%{ver}
-Release:		3%{?dist}
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -177,7 +177,7 @@ install -pDm0644 %{SOURCE3} %{buildroot}/%{python3_sitearch}/openmpi.pth
 make check
 
 %files
-%{?altcc:%altcc_files -m %{_bindir} %{_datadir} %{_libdir} %{_sysconfdir} %{_mandir} %{_mandir}/man*}
+%{?altcc:%altcc_files -m %{_bindir} %{_datadir}/doc %{_libdir} %{_sysconfdir} %{_mandir} %{_mandir}/man*}
 %dir %{python2_sitearch}/%{name}
 %{python2_sitearch}/openmpi.pth
 %if 0%{?fedora}
@@ -204,7 +204,7 @@ make check
 %{_mandir}/man7/orte*
 %dir %{_libdir}/openmpi
 %{_libdir}/openmpi/*
-%dir %{_datadir}
+%dir %{_datadir}/doc/openmpi
 %dir %{_datadir}/openmpi
 %{_datadir}/openmpi/doc
 %{_datadir}/openmpi/amca-param-sets
@@ -242,12 +242,15 @@ make check
 %files java-devel
 %{_bindir}/mpijavac
 %{_bindir}/mpijavac.pl
-# Currently this only contaings openmpi/javadoc
-%{_datadir}/doc/
+%{_datadir}/doc/openmpi/javadoc-openmpi/
 %{_mandir}/man1/mpijavac.1.gz
 
 
 %changelog
+* Wed Jun 15 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-1
+- Update to 1.10.3
+- New javadoc location
+
 * Wed May 18 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.2-3
 - Update to 1.10.2
 - Drop upsream nbc_copy patch
