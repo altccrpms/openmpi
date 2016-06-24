@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.3
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -49,7 +49,6 @@ BuildRequires:		hwloc-devel
 # So configure can find lstopo
 BuildRequires:		hwloc-gui
 BuildRequires:		java-devel
-BuildRequires:		libevent-devel
 BuildRequires:		libfabric-devel
 BuildRequires:		papi-devel
 BuildRequires:		perl-generators
@@ -67,6 +66,9 @@ Requires:		environment(modules)
 # openmpi currently requires ssh to run
 # https://svn.open-mpi.org/trac/ompi/ticket/4228
 Requires:		openssh-clients
+# We have problems using the system libevent - openmpi's is modified
+# https://bugzilla.redhat.com/show_bug.cgi?id=1235044
+Provides:               bundled(libevent) = 2.0.21
 # otf appears to be bundled
 Provides:               bundled(otf) =  1.12.3
 
@@ -133,7 +135,6 @@ Contains development wrapper for compiling Java with openmpi.
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
 	--enable-mpi-java \
-	--with-libevent=/usr \
 	--with-sge \
 %ifnarch s390
 	--with-valgrind \
@@ -277,6 +278,9 @@ make check
 
 
 %changelog
+* Fri Jun 24 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-2
+- Use bundled libevent, system version causes issues (bug #1235044)
+
 * Wed Jun 15 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-1
 - Update to 1.10.3
 - New javadoc location
