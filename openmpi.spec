@@ -52,6 +52,7 @@ BuildRequires:		java-devel
 BuildRequires:		libevent-devel
 BuildRequires:		libfabric-devel
 BuildRequires:		papi-devel
+BuildRequires:		perl-generators
 BuildRequires:		perl(Getopt::Long)
 BuildRequires:		python
 BuildRequires:		python2-devel
