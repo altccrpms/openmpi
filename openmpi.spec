@@ -197,10 +197,18 @@ install -pDm0644 %{SOURCE2} %{buildroot}/%{python2_sitearch}/openmpi.pth
 mkdir -p %{buildroot}/%{python3_sitearch}/%{name}
 install -pDm0644 %{SOURCE3} %{buildroot}/%{python3_sitearch}/openmpi.pth
 
+# Remove COPYRIGHT-ptmalloc2.txt if installed (F24 and lower)
+%if 0%{?fedora} <= 24
+rm %{buildroot}%{_libdir}/openmpi/share/openmpi/doc/COPYRIGHT-ptmalloc2.txt
+rmdir %{buildroot}%{_libdir}/openmpi/share/openmpi/doc
+%global ptmalloc2_license opal/mca/memory/linux/COPYRIGHT-ptmalloc2.txt
+%endif
+
 %check
 make check
 
 %files
+%license LICENSE %{?ptmalloc2_license}
 %dir %{_libdir}/%{name}
 %dir %{_sysconfdir}/%{namearch}
 %dir %{_libdir}/%{name}/bin
