@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.3
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -286,6 +286,9 @@ make check
 
 
 %changelog
+* Thu Sep 15 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-3
+- Rebuild for papi 5.5.0
+
 * Fri Jun 24 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-2
 - Use bundled libevent, system version causes issues (bug #1235044)
 
