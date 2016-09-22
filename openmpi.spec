@@ -1,6 +1,6 @@
 %global shortname openmpi
 %global ver 1.10.3
-%?altcc_init
+%{?altcc_init:%altcc_init -m}
 
 %if 0%{?rhel} && 0%{?rhel} <= 6
 %{!?__python2: %global __python2 /usr/bin/python2}
