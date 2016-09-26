@@ -25,4 +25,4 @@ set ver [lrange [split [ module-info name ] / ] 1 1 ]
 
 prepend-path 		MODULEPATH 	@MODULEPATH@
 setenv                  MPI_NAME        $name
-setenv                  MPI_VERSION     $ver
+setenv                  MPI_VERSION     @MPI_VERSION@
