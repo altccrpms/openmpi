@@ -2,27 +2,28 @@
 #
 #  OpenMPI module for use with 'environment-modules' package:
 #
-conflict		mpi
-prepend-path 		PATH 		@PREFIX@/bin
-prepend-path 		LD_LIBRARY_PATH @LIBDIR@
-prepend-path 		PKG_CONFIG_PATH	@LIBDIR@/lib/pkgconfig
-prepend-path		MANPATH		@MANDIR@
-setenv 			MPI_BIN		@PREFIX@/bin
-setenv			MPI_SYSCONFIG	@ETCDIR@
-setenv			MPI_FORTRAN_MOD_DIR	@FMODDIR@
-setenv			MPI_INCLUDE	@INCDIR@
-setenv	 		MPI_LIB		@LIBDIR@
-setenv			MPI_MAN		@MANDIR@
-setenv			MPI_PYTHON_SITEARCH	@PY2SITEARCH@
-setenv			MPI_PYTHON2_SITEARCH	@PY2SITEARCH@
-setenv			MPI_PYTHON3_SITEARCH	@PY3SITEARCH@
-setenv			MPI_COMPILER	@COMPILER@
-setenv			MPI_SUFFIX	@SUFFIX@
-setenv	 		MPI_HOME	@PREFIX@
+conflict        mpi
+prepend-path    PATH                    @PREFIX@/bin
+prepend-path    LD_LIBRARY_PATH         @LIBDIR@
+prepend-path    PKG_CONFIG_PATH         @LIBDIR@/pkgconfig
+prepend-path    MANPATH                 @MANDIR@
+setenv          MPI_BIN                 @PREFIX@/bin
+setenv          MPI_SYSCONFIG           @ETCDIR@
+setenv          MPI_FORTRAN_MOD_DIR     @FMODDIR@
+setenv          MPI_INCLUDE             @INCDIR@
+setenv          MPI_LIB                 @LIBDIR@
+setenv          MPI_MAN                 @MANDIR@
+setenv          MPI_PYTHON_SITEARCH     @PY2SITEARCH@
+setenv          MPI_PYTHON2_SITEARCH    @PY2SITEARCH@
+setenv          MPI_PYTHON3_SITEARCH    @PY3SITEARCH@
+setenv          MPI_COMPILER            @COMPILER@
+setenv          MPI_SUFFIX              @SUFFIX@
+setenv          MPI_HOME                @PREFIX@
 
 set name [lrange [split [ module-info name ] / ] 0 0 ]
 set ver [lrange [split [ module-info name ] / ] 1 1 ]
 
-prepend-path 		MODULEPATH 	@MODULEPATH@
-setenv                  MPI_NAME        $name
-setenv                  MPI_VERSION     @MPI_VERSION@
+prepend-path    MODULEPATH              @MODULEPATH@
+setenv          MPI_NAME                $name
+setenv          MPI_VERSION             @MPI_VERSION@
+setenv          MPI_VERSION_FULL        $ver
