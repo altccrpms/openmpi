@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.4
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -134,6 +134,7 @@ Contains development wrapper for compiling Java with openmpi.
 	--includedir=%{_includedir}/%{namearch} \
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
+	--enable-mpi-thread-multiple \
 	--enable-mpi-java \
 	--with-sge \
 %ifnarch s390
@@ -286,6 +287,9 @@ make check
 
 
 %changelog
+* Wed Oct 19 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-2
+- Enable MPI_THREAD_MULTIPLE support (bug #1369989)
+
 * Wed Oct 19 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-1
 - Update to 1.10.4
 
