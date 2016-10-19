@@ -21,8 +21,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.10.3
-Release:		3%{?dist}
+Version:		1.10.4
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -286,6 +286,9 @@ make check
 
 
 %changelog
+* Wed Oct 19 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-1
+- Update to 1.10.4
+
 * Thu Sep 15 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-3
 - Rebuild for papi 5.5.0
 
