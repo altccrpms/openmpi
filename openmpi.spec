@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.4
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -56,6 +56,10 @@ BuildRequires:		perl(Getopt::Long)
 BuildRequires:		python
 BuildRequires:		python2-devel
 BuildRequires:		python3-devel
+%ifarch x86_64
+BuildRequires:          infinipath-psm-devel
+BuildRequires:          libpsm2-devel
+%endif
 BuildRequires:		libtool-ltdl-devel
 BuildRequires:		torque-devel
 BuildRequires:		zlib-devel
@@ -287,6 +291,9 @@ make check
 
 
 %changelog
+* Thu Oct 20 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-3
+- Enable psm/psm2 support on x86_64 (bug #1263655)
+
 * Wed Oct 19 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-2
 - Enable MPI_THREAD_MULTIPLE support (bug #1369989)
 
