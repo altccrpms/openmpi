@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		1.10.4
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -36,11 +36,11 @@ Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
 
 BuildRequires:		gcc-gfortran
-%ifnarch s390
+%ifnarch s390 s390x
 BuildRequires:		valgrind-devel
-%endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm-devel libibcm-devel
+%endif
 # Doesn't compile:
 # vt_dyn.cc:958:28: error: 'class BPatch_basicBlockLoop' has no member named 'getLoopHead'
 #                      loop->getLoopHead()->getStartAddress(), loop_stmts );
@@ -49,8 +49,10 @@ BuildRequires:		hwloc-devel
 # So configure can find lstopo
 BuildRequires:		hwloc-gui
 BuildRequires:		java-devel
+%ifnarch s390 s390x
 BuildRequires:		libfabric-devel
 BuildRequires:		papi-devel
+%endif
 BuildRequires:		perl-generators
 BuildRequires:		perl(Getopt::Long)
 BuildRequires:		python
@@ -75,10 +77,6 @@ Requires:		openssh-clients
 Provides:               bundled(libevent) = 2.0.21
 # otf appears to be bundled
 Provides:               bundled(otf) =  1.12.3
-
-# s390 is unlikely to have the hardware we want, and some of the -devel
-# packages we require aren't available there.
-ExcludeArch: s390 s390x
 
 # Private openmpi libraries
 %global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|ompi|open-(pal|rte|trace)|otf)|openmpi/).*.so
@@ -141,7 +139,7 @@ Contains development wrapper for compiling Java with openmpi.
 	--enable-mpi-thread-multiple \
 	--enable-mpi-java \
 	--with-sge \
-%ifnarch s390
+%ifnarch s390 s390x
 	--with-valgrind \
 	--enable-memchecker \
 %endif
@@ -251,7 +249,9 @@ make check
 %dir %{_libdir}/%{name}/share/doc/openmpi
 %{_libdir}/%{name}/share/openmpi/amca-param-sets
 %{_libdir}/%{name}/share/openmpi/help*.txt
+%ifnarch s390 s390x
 %{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
+%endif
 %{_libdir}/%{name}/share/openmpi/mca-coll-ml.config
 
 %files devel
@@ -291,6 +291,9 @@ make check
 
 
 %changelog
+* Thu Oct 20 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-4
+- Support s390(x) (bug #1358701)
+
 * Thu Oct 20 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-3
 - Enable psm/psm2 support on x86_64 (bug #1263655)
 
