@@ -21,15 +21,15 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		1.10.4
-Release:		4%{?dist}
+Version:		2.0.1
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-%{version}.tar.bz2
+Source0:		http://www.open-mpi.org/software/ompi/v2.0/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
@@ -55,6 +55,7 @@ BuildRequires:		papi-devel
 %endif
 BuildRequires:		perl-generators
 BuildRequires:		perl(Getopt::Long)
+BuildRequires:		pmix-devel
 BuildRequires:		python
 BuildRequires:		python2-devel
 BuildRequires:		python3-devel
@@ -74,13 +75,11 @@ Requires:		environment(modules)
 Requires:		openssh-clients
 # We have problems using the system libevent - openmpi's is modified
 # https://bugzilla.redhat.com/show_bug.cgi?id=1235044
-Provides:               bundled(libevent) = 2.0.21
-# otf appears to be bundled
-Provides:               bundled(otf) =  1.12.3
+Provides:               bundled(libevent) = 2.0.22
 
 # Private openmpi libraries
-%global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|ompi|open-(pal|rte|trace)|otf)|openmpi/).*.so
-%global __requires_exclude lib(mca|ompi|open-(pal|rte|trace)|otf|vt).*
+%global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|ompi|open-(pal|rte|trace))|openmpi/).*.so
+%global __requires_exclude lib(mca|ompi|open-(pal|rte|trace)|vt).*
 
 %description
 Open MPI is an open source, freely available implementation of both the 
@@ -137,7 +136,9 @@ Contains development wrapper for compiling Java with openmpi.
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
 	--enable-mpi-thread-multiple \
+	--enable-mpi-cxx \
 	--enable-mpi-java \
+	--with-external-pmix \
 	--with-sge \
 %ifnarch s390 s390x
 	--with-valgrind \
@@ -159,9 +160,8 @@ make install DESTDIR=%{buildroot}
 find %{buildroot}%{_libdir}/%{name}/lib -name \*.la | xargs rm
 find %{buildroot}%{_mandir}/%{namearch} -type f | xargs gzip -9
 ln -s mpicc.1.gz %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1.gz
-rm -f %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1
-rm -f %{buildroot}%{_mandir}/%{namearch}/man1/orteCC.1*
-rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
+# Remove dangling symlink
+rm %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1
 mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 
 # Make the environment-modules file
@@ -200,18 +200,11 @@ install -pDm0644 %{SOURCE2} %{buildroot}/%{python2_sitearch}/openmpi.pth
 mkdir -p %{buildroot}/%{python3_sitearch}/%{name}
 install -pDm0644 %{SOURCE3} %{buildroot}/%{python3_sitearch}/openmpi.pth
 
-# Remove COPYRIGHT-ptmalloc2.txt if installed (F24 and lower)
-%if 0%{?fedora} <= 24
-rm %{buildroot}%{_libdir}/openmpi/share/openmpi/doc/COPYRIGHT-ptmalloc2.txt
-rmdir %{buildroot}%{_libdir}/openmpi/share/openmpi/doc
-%global ptmalloc2_license opal/mca/memory/linux/COPYRIGHT-ptmalloc2.txt
-%endif
-
 %check
 make check
 
 %files
-%license LICENSE %{?ptmalloc2_license}
+%license LICENSE opal/mca/event/libevent2022/libevent/LICENSE
 %dir %{_libdir}/%{name}
 %dir %{_sysconfdir}/%{namearch}
 %dir %{_libdir}/%{name}/bin
@@ -226,11 +219,9 @@ make check
 %config(noreplace) %{_sysconfdir}/%{namearch}/*
 %{_libdir}/%{name}/bin/mpi[er]*
 %{_libdir}/%{name}/bin/ompi*
-%{_libdir}/%{name}/bin/opari
 %{_libdir}/%{name}/bin/orte[-dr_]*
 %{_libdir}/%{name}/bin/oshmem_info
 %{_libdir}/%{name}/bin/oshrun
-%{_libdir}/%{name}/bin/otf*
 %{_libdir}/%{name}/bin/shmemrun
 %{_libdir}/%{name}/lib/*.so.*
 %{_mandir}/%{namearch}/man1/mpi[er]*
@@ -239,34 +230,27 @@ make check
 %{_mandir}/%{namearch}/man1/oshmem_info*
 %{_mandir}/%{namearch}/man1/oshrun*
 %{_mandir}/%{namearch}/man1/shmemrun*
-%{_mandir}/%{namearch}/man7/ompi*
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
 %{_sysconfdir}/modulefiles/mpi/
 %dir %{_libdir}/%{name}/share
 %dir %{_libdir}/%{name}/share/openmpi
-%dir %{_libdir}/%{name}/share/doc
-%dir %{_libdir}/%{name}/share/doc/openmpi
 %{_libdir}/%{name}/share/openmpi/amca-param-sets
 %{_libdir}/%{name}/share/openmpi/help*.txt
 %ifnarch s390 s390x
 %{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
 %endif
-%{_libdir}/%{name}/share/openmpi/mca-coll-ml.config
 
 %files devel
 %dir %{_includedir}/%{namearch}
-%dir %{_libdir}/%{name}/share/vampirtrace
 %{_libdir}/%{name}/bin/mpi[cCf]*
 %{_libdir}/%{name}/bin/opal_*
 %{_libdir}/%{name}/bin/orte[cCf]*
 %{_libdir}/%{name}/bin/osh[cf]*
 %{_libdir}/%{name}/bin/shmem[cf]*
-%{_libdir}/%{name}/bin/vt*
 %{_includedir}/%{namearch}/*
 %{_fmoddir}/%{name}/
 %{_libdir}/%{name}/lib/*.so
-%{_libdir}/%{name}/lib/lib*.a
 %{_libdir}/%{name}/lib/*.mod
 %{_libdir}/%{name}/lib/pkgconfig/
 %{_mandir}/%{namearch}/man1/mpi[cCf]*
@@ -274,10 +258,8 @@ make check
 %{_mandir}/%{namearch}/man1/shmem[cCf]*
 %{_mandir}/%{namearch}/man1/opal_*
 %{_mandir}/%{namearch}/man3/*
-%{_mandir}/%{namearch}/man7/opal*
 %{_libdir}/%{name}/share/openmpi/openmpi-valgrind.supp
 %{_libdir}/%{name}/share/openmpi/*-wrapper-data.txt
-%{_libdir}/%{name}/share/vampirtrace/*
 %{macrosdir}/macros.%{namearch}
 
 %files java
@@ -286,11 +268,15 @@ make check
 %files java-devel
 %{_libdir}/%{name}/bin/mpijavac
 %{_libdir}/%{name}/bin/mpijavac.pl
-%{_libdir}/%{name}/share/doc/openmpi/javadoc-openmpi/
+# Currently this only contaings openmpi/javadoc
+%{_libdir}/%{name}/share/doc/
 %{_mandir}/%{namearch}/man1/mpijavac.1.gz
 
 
 %changelog
+* Fri Oct 21 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-1
+- Update to 2.0.1
+
 * Thu Oct 20 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-4
 - Support s390(x) (bug #1358701)
 
