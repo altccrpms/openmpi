@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.0.1
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD, MIT and Romio
@@ -34,6 +34,8 @@ Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
+# threads: fix WAIT_SYNC_INIT with a zero count
+Patch0:                 https://github.com/open-mpi/ompi/commit/44a66e208c5771e0897bcf27430a3afa171ba4c2.patch
 
 BuildRequires:		gcc-gfortran
 %ifnarch s390 s390x
@@ -127,7 +129,7 @@ Contains development wrapper for compiling Java with openmpi.
 %global namearch openmpi-%{_arch}%{?_cc_name_suffix}
 
 %prep
-%setup -q -n openmpi-%{version}
+%autosetup -p1
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
@@ -274,6 +276,9 @@ make check
 
 
 %changelog
+* Mon Oct 24 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-2
+- Add upstream patch for thread wait issue with mpi4py
+
 * Fri Oct 21 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-1
 - Update to 2.0.1
 
