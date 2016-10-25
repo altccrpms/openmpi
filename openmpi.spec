@@ -22,10 +22,10 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.0.1
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
-License:		BSD, MIT and Romio
+License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
@@ -167,7 +167,7 @@ rm %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1
 mkdir %{buildroot}%{_mandir}/%{namearch}/man{2,4,5,6,8,9,n}
 
 # Make the environment-modules file
-mkdir -p %{buildroot}%{_sysconfdir}/modulefiles/mpi
+mkdir -p %{buildroot}%{_datadir}/modulefiles/mpi
 # Since we're doing our own substitution here, use our own definitions.
 sed 's#@LIBDIR@#%{_libdir}/%{name}#;
      s#@ETCDIR@#%{_sysconfdir}/%{namearch}#;
@@ -179,7 +179,7 @@ sed 's#@LIBDIR@#%{_libdir}/%{name}#;
      s#@COMPILER@#openmpi-%{_arch}%{?_cc_name_suffix}#;
      s#@SUFFIX@#%{?_cc_name_suffix}_openmpi#' \
      <%{SOURCE1} \
-     >%{buildroot}%{_sysconfdir}/modulefiles/mpi/%{namearch}
+     >%{buildroot}%{_datadir}/modulefiles/mpi/%{namearch}
 
 # make the rpm config file
 install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}
@@ -234,7 +234,7 @@ make check
 %{_mandir}/%{namearch}/man1/shmemrun*
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
-%{_sysconfdir}/modulefiles/mpi/
+%{_datadir}/modulefiles/mpi/
 %dir %{_libdir}/%{name}/share
 %dir %{_libdir}/%{name}/share/openmpi
 %{_libdir}/%{name}/share/openmpi/amca-param-sets
@@ -276,6 +276,10 @@ make check
 
 
 %changelog
+* Mon Oct 24 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-3
+- Fix License tag format
+- Use /usr/share/modulefiles for modulefile install location
+
 * Mon Oct 24 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-2
 - Add upstream patch for thread wait issue with mpi4py
 
