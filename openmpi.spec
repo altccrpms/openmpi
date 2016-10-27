@@ -22,7 +22,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.0.1
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -138,7 +138,9 @@ Contains development wrapper for compiling Java with openmpi.
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
 	--enable-mpi-thread-multiple \
+%ifnarch %{power64}
 	--enable-mpi-cxx \
+%endif
 	--enable-mpi-java \
 	--with-external-pmix \
 	--with-sge \
@@ -276,6 +278,9 @@ make check
 
 
 %changelog
+* Thu Oct 27 2016 Dan Horák <dan[at]danny.cz> - 2.0.1-4
+- Temporarily disable C++ bindings on ppc64/ppc64le (#1388561)
+
 * Mon Oct 24 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-3
 - Fix License tag format
 - Use /usr/share/modulefiles for modulefile install location
