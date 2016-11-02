@@ -12,7 +12,6 @@
 %global opt_fc gfortran
 #global opt_fcflags
 
-%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 # Optional name suffix to use...we leave it off when compiling with gcc, but
 # for other compiled versions to install side by side, it will need a
 # suffix in order to keep the names from conflicting.
@@ -128,6 +127,23 @@ Contains development wrapper for compiling Java with openmpi.
 # particular package, version, compiler
 %global namearch openmpi-%{_arch}%{?_cc_name_suffix}
 
+%package -n python2-openmpi
+Summary:	OpenMPI support for Python 2
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+
+%description -n python2-openmpi
+OpenMPI support for Python 2.
+
+%package -n python3-openmpi
+Summary:	OpenMPI support for Python 3
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+
+%description -n python3-openmpi
+OpenMPI support for Python 3.
+
+
 %prep
 %autosetup -p1
 
@@ -216,10 +232,6 @@ make check
 %dir %{_libdir}/%{name}/lib/openmpi
 %dir %{_mandir}/%{namearch}
 %dir %{_mandir}/%{namearch}/man*
-%dir %{python2_sitearch}/%{name}
-%{python2_sitearch}/openmpi.pth
-%dir %{python3_sitearch}/%{name}
-%{python3_sitearch}/openmpi.pth
 %config(noreplace) %{_sysconfdir}/%{namearch}/*
 %{_libdir}/%{name}/bin/mpi[er]*
 %{_libdir}/%{name}/bin/ompi*
@@ -276,8 +288,19 @@ make check
 %{_libdir}/%{name}/share/doc/
 %{_mandir}/%{namearch}/man1/mpijavac.1.gz
 
+%files -n python2-openmpi
+%dir %{python2_sitearch}/%{name}
+%{python2_sitearch}/openmpi.pth
+
+%files -n python3-openmpi
+%dir %{python3_sitearch}/%{name}
+%{python3_sitearch}/openmpi.pth
+
 
 %changelog
+* Wed Nov 2 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-5
+- Split python support into sub-packages (bug #1391157)
+
 * Thu Oct 27 2016 Dan Horák <dan[at]danny.cz> - 2.0.1-4
 - Temporarily disable C++ bindings on ppc64/ppc64le (#1388561)
 
