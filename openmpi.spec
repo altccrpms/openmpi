@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.0.1
-Release:		5%{?dist}
+Release:		6%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -298,6 +298,9 @@ make check
 
 
 %changelog
+* Mon Dec 19 2016 Miro Hrončok <mhroncok@redhat.com> - 2.0.1-6
+- Rebuild for Python 3.6
+
 * Wed Nov 2 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-5
 - Split python support into sub-packages (bug #1391157)
 
