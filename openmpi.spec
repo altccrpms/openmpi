@@ -20,8 +20,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		2.0.1
-Release:		7%{?dist}
+Version:		2.0.2
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -33,8 +33,6 @@ Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
-# threads: fix WAIT_SYNC_INIT with a zero count
-Patch0:                 https://github.com/open-mpi/ompi/commit/44a66e208c5771e0897bcf27430a3afa171ba4c2.patch
 
 BuildRequires:		gcc-gfortran
 %ifnarch s390 s390x
@@ -64,7 +62,6 @@ BuildRequires:		python3-devel
 BuildRequires:          infinipath-psm-devel
 BuildRequires:          libpsm2-devel
 %endif
-BuildRequires:		libtool-ltdl-devel
 BuildRequires:		torque-devel
 BuildRequires:		zlib-devel
 BuildRequires:		rpm-mpi-hooks
@@ -145,7 +142,7 @@ OpenMPI support for Python 3.
 
 
 %prep
-%autosetup -p1
+%autosetup -p1 -n openmpi-%{version}
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
@@ -153,24 +150,27 @@ OpenMPI support for Python 3.
 	--includedir=%{_includedir}/%{namearch} \
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
+	--enable-builtin-atomics \
 	--enable-mpi-thread-multiple \
 %ifnarch %{power64}
 	--enable-mpi-cxx \
 %endif
 	--enable-mpi-java \
-	--with-external-pmix \
 	--with-sge \
 %ifnarch s390 s390x
 	--with-valgrind \
 	--enable-memchecker \
 %endif
 	--with-hwloc=/usr \
-	--with-libltdl=/usr \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='%{__global_ldflags}' \
 	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
 	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}" \
 	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}"
+# This fails - https://github.com/open-mpi/ompi/issues/2616
+#	--with-hwloc=external \
+# We cannot use external pmix without external libevent
+#	--with-pmix=external \
 #        --with-contrib-vt-flags='CXXFLAGS="-I%{_includedir}/dyninst -L%{_libdir}/dyninst"' \
 
 make %{?_smp_mflags} V=1
@@ -298,6 +298,9 @@ make check
 
 
 %changelog
+* Thu Feb 2 2017 Orion Poplawski <orion@cora.nwra.com> - 2.0.2-1
+- Update to 2.0.2
+
 * Sat Jan 28 2017 Björn Esser <besser82@fedoraproject.org> - 2.0.1-7
 - Rebuilt for GCC-7
 
