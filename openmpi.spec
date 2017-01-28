@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.0.1
-Release:		6%{?dist}
+Release:		7%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -83,7 +83,7 @@ Provides:               bundled(libevent) = 2.0.22
 %global __requires_exclude lib(mca|ompi|open-(pal|rte|trace)|vt).*
 
 %description
-Open MPI is an open source, freely available implementation of both the 
+Open MPI is an open source, freely available implementation of both the
 MPI-1 and MPI-2 standards, combining technologies and resources from
 several other projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in
 order to build the best MPI library available.  A completely new MPI-2
@@ -298,6 +298,9 @@ make check
 
 
 %changelog
+* Sat Jan 28 2017 Björn Esser <besser82@fedoraproject.org> - 2.0.1-7
+- Rebuilt for GCC-7
+
 * Mon Dec 19 2016 Miro Hrončok <mhroncok@redhat.com> - 2.0.1-6
 - Rebuild for Python 3.6
 
@@ -826,7 +829,7 @@ make check
 
 * Wed Feb 15 2006 Jason Vas Dias <jvdias@redhat.com> - 1.0.1-1
 - Import into Fedora Core
-- Resolve LAM clashes 
+- Resolve LAM clashes
 
 * Wed Jan 25 2006 Orion Poplawski <orion@cora.nwra.com> - 1.0.1-2
 - Use configure options to install includes and libraries
