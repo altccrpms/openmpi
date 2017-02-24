@@ -1,13 +1,7 @@
 %global shortname openmpi
-%global shortver 1.10
-%global ver %{shortver}.3
+%global shortver 2.0
+%global ver %{shortver}.2
 %{?altcc_init:%altcc_init -m %{shortver}}
-
-%if 0%{?rhel} && 0%{?rhel} <= 6
-%{!?__python2: %global __python2 /usr/bin/python2}
-%{!?python2_sitearch: %global python2_sitearch %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
-%{!?python2_version: %global python2_version %(%{__python2} -c "import sys; sys.stdout.write(sys.version[:3])")}
-%endif
 
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
@@ -16,21 +10,21 @@ Version:		%{ver}
 Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
-License:		BSD, MIT and Romio
+License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-%{version}.tar.bz2
+Source0:		http://www.open-mpi.org/software/ompi/v2.0/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
 
-%ifnarch s390
+%ifnarch s390 s390x
 BuildRequires:		valgrind-devel
-%endif
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm-devel libibcm-devel
+%endif
 # Doesn't compile:
 # vt_dyn.cc:958:28: error: 'class BPatch_basicBlockLoop' has no member named 'getLoopHead'
 #                      loop->getLoopHead()->getStartAddress(), loop_stmts );
@@ -41,19 +35,22 @@ BuildRequires:		hwloc-devel
 BuildRequires:		hwloc-gui
 %endif
 BuildRequires:		java-devel
-%if 0%{?fedora} || 0%{?rhel} >= 7
-# Not compiled with thread support on EL6
-BuildRequires:		libevent-devel
-%endif
+%ifnarch s390 s390x
 BuildRequires:		libfabric-devel
 BuildRequires:		papi-devel
+%endif
+BuildRequires:		perl-generators
 BuildRequires:		perl(Getopt::Long)
+BuildRequires:		pmix-devel
 BuildRequires:		python
 BuildRequires:		python2-devel
 %if 0%{?fedora}
 BuildRequires:		python3-devel
 %endif
-BuildRequires:		libtool-ltdl-devel
+%ifarch x86_64
+BuildRequires:          infinipath-psm-devel
+BuildRequires:          libpsm2-devel
+%endif
 BuildRequires:		torque-devel
 BuildRequires:		zlib-devel
 %if 0%{?fedora} >= 23
@@ -65,21 +62,19 @@ Requires:		environment(modules)
 # openmpi currently requires ssh to run
 # https://svn.open-mpi.org/trac/ompi/ticket/4228
 Requires:		openssh-clients
-# otf appears to be bundled
-Provides:               bundled(otf) =  1.12.3
+
+# We have problems using the system libevent - openmpi's is modified
+# https://bugzilla.redhat.com/show_bug.cgi?id=1235044
+Provides:               bundled(libevent) = 2.0.22
 
 %{?altcc_provide}
 
-# s390 is unlikely to have the hardware we want, and some of the -devel
-# packages we require aren't available there.
-ExcludeArch: s390 s390x
-
 # Private openmpi libraries
-%global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|ompi|open-(pal|rte|trace)|otf)|openmpi/).*.so
-%global __requires_exclude lib(mca|ompi|open-(pal|rte|trace)|otf|vt).*
+%global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|ompi|open-(pal|rte|trace))|openmpi/).*.so
+%global __requires_exclude lib(mca|ompi|open-(pal|rte|trace)|vt).*
 
 %description
-Open MPI is an open source, freely available implementation of both the 
+Open MPI is an open source, freely available implementation of both the
 MPI-1 and MPI-2 standards, combining technologies and resources from
 several other projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in
 order to build the best MPI library available.  A completely new MPI-2
@@ -122,27 +117,33 @@ Contains development wrapper for compiling Java with openmpi.
 # particular package, version, compiler
 %global namearch openmpi%{?altcc_name_suffix}
 
+
 %prep
-%setup -q -n openmpi-%{version}
+%autosetup -p1 -n openmpi-%{version}
 
 %build
 [ "${FC/pgf/}" != "$FC" ] && export FC="$FC -noswitcherror"
 ./configure --prefix=%{_prefix} \
 	--libdir=%{_prefix}/%{_lib} \
 	--disable-silent-rules \
-	--enable-mpi-java \
-%if 0%{?fedora} || 0%{?rhel} >= 7
-	--with-hwloc=/usr \
-	--with-libevent=/usr \
+	--enable-builtin-atomics \
+	--enable-mpi-thread-multiple \
+%ifnarch %{power64}
+	--enable-mpi-cxx \
 %endif
+	--enable-mpi-java \
 	--with-sge \
-%ifnarch s390
+%ifnarch s390 s390x
 	--with-valgrind \
 	--enable-memchecker \
 %endif
+	--with-hwloc=/usr \
 	--enable-orterun-prefix-by-default \
-	--with-libltdl=/usr \
-	LDFLAGS='%{?__global_ldflags}'
+	LDFLAGS='%{__global_ldflags}'
+# This fails - https://github.com/open-mpi/ompi/issues/2616
+#	--with-hwloc=external \
+# We cannot use external pmix without external libevent
+#	--with-pmix=external \
 #        --with-contrib-vt-flags='CXXFLAGS="-I%{_includedir}/dyninst -L%{_libdir}/dyninst"' \
 
 make %{?_smp_mflags} V=1
@@ -152,9 +153,8 @@ make install DESTDIR=%{buildroot}
 find %{buildroot}%{_libdir} -name \*.la | xargs rm
 find %{buildroot}%{_mandir} -type f | xargs gzip -9
 ln -s mpicc.1.gz %{buildroot}%{_mandir}/man1/mpiCC.1.gz
-rm -f %{buildroot}%{_mandir}/man1/mpiCC.1
-rm -f %{buildroot}%{_mandir}/man1/orteCC.1*
-rm -f %{buildroot}%{_libdir}/%{name}/share/vampirtrace/doc/opari/lacsi01.ps.gz
+# Remove dangling symlink
+rm %{buildroot}%{_mandir}/man1/mpiCC.1
 mkdir %{buildroot}%{_mandir}/man{2,4,5,6,8,9,n}
 
 %{?altcc:%altcc_writemodule %SOURCE1}
@@ -174,11 +174,14 @@ mkdir -p %{buildroot}/%{python3_sitearch}/%{name}
 install -pDm0644 %{SOURCE3} %{buildroot}/%{python3_sitearch}/openmpi.pth
 %endif
 
+%{?altcc:%altcc_license}
+
 %check
 make check
 
 %files
-%{?altcc:%altcc_files -m %{_bindir} %{_datadir}/doc %{_libdir} %{_sysconfdir} %{_mandir} %{_mandir}/man*}
+%{?altcc:%altcc_files -lm %{_bindir} %{_libdir} %{_sysconfdir} %{_mandir} %{_mandir}/man*}
+%license LICENSE opal/mca/event/libevent2022/libevent/LICENSE
 %dir %{python2_sitearch}/%{name}
 %{python2_sitearch}/openmpi.pth
 %if 0%{?fedora}
@@ -188,11 +191,9 @@ make check
 %config(noreplace) %{_sysconfdir}/*
 %{_bindir}/mpi[er]*
 %{_bindir}/ompi*
-%{_bindir}/opari
 %{_bindir}/orte[-dr_]*
 %{_bindir}/oshmem_info
 %{_bindir}/oshrun
-%{_bindir}/otf*
 %{_bindir}/shmemrun
 %{_libdir}/*.so.*
 %{_mandir}/man1/mpi[er]*
@@ -201,29 +202,22 @@ make check
 %{_mandir}/man1/oshmem_info*
 %{_mandir}/man1/oshrun*
 %{_mandir}/man1/shmemrun*
-%{_mandir}/man7/ompi*
 %{_mandir}/man7/orte*
 %dir %{_libdir}/openmpi
 %{_libdir}/openmpi/*
-%dir %{_datadir}/doc/openmpi
-%dir %{_datadir}/openmpi
-%{_datadir}/openmpi/doc
 %{_datadir}/openmpi/amca-param-sets
 %{_datadir}/openmpi/help*.txt
 %{_datadir}/openmpi/mca-btl-openib-device-params.ini
-%{_datadir}/openmpi/mca-coll-ml.config
 
 %files devel
-%{?altcc:%altcc_files %{_includedir} %{_datadir}/vampirtrace}
+%{?altcc:%altcc_files %{_includedir}}
 %{_bindir}/mpi[cCf]*
 %{_bindir}/opal_*
 %{_bindir}/orte[cCf]*
 %{_bindir}/osh[cf]*
 %{_bindir}/shmem[cf]*
-%{_bindir}/vt*
 %{_includedir}/*
 %{_libdir}/*.so
-%{_libdir}/lib*.a
 %{_libdir}/*.mod
 %{_libdir}/pkgconfig/
 %{_mandir}/man1/mpi[cCf]*
@@ -231,10 +225,8 @@ make check
 %{_mandir}/man1/osh[cCf]*
 %{_mandir}/man1/shmem[cCf]*
 %{_mandir}/man3/*
-%{_mandir}/man7/opal*
 %{_datadir}/openmpi/openmpi-valgrind.supp
 %{_datadir}/openmpi/*-wrapper-data.txt
-%{_datadir}/vampirtrace/*
 %{macrosdir}/macros.%{namearch}
 
 %files java
@@ -243,11 +235,46 @@ make check
 %files java-devel
 %{_bindir}/mpijavac
 %{_bindir}/mpijavac.pl
-%{_datadir}/doc/openmpi/javadoc-openmpi/
+# Currently this only contaings openmpi/javadoc
+%{_datadir}/doc/
 %{_mandir}/man1/mpijavac.1.gz
 
 
 %changelog
+* Thu Feb 2 2017 Orion Poplawski <orion@cora.nwra.com> - 2.0.2-1
+- Update to 2.0.2
+
+* Thu Oct 27 2016 Dan Horák <dan[at]danny.cz> - 2.0.1-4
+- Temporarily disable C++ bindings on ppc64/ppc64le (#1388561)
+
+* Mon Oct 24 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-3
+- Fix License tag format
+- Use /usr/share/modulefiles for modulefile install location
+
+* Mon Oct 24 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-2
+- Add upstream patch for thread wait issue with mpi4py
+
+* Fri Oct 21 2016 Orion Poplawski <orion@cora.nwra.com> - 2.0.1-1
+- Update to 2.0.1
+
+* Thu Oct 20 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-4
+- Support s390(x) (bug #1358701)
+
+* Thu Oct 20 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-3
+- Enable psm/psm2 support on x86_64 (bug #1263655)
+
+* Wed Oct 19 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-2
+- Enable MPI_THREAD_MULTIPLE support (bug #1369989)
+
+* Wed Oct 19 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.4-1
+- Update to 1.10.4
+
+* Thu Sep 15 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-3
+- Rebuild for papi 5.5.0
+
+* Fri Jun 24 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-2
+- Use bundled libevent, system version causes issues (bug #1235044)
+
 * Wed Jun 15 2016 Orion Poplawski <orion@cora.nwra.com> - 1.10.3-1
 - Update to 1.10.3
 - New javadoc location
@@ -739,7 +766,7 @@ make check
 
 * Wed Feb 15 2006 Jason Vas Dias <jvdias@redhat.com> - 1.0.1-1
 - Import into Fedora Core
-- Resolve LAM clashes 
+- Resolve LAM clashes
 
 * Wed Jan 25 2006 Orion Poplawski <orion@cora.nwra.com> - 1.0.1-2
 - Use configure options to install includes and libraries
