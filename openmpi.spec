@@ -20,7 +20,7 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		2.1.0
+Version:		2.1.1
 Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
@@ -298,6 +298,9 @@ make check
 
 
 %changelog
+* Fri May 12 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-1
+- Update to 2.1.1
+
 * Thu May 4 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.0-1
 - Update to 2.1.0
 
