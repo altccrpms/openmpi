@@ -1,6 +1,6 @@
 %global shortname openmpi
-%global shortver 2.0
-%global ver %{shortver}.2
+%global shortver 2.1
+%global ver %{shortver}.1
 %{?altcc_init:%altcc_init -m %{shortver}}
 
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
@@ -14,7 +14,7 @@ License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		http://www.open-mpi.org/software/ompi/v2.0/downloads/openmpi-%{version}.tar.bz2
+Source0:		https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
@@ -241,6 +241,15 @@ make check
 
 
 %changelog
+* Fri May 12 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-1
+- Update to 2.1.1
+
+* Thu May 4 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.0-1
+- Update to 2.1.0
+
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Thu Feb 2 2017 Orion Poplawski <orion@cora.nwra.com> - 2.0.2-1
 - Update to 2.0.2
 
