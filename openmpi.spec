@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -203,12 +203,18 @@ sed 's#@LIBDIR@#%{_libdir}/%{name}#;
 install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}
 
 # Link the fortran module to proper location
-mkdir -p %{buildroot}/%{_fmoddir}/%{name}
+mkdir -p %{buildroot}%{_fmoddir}/%{name}
 for mod in %{buildroot}%{_libdir}/%{name}/lib/*.mod
 do
   modname=$(basename $mod)
   ln -s ../../../%{name}/lib/${modname} %{buildroot}/%{_fmoddir}/%{name}/
 done
+
+# Link the pkgconfig files into the main namespace as well
+mkdir -p %{buildroot}%{_libdir}/pkgconfig
+cd %{buildroot}%{_libdir}/pkgconfig
+ln -s ../%{name}/lib/pkgconfig/*.pc .
+cd -
 
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
@@ -269,6 +275,7 @@ make check
 %{_libdir}/%{name}/lib/*.so
 %{_libdir}/%{name}/lib/*.mod
 %{_libdir}/%{name}/lib/pkgconfig/
+%{_libdir}/pkgconfig/*.pc
 %{_mandir}/%{namearch}/man1/mpi[cCf]*
 %{_mandir}/%{namearch}/man1/osh[cCf]*
 %{_mandir}/%{namearch}/man1/shmem[cCf]*
@@ -298,6 +305,9 @@ make check
 
 
 %changelog
+* Wed Jul 19 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-2
+- Provide pkgconfig files in the main namespace as well (1471512)
+
 * Fri May 12 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-1
 - Update to 2.1.1
 
