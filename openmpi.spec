@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		4%{?dist}
+Release:		5%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -37,6 +37,8 @@ Source4:		macros.openmpi
 BuildRequires:		gcc-gfortran
 %ifnarch s390 s390x
 BuildRequires:		valgrind-devel
+%endif
+%ifnarch s390 s390x %{arm}
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
 BuildRequires:		librdmacm-devel libibcm-devel
 %endif
@@ -259,7 +261,7 @@ make check
 %dir %{_libdir}/%{name}/share/openmpi
 %{_libdir}/%{name}/share/openmpi/amca-param-sets
 %{_libdir}/%{name}/share/openmpi/help*.txt
-%ifnarch s390 s390x
+%ifnarch s390 s390x %{arm}
 %{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
 %endif
 
@@ -305,6 +307,9 @@ make check
 
 
 %changelog
+* Wed Aug 23 2017 Adam Williamson <awilliam@redhat.com> - 2.1.1-5
+- Disable RDMA support on 32-bit ARM (#1484155)
+
 * Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
