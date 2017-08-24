@@ -1,0 +1,103 @@
+--- openmpi-2.1.1/test/class/Makefile.am	2017-05-10 08:41:36.000000000 -0700
++++ openmpi-2.1.1/test/class/Makefile.am.new	2017-08-24 09:07:12.539374461 -0700
+@@ -95,11 +95,14 @@
+ 	$(top_builddir)/test/support/libsupport.a
+ opal_lifo_DEPENDENCIES = $(opal_lifo_LDADD)
+ 
+-opal_fifo_SOURCES = opal_fifo.c
+-opal_fifo_LDADD = \
+-        $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la \
+-	$(top_builddir)/test/support/libsupport.a
+-opal_fifo_DEPENDENCIES = $(opal_fifo_LDADD)
++# Disabled due to:
++# https://github.com/open-mpi/ompi/issues/2526
++# https://github.com/open-mpi/ompi/issues/2966
++#opal_fifo_SOURCES = opal_fifo.c
++#opal_fifo_LDADD = \
++#        $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la \
++#	$(top_builddir)/test/support/libsupport.a
++#opal_fifo_DEPENDENCIES = $(opal_fifo_LDADD)
+ 
+ clean-local:
+ 	rm -f opal_bitmap_test_out.txt opal_hash_table_test_out.txt opal_proc_table_test_out.txt
+--- openmpi-2.1.1/test/class/Makefile.in	2017-05-10 09:01:13.000000000 -0700
++++ openmpi-2.1.1/test/class/Makefile.in.new	2017-08-24 09:07:12.539374461 -0700
+@@ -115,7 +115,7 @@
+ 	opal_hash_table$(EXEEXT) opal_proc_table$(EXEEXT) \
+ 	opal_tree$(EXEEXT) opal_list$(EXEEXT) \
+ 	opal_value_array$(EXEEXT) opal_pointer_array$(EXEEXT) \
+-	opal_lifo$(EXEEXT) opal_fifo$(EXEEXT)
++	opal_lifo$(EXEEXT)
+ subdir = test/class
+ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
+@@ -411,8 +411,6 @@
+ am__v_lt_1 = 
+ am_opal_bitmap_OBJECTS = opal_bitmap.$(OBJEXT)
+ opal_bitmap_OBJECTS = $(am_opal_bitmap_OBJECTS)
+-am_opal_fifo_OBJECTS = opal_fifo.$(OBJEXT)
+-opal_fifo_OBJECTS = $(am_opal_fifo_OBJECTS)
+ am_opal_hash_table_OBJECTS = opal_hash_table.$(OBJEXT)
+ opal_hash_table_OBJECTS = $(am_opal_hash_table_OBJECTS)
+ am_opal_lifo_OBJECTS = opal_lifo.$(OBJEXT)
+@@ -462,12 +460,12 @@
+ am__v_CCLD_0 = @echo "  CCLD    " $@;
+ am__v_CCLD_1 = 
+ SOURCES = $(ompi_rb_tree_SOURCES) $(opal_bitmap_SOURCES) \
+-	$(opal_fifo_SOURCES) $(opal_hash_table_SOURCES) \
++	$(opal_hash_table_SOURCES) \
+ 	$(opal_lifo_SOURCES) $(opal_list_SOURCES) \
+ 	$(opal_pointer_array_SOURCES) $(opal_proc_table_SOURCES) \
+ 	$(opal_tree_SOURCES) $(opal_value_array_SOURCES)
+ DIST_SOURCES = $(ompi_rb_tree_SOURCES) $(opal_bitmap_SOURCES) \
+-	$(opal_fifo_SOURCES) $(opal_hash_table_SOURCES) \
++	$(opal_hash_table_SOURCES) \
+ 	$(opal_lifo_SOURCES) $(opal_list_SOURCES) \
+ 	$(opal_pointer_array_SOURCES) $(opal_proc_table_SOURCES) \
+ 	$(opal_tree_SOURCES) $(opal_value_array_SOURCES)
+@@ -1900,12 +1898,6 @@
+ 	$(top_builddir)/test/support/libsupport.a
+ 
+ opal_lifo_DEPENDENCIES = $(opal_lifo_LDADD)
+-opal_fifo_SOURCES = opal_fifo.c
+-opal_fifo_LDADD = \
+-        $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la \
+-	$(top_builddir)/test/support/libsupport.a
+-
+-opal_fifo_DEPENDENCIES = $(opal_fifo_LDADD)
+ all: all-am
+ 
+ .SUFFIXES:
+@@ -1957,10 +1949,6 @@
+ 	@rm -f opal_bitmap$(EXEEXT)
+ 	$(AM_V_CCLD)$(LINK) $(opal_bitmap_OBJECTS) $(opal_bitmap_LDADD) $(LIBS)
+ 
+-opal_fifo$(EXEEXT): $(opal_fifo_OBJECTS) $(opal_fifo_DEPENDENCIES) $(EXTRA_opal_fifo_DEPENDENCIES) 
+-	@rm -f opal_fifo$(EXEEXT)
+-	$(AM_V_CCLD)$(LINK) $(opal_fifo_OBJECTS) $(opal_fifo_LDADD) $(LIBS)
+-
+ opal_hash_table$(EXEEXT): $(opal_hash_table_OBJECTS) $(opal_hash_table_DEPENDENCIES) $(EXTRA_opal_hash_table_DEPENDENCIES) 
+ 	@rm -f opal_hash_table$(EXEEXT)
+ 	$(AM_V_CCLD)$(LINK) $(opal_hash_table_OBJECTS) $(opal_hash_table_LDADD) $(LIBS)
+@@ -1997,7 +1985,6 @@
+ 
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ompi_rb_tree.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opal_bitmap.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opal_fifo.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opal_hash_table.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opal_lifo.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opal_list.Po@am__quote@
+@@ -2291,13 +2278,6 @@
+ 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+ 	--log-file $$b.log --trs-file $$b.trs \
+ 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+-	"$$tst" $(AM_TESTS_FD_REDIRECT)
+-opal_fifo.log: opal_fifo$(EXEEXT)
+-	@p='opal_fifo$(EXEEXT)'; \
+-	b='opal_fifo'; \
+-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+-	--log-file $$b.log --trs-file $$b.trs \
+-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+ 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+ .test.log:
+ 	@p='$<'; \

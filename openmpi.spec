@@ -34,6 +34,11 @@ Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
 
+# Only for ppc64le
+# https://github.com/open-mpi/ompi/issues/2526
+# https://github.com/open-mpi/ompi/issues/2966
+Patch0:			openmpi-2.1.1-disable-fifo-test.patch
+
 BuildRequires:		gcc-gfortran
 %ifnarch s390 s390x
 BuildRequires:		valgrind-devel
@@ -144,7 +149,10 @@ OpenMPI support for Python 3.
 
 
 %prep
-%autosetup -p1 -n openmpi-%{version}
+%setup -q -n openmpi-%{version}
+%ifarch ppc64le
+%patch0 -p1
+%endif
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
@@ -309,6 +317,7 @@ make check
 %changelog
 * Wed Aug 23 2017 Adam Williamson <awilliam@redhat.com> - 2.1.1-5
 - Disable RDMA support on 32-bit ARM (#1484155)
+- Disable hanging opal_fifo test on ppc64le (gh #2526 / #2966)
 
 * Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
