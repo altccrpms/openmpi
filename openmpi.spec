@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		5%{?dist}
+Release:		6%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -62,7 +62,7 @@ BuildRequires:		papi-devel
 BuildRequires:		perl-generators
 BuildRequires:		perl(Getopt::Long)
 BuildRequires:		pmix-devel
-BuildRequires:		python
+BuildRequires:		python2
 BuildRequires:		python2-devel
 BuildRequires:		python3-devel
 %ifarch x86_64
@@ -315,6 +315,10 @@ make check
 
 
 %changelog
+* Fri Jan 12 2018 Iryna Shcherbina <ishcherb@redhat.com> - 2.1.1-6
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
 * Wed Aug 23 2017 Adam Williamson <awilliam@redhat.com> - 2.1.1-5
 - Disable RDMA support on 32-bit ARM (#1484155)
 - Disable hanging opal_fifo test on ppc64le (gh #2526 / #2966)
