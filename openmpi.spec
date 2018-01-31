@@ -269,7 +269,7 @@ make check
 %dir %{_libdir}/%{name}/share/openmpi
 %{_libdir}/%{name}/share/openmpi/amca-param-sets
 %{_libdir}/%{name}/share/openmpi/help*.txt
-%ifnarch s390 s390x %{arm}
+%ifnarch s390 %{arm}
 %{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
 %endif
 
