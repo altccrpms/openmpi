@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		6%{?dist}
+Release:		7%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -315,6 +315,9 @@ make check
 
 
 %changelog
+* Wed Jan 31 2018 Christoph Junghans <junghans@votca.org> - 2.1.1-7
+- Rebuild for gfortran-8
+
 * Fri Jan 12 2018 Iryna Shcherbina <ishcherb@redhat.com> - 2.1.1-6
 - Update Python 2 dependency declarations to new packaging standards
   (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
