@@ -1,6 +1,6 @@
 %global shortname openmpi
-%global shortver 2.1
-%global ver %{shortver}.1
+%global shortver 3.0
+%global ver %{shortver}.0
 %{?altcc_init:%altcc_init -m %{shortver}}
 
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
@@ -14,7 +14,7 @@ License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-%{version}.tar.bz2
+Source0:		https://www.open-mpi.org/software/ompi/v3.0/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
@@ -202,20 +202,22 @@ make check
 %{_mandir}/man1/oshmem_info*
 %{_mandir}/man1/oshrun*
 %{_mandir}/man1/shmemrun*
-%{_mandir}/man7/orte*
+%{_mandir}/man7/*.7*
 %dir %{_libdir}/openmpi
 %{_libdir}/openmpi/*
+%{_libdir}/pmix/
 %{_datadir}/openmpi/amca-param-sets
 %{_datadir}/openmpi/help*.txt
 %{_datadir}/openmpi/mca-btl-openib-device-params.ini
+%{_datadir}/pmix/
 
 %files devel
 %{?altcc:%altcc_files %{_includedir}}
 %{_bindir}/mpi[cCf]*
 %{_bindir}/opal_*
 %{_bindir}/orte[cCf]*
-%{_bindir}/osh[cf]*
-%{_bindir}/shmem[cf]*
+%{_bindir}/osh[cCf]*
+%{_bindir}/shmem[cCf]*
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/*.mod
@@ -241,6 +243,9 @@ make check
 
 
 %changelog
+* Tue Feb 6 2018 Orion Poplawski <orion@cora.nwra.com> - 3.0.0-1
+- Update to 3.0.0
+
 * Fri May 12 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-1
 - Update to 2.1.1
 
