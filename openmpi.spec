@@ -20,8 +20,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		2.1.1
-Release:		8%{?dist}
+Version:		2.1.2
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -315,6 +315,9 @@ make check
 
 
 %changelog
+* Tue Feb 06 2018 Orion Poplawski <orion@cora.nwra.com> - 2.1.2-1
+- Update to 2.1.2
+
 * Mon Feb 05 2018 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-8
 - Rebuild for rdma-core 16.2
 
