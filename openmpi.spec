@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		8%{?dist}
+Release:		9%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -315,6 +315,9 @@ make check
 
 
 %changelog
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2.1.1-9
+- Escape macros in %%changelog
+
 * Mon Feb 05 2018 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-8
 - Rebuild for rdma-core 16.2
 
@@ -740,8 +743,8 @@ make check
 - Create and own man* directories for use by dependent packages.
 
 * Wed Sep 16 2009 Jay Fenlason <fenlason@redhat.com> - 1.3.3-5
-- Move the module file from %{_datadir}/Modules/modulefiles/%{namearch} to
-  %{_sysconfdir}/modulefiles/%{namearch} where it belongs.
+- Move the module file from %%{_datadir}/Modules/modulefiles/%%{namearch} to
+  %%{_sysconfdir}/modulefiles/%%{namearch} where it belongs.
 - Have the -devel subpackage own the man1 and man7 directories for completeness.
 - Add a blank line before the clean section.
 - Remove --enable-mpirun-prefix-by-default from configure.
