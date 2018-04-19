@@ -1,6 +1,6 @@
 %global shortname openmpi
 %global shortver 3.0
-%global ver %{shortver}.0
+%global ver %{shortver}.1
 %{?altcc_init:%altcc_init -m %{shortver}}
 
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
