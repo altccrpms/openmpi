@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		9%{?dist}
+Release:		10%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -315,6 +315,9 @@ make check
 
 
 %changelog
+* Mon Apr 30 2018 Florian Weimer <fweimer@redhat.com> - 2.1.1-10
+- Rebuild with new flags from redhat-rpm-config
+
 * Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2.1.1-9
 - Escape macros in %%changelog
 
