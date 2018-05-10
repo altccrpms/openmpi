@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		10%{?dist}
+Release:		11%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -45,7 +45,7 @@ BuildRequires:		valgrind-devel
 %endif
 %ifnarch s390 s390x %{arm}
 BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
-BuildRequires:		librdmacm-devel libibcm-devel
+BuildRequires:		librdmacm-devel rdma-core-devel
 %endif
 # Doesn't compile:
 # vt_dyn.cc:958:28: error: 'class BPatch_basicBlockLoop' has no member named 'getLoopHead'
@@ -315,6 +315,9 @@ make check
 
 
 %changelog
+* Thu May 10 2018 Troy Dawson <tdawson@redhat.com> - 2.1.1-11
+- Build with rdma-core-devel instead of libibcm-devel
+
 * Mon Apr 30 2018 Florian Weimer <fweimer@redhat.com> - 2.1.1-10
 - Rebuild with new flags from redhat-rpm-config
 
