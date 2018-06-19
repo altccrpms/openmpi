@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		11%{?dist}
+Release:		12%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -315,6 +315,9 @@ make check
 
 
 %changelog
+* Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 2.1.1-12
+- Rebuilt for Python 3.7
+
 * Thu May 10 2018 Troy Dawson <tdawson@redhat.com> - 2.1.1-11
 - Build with rdma-core-devel instead of libibcm-devel
 
