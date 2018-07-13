@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		12%{?dist}
+Release:		13%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -315,6 +315,9 @@ make check
 
 
 %changelog
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.1-13
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 2.1.1-12
 - Rebuilt for Python 3.7
 
