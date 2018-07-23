@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.1
-Release:		13%{?dist}
+Release:		14%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -39,6 +39,7 @@ Source4:		macros.openmpi
 # https://github.com/open-mpi/ompi/issues/2966
 Patch0:			openmpi-2.1.1-disable-fifo-test.patch
 
+BuildRequires:		gcc-c++
 BuildRequires:		gcc-gfortran
 %ifnarch s390 s390x
 BuildRequires:		valgrind-devel
@@ -315,6 +316,9 @@ make check
 
 
 %changelog
+* Sun Jul 22 2018 Orion Poplawski <orion@nwra.com> - 2.1.1-14
+- Add BR gcc-c++ (fix FTBFS bug #1605323)
+
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.1-13
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
