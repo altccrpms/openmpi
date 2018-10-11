@@ -20,8 +20,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		2.1.1
-Release:		14%{?dist}
+Version:		2.1.5
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
@@ -316,6 +316,9 @@ make check
 
 
 %changelog
+* Thu Oct 11 2018 Orion Poplawski <orion@nwra.com> - 2.1.5-1
+- Update to 2.1.5
+
 * Sun Jul 22 2018 Orion Poplawski <orion@nwra.com> - 2.1.1-14
 - Add BR gcc-c++ (fix FTBFS bug #1605323)
 
