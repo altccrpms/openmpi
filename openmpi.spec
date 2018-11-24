@@ -20,24 +20,19 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		2.1.6
-Release:		0.1.rc1%{?dist}
+Version:		3.1.3
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-%{version}rc1.tar.bz2
+Source0:		https://www.open-mpi.org/software/ompi/v3.1/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
-
-# Only for ppc64le
-# https://github.com/open-mpi/ompi/issues/2526
-# https://github.com/open-mpi/ompi/issues/2966
-Patch0:			openmpi-2.1.1-disable-fifo-test.patch
 
 BuildRequires:		gcc-c++
 BuildRequires:		gcc-gfortran
@@ -56,6 +51,7 @@ BuildRequires:		hwloc-devel
 # So configure can find lstopo
 BuildRequires:		hwloc-gui
 BuildRequires:		java-devel
+BuildRequires:		libevent-devel
 %ifnarch s390 s390x
 BuildRequires:		libfabric-devel
 BuildRequires:		papi-devel
@@ -65,7 +61,7 @@ BuildRequires:		perl(Getopt::Long)
 BuildRequires:		pmix-devel
 BuildRequires:		python2
 BuildRequires:		python2-devel
-BuildRequires:		python3-devel
+BuildRequires:		python%{python3_pkgversion}-devel
 %ifarch x86_64
 BuildRequires:          infinipath-psm-devel
 BuildRequires:          libpsm2-devel
@@ -75,13 +71,14 @@ BuildRequires:		zlib-devel
 BuildRequires:		rpm-mpi-hooks
 
 Provides:		mpi
+%if 0%{?rhel}
+Requires:		environment-modules
+%else
 Requires:		environment(modules)
+%endif
 # openmpi currently requires ssh to run
 # https://svn.open-mpi.org/trac/ompi/ticket/4228
 Requires:		openssh-clients
-# We have problems using the system libevent - openmpi's is modified
-# https://bugzilla.redhat.com/show_bug.cgi?id=1235044
-Provides:               bundled(libevent) = 2.0.22
 
 # Private openmpi libraries
 %global __provides_exclude_from %{_libdir}/openmpi/lib/(lib(mca|ompi|open-(pal|rte|trace))|openmpi/).*.so
@@ -140,20 +137,17 @@ Requires:	%{name} = %{version}-%{release}
 %description -n python2-openmpi
 OpenMPI support for Python 2.
 
-%package -n python3-openmpi
+%package -n python%{python3_pkgversion}-openmpi
 Summary:	OpenMPI support for Python 3
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 
-%description -n python3-openmpi
+%description -n python%{python3_pkgversion}-openmpi
 OpenMPI support for Python 3.
 
 
 %prep
-%setup -q -n openmpi-%{version}rc1
-%ifarch ppc64le
-%patch0 -p1
-%endif
+%setup -q -n openmpi-%{version}
 
 %build
 ./configure --prefix=%{_libdir}/%{name} \
@@ -173,21 +167,19 @@ OpenMPI support for Python 3.
 	--enable-memchecker \
 %endif
 	--with-hwloc=/usr \
+	--with-libevent=external \
+	--with-pmix=external \
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='%{__global_ldflags}' \
 	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
 	CXXFLAGS="%{?opt_cxxflags} %{!?opt_cxxflags:$RPM_OPT_FLAGS}" \
 	FC=%{opt_fc} FCFLAGS="%{?opt_fcflags} %{!?opt_fcflags:$RPM_OPT_FLAGS}"
-# This fails - https://github.com/open-mpi/ompi/issues/2616
-#	--with-hwloc=external \
-# We cannot use external pmix without external libevent
-#	--with-pmix=external \
 #        --with-contrib-vt-flags='CXXFLAGS="-I%{_includedir}/dyninst -L%{_libdir}/dyninst"' \
 
-make %{?_smp_mflags} V=1
+%make_build V=1
 
 %install
-make install DESTDIR=%{buildroot}
+%make_install
 find %{buildroot}%{_libdir}/%{name}/lib -name \*.la | xargs rm
 find %{buildroot}%{_mandir}/%{namearch} -type f | xargs gzip -9
 ln -s mpicc.1.gz %{buildroot}%{_mandir}/%{namearch}/man1/mpiCC.1.gz
@@ -241,7 +233,7 @@ install -pDm0644 %{SOURCE3} %{buildroot}/%{python3_sitearch}/openmpi.pth
 make check
 
 %files
-%license LICENSE opal/mca/event/libevent2022/libevent/LICENSE
+%license LICENSE
 %dir %{_libdir}/%{name}
 %dir %{_sysconfdir}/%{namearch}
 %dir %{_libdir}/%{name}/bin
@@ -255,14 +247,20 @@ make check
 %{_libdir}/%{name}/bin/orte[-dr_]*
 %{_libdir}/%{name}/bin/oshmem_info
 %{_libdir}/%{name}/bin/oshrun
+%{_libdir}/%{name}/bin/prun
 %{_libdir}/%{name}/bin/shmemrun
-%{_libdir}/%{name}/lib/*.so.*
+%{_libdir}/%{name}/lib/*.so.40*
+%{_libdir}/%{name}/lib/libmca*.so.41*
+%{_libdir}/%{name}/lib/libmca*.so.50*
 %{_mandir}/%{namearch}/man1/mpi[er]*
 %{_mandir}/%{namearch}/man1/ompi*
 %{_mandir}/%{namearch}/man1/orte[-dr_]*
 %{_mandir}/%{namearch}/man1/oshmem_info*
 %{_mandir}/%{namearch}/man1/oshrun*
+%{_mandir}/%{namearch}/man1/prun*
 %{_mandir}/%{namearch}/man1/shmemrun*
+%{_mandir}/%{namearch}/man7/ompi_*
+%{_mandir}/%{namearch}/man7/opal_*
 %{_mandir}/%{namearch}/man7/orte*
 %{_libdir}/%{name}/lib/openmpi/*
 %{_datadir}/modulefiles/mpi/
@@ -276,11 +274,13 @@ make check
 
 %files devel
 %dir %{_includedir}/%{namearch}
+%{_libdir}/%{name}/bin/aggregate_profile.pl
 %{_libdir}/%{name}/bin/mpi[cCf]*
 %{_libdir}/%{name}/bin/opal_*
 %{_libdir}/%{name}/bin/orte[cCf]*
-%{_libdir}/%{name}/bin/osh[cf]*
-%{_libdir}/%{name}/bin/shmem[cf]*
+%{_libdir}/%{name}/bin/osh[cCf]*
+%{_libdir}/%{name}/bin/profile2mat.pl
+%{_libdir}/%{name}/bin/shmem[cCf]*
 %{_includedir}/%{namearch}/*
 %{_fmoddir}/%{name}/
 %{_libdir}/%{name}/lib/*.so
@@ -310,12 +310,18 @@ make check
 %dir %{python2_sitearch}/%{name}
 %{python2_sitearch}/openmpi.pth
 
-%files -n python3-openmpi
+%files -n python%{python3_pkgversion}-openmpi
 %dir %{python3_sitearch}/%{name}
 %{python3_sitearch}/openmpi.pth
 
 
 %changelog
+* Sat Dec 15 2018 Orion Poplawski <orion@nwra.com> - 3.1.3-1
+- Update to 3.1.3
+- Drop ppc64le patch fixed upstream
+- Use external libevent and pmix
+- Fix EPEL7 builds
+
 * Wed Nov 28 2018 Orion Poplawski <orion@nwra.com> - 2.1.6-0.1.rc1
 - Update to 2.1.6rc1
 
