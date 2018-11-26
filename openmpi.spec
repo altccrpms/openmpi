@@ -20,7 +20,7 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		3.1.3
+Version:		4.0.0
 Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
@@ -28,7 +28,7 @@ License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		https://www.open-mpi.org/software/ompi/v3.1/downloads/openmpi-%{version}.tar.bz2
+Source0:		https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
@@ -67,6 +67,9 @@ BuildRequires:          infinipath-psm-devel
 BuildRequires:          libpsm2-devel
 %endif
 BuildRequires:		torque-devel
+%ifarch aarch64 ppc64le x86_64
+BuildRequires:		ucx-devel
+%endif
 BuildRequires:		zlib-devel
 BuildRequires:		rpm-mpi-hooks
 
@@ -245,20 +248,22 @@ make check
 %{_libdir}/%{name}/bin/mpi[er]*
 %{_libdir}/%{name}/bin/ompi*
 %{_libdir}/%{name}/bin/orte[-dr_]*
+%ifarch aarch64 ppc64le x86_64
 %{_libdir}/%{name}/bin/oshmem_info
 %{_libdir}/%{name}/bin/oshrun
-%{_libdir}/%{name}/bin/prun
 %{_libdir}/%{name}/bin/shmemrun
+%endif
 %{_libdir}/%{name}/lib/*.so.40*
 %{_libdir}/%{name}/lib/libmca*.so.41*
 %{_libdir}/%{name}/lib/libmca*.so.50*
 %{_mandir}/%{namearch}/man1/mpi[er]*
 %{_mandir}/%{namearch}/man1/ompi*
 %{_mandir}/%{namearch}/man1/orte[-dr_]*
+%ifarch aarch64 ppc64le x86_64
 %{_mandir}/%{namearch}/man1/oshmem_info*
 %{_mandir}/%{namearch}/man1/oshrun*
-%{_mandir}/%{namearch}/man1/prun*
 %{_mandir}/%{namearch}/man1/shmemrun*
+%endif
 %{_mandir}/%{namearch}/man7/ompi_*
 %{_mandir}/%{namearch}/man7/opal_*
 %{_mandir}/%{namearch}/man7/orte*
@@ -278,9 +283,13 @@ make check
 %{_libdir}/%{name}/bin/mpi[cCf]*
 %{_libdir}/%{name}/bin/opal_*
 %{_libdir}/%{name}/bin/orte[cCf]*
+%ifarch aarch64 ppc64le x86_64
 %{_libdir}/%{name}/bin/osh[cCf]*
+%endif
 %{_libdir}/%{name}/bin/profile2mat.pl
+%ifarch aarch64 ppc64le x86_64
 %{_libdir}/%{name}/bin/shmem[cCf]*
+%endif
 %{_includedir}/%{namearch}/*
 %{_fmoddir}/%{name}/
 %{_libdir}/%{name}/lib/*.so
@@ -288,8 +297,10 @@ make check
 %{_libdir}/%{name}/lib/pkgconfig/
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/%{namearch}/man1/mpi[cCf]*
+%ifarch aarch64 ppc64le x86_64
 %{_mandir}/%{namearch}/man1/osh[cCf]*
 %{_mandir}/%{namearch}/man1/shmem[cCf]*
+%endif
 %{_mandir}/%{namearch}/man1/opal_*
 %{_mandir}/%{namearch}/man3/*
 %{_libdir}/%{name}/share/openmpi/openmpi-valgrind.supp
@@ -316,6 +327,9 @@ make check
 
 
 %changelog
+* Sat Dec 15 2018 Orion Poplawski <orion@nwra.com> - 4.0.0-1
+- Update to 4.0.0
+
 * Sat Dec 15 2018 Orion Poplawski <orion@nwra.com> - 3.1.3-1
 - Update to 3.1.3
 - Drop ppc64le patch fixed upstream
