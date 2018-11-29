@@ -20,15 +20,15 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		2.1.5
-Release:		1%{?dist}
+Version:		2.1.6
+Release:		0.1.rc1%{?dist}
 Summary:		Open Message Passing Interface
 Group:			Development/Libraries
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-%{version}.tar.bz2
+Source0:		https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-%{version}rc1.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
@@ -150,7 +150,7 @@ OpenMPI support for Python 3.
 
 
 %prep
-%setup -q -n openmpi-%{version}
+%setup -q -n openmpi-%{version}rc1
 %ifarch ppc64le
 %patch0 -p1
 %endif
@@ -316,6 +316,9 @@ make check
 
 
 %changelog
+* Wed Nov 28 2018 Orion Poplawski <orion@nwra.com> - 2.1.6-0.1.rc1
+- Update to 2.1.6rc1
+
 * Thu Oct 11 2018 Orion Poplawski <orion@nwra.com> - 2.1.5-1
 - Update to 2.1.5
 
