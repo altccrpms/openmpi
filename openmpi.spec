@@ -23,7 +23,6 @@ Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.6
 Release:		0.1.rc1%{?dist}
 Summary:		Open Message Passing Interface
-Group:			Development/Libraries
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
@@ -98,7 +97,6 @@ researchers. For more information, see http://www.open-mpi.org/ .
 
 %package devel
 Summary:	Development files for openmpi
-Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}, gcc-gfortran
 Provides:	mpi-devel
 Requires:	rpm-mpi-hooks
@@ -108,7 +106,6 @@ Contains development headers and libraries for openmpi.
 
 %package java
 Summary:	Java library
-Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 7
 Requires:	java-headless
@@ -121,7 +118,6 @@ Java library.
 
 %package java-devel
 Summary:	Java development files for openmpi
-Group:		Development/Libraries
 Requires:	%{name}-java = %{version}-%{release}
 Requires:	java-devel
 
@@ -134,7 +130,6 @@ Contains development wrapper for compiling Java with openmpi.
 
 %package -n python2-openmpi
 Summary:	OpenMPI support for Python 2
-Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 
 %description -n python2-openmpi
@@ -142,7 +137,6 @@ OpenMPI support for Python 2.
 
 %package -n python3-openmpi
 Summary:	OpenMPI support for Python 3
-Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 
 %description -n python3-openmpi
