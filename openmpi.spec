@@ -51,7 +51,10 @@ BuildRequires:		hwloc-devel
 # So configure can find lstopo
 BuildRequires:		hwloc-gui
 BuildRequires:		java-devel
+# Old libevent causes issues
+%if !0%{?el7}
 BuildRequires:		libevent-devel
+%endif
 %ifnarch s390 s390x
 BuildRequires:		libfabric-devel
 BuildRequires:		papi-devel
@@ -68,14 +71,16 @@ BuildRequires:          libpsm2-devel
 %endif
 BuildRequires:		torque-devel
 BuildRequires:		zlib-devel
+%if !0%{?el7}
 BuildRequires:		rpm-mpi-hooks
+%endif
 
 Provides:		mpi
 %if 0%{?rhel}
+# Need this for /etc/profile.d/modules.sh
 Requires:		environment-modules
-%else
-Requires:		environment(modules)
 %endif
+Requires:		environment(modules)
 # openmpi currently requires ssh to run
 # https://svn.open-mpi.org/trac/ompi/ticket/4228
 Requires:		openssh-clients
@@ -98,7 +103,9 @@ Summary:	Development files for openmpi
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}, gcc-gfortran
 Provides:	mpi-devel
+%if !0%{?el7}
 Requires:	rpm-mpi-hooks
+%endif
 
 %description devel
 Contains development headers and libraries for openmpi.
@@ -167,8 +174,10 @@ OpenMPI support for Python 3.
 	--enable-memchecker \
 %endif
 	--with-hwloc=/usr \
+%if !0%{?el7}
 	--with-libevent=external \
 	--with-pmix=external \
+%endif
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='%{__global_ldflags}' \
 	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
@@ -252,6 +261,9 @@ make check
 %{_libdir}/%{name}/lib/*.so.40*
 %{_libdir}/%{name}/lib/libmca*.so.41*
 %{_libdir}/%{name}/lib/libmca*.so.50*
+%if 0%{?el7}
+%{_libdir}/%{name}/lib/pmix/
+%endif
 %{_mandir}/%{namearch}/man1/mpi[er]*
 %{_mandir}/%{namearch}/man1/ompi*
 %{_mandir}/%{namearch}/man1/orte[-dr_]*
@@ -270,6 +282,9 @@ make check
 %{_libdir}/%{name}/share/openmpi/help*.txt
 %ifnarch s390 %{arm}
 %{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
+%endif
+%if 0%{?el7}
+%{_libdir}/%{name}/share/pmix/
 %endif
 
 %files devel
@@ -319,7 +334,7 @@ make check
 * Sat Dec 15 2018 Orion Poplawski <orion@nwra.com> - 3.1.3-1
 - Update to 3.1.3
 - Drop ppc64le patch fixed upstream
-- Use external libevent and pmix
+- Use external libevent and pmix, except on EL7
 - Fix EPEL7 builds
 
 * Wed Nov 28 2018 Orion Poplawski <orion@nwra.com> - 2.1.6-0.1.rc1
