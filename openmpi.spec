@@ -21,13 +21,13 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		2.1.6
-Release:		0.2.rc1%{?dist}
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-%{version}rc1.tar.bz2
+Source0:		https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
@@ -144,7 +144,7 @@ OpenMPI support for Python 3.
 
 
 %prep
-%setup -q -n openmpi-%{version}rc1
+%setup -q
 %ifarch ppc64le
 %patch0 -p1
 %endif
@@ -310,6 +310,9 @@ make check
 
 
 %changelog
+* Sat Feb 8 2019 Orion Poplawski <orion@nwra.com> - 2.1.6-1
+- Update to 2.1.6
+
 * Fri Feb 01 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.6-0.2.rc1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
