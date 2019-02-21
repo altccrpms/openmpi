@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		3.1.3
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
@@ -58,6 +58,7 @@ BuildRequires:		libevent-devel
 BuildRequires:		libfabric-devel
 BuildRequires:		papi-devel
 %endif
+BuildRequires:		orangefs-devel
 BuildRequires:		perl-generators
 BuildRequires:		perl(Getopt::Long)
 BuildRequires:		pmix-devel
@@ -325,6 +326,9 @@ make check
 
 
 %changelog
+* Tue Feb 19 2019 Orion Poplawski <orion@nwra.com> - 3.1.3-2
+- Enable PVFS2/OrangeFS MPI-IO support (bug #1655010)
+
 * Wed Feb 13 2019 Orion Poplawski <orion@nwra.com> - 3.1.3-1
 - Update to 3.1.3
 - Drop ppc64le patch fixed upstream
