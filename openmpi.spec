@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		3.1.3
-Release:		2%{?dist}
+Release:		3%{?dist}
 Summary:		Open Message Passing Interface
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
@@ -35,13 +35,11 @@ Source4:		macros.openmpi
 
 BuildRequires:		gcc-c++
 BuildRequires:		gcc-gfortran
-%ifnarch s390 s390x
 BuildRequires:		valgrind-devel
+%ifnarch %{arm}
+BuildRequires:		opensm-devel > 3.3.0
 %endif
-%ifnarch s390 s390x %{arm}
-BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
-BuildRequires:		librdmacm-devel rdma-core-devel
-%endif
+BuildRequires:		rdma-core-devel
 # Doesn't compile:
 # vt_dyn.cc:958:28: error: 'class BPatch_basicBlockLoop' has no member named 'getLoopHead'
 #                      loop->getLoopHead()->getStartAddress(), loop_stmts );
@@ -54,8 +52,8 @@ BuildRequires:		java-devel
 %if !0%{?el7}
 BuildRequires:		libevent-devel
 %endif
-%ifnarch s390 s390x
 BuildRequires:		libfabric-devel
+%ifnarch s390 s390x
 BuildRequires:		papi-devel
 %endif
 BuildRequires:		orangefs-devel
@@ -164,10 +162,8 @@ OpenMPI support for Python 3.
 %endif
 	--enable-mpi-java \
 	--with-sge \
-%ifnarch s390 s390x
 	--with-valgrind \
 	--enable-memchecker \
-%endif
 	--with-hwloc=/usr \
 %if !0%{?el7}
 	--with-libevent=external \
@@ -275,9 +271,7 @@ make check
 %dir %{_libdir}/%{name}/share/openmpi
 %{_libdir}/%{name}/share/openmpi/amca-param-sets
 %{_libdir}/%{name}/share/openmpi/help*.txt
-%ifnarch s390
 %{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
-%endif
 %if 0%{?el7}
 %{_libdir}/%{name}/share/pmix/
 %endif
@@ -326,6 +320,10 @@ make check
 
 
 %changelog
+* Sat Mar  2 2019 Orion Poplawski <orion@nwra.com> - 3.1.3-3
+- Enable valgrind on s390x
+- Cleanup arch conditionals
+
 * Tue Feb 19 2019 Orion Poplawski <orion@nwra.com> - 3.1.3-2
 - Enable PVFS2/OrangeFS MPI-IO support (bug #1655010)
 
