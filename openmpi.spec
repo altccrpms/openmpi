@@ -21,9 +21,8 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		4.0.0
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
-Group:			Development/Libraries
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
@@ -36,13 +35,11 @@ Source4:		macros.openmpi
 
 BuildRequires:		gcc-c++
 BuildRequires:		gcc-gfortran
-%ifnarch s390 s390x
 BuildRequires:		valgrind-devel
+%ifnarch %{arm}
+BuildRequires:		opensm-devel > 3.3.0
 %endif
-%ifnarch s390 s390x %{arm}
-BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
-BuildRequires:		librdmacm-devel rdma-core-devel
-%endif
+BuildRequires:		rdma-core-devel
 # Doesn't compile:
 # vt_dyn.cc:958:28: error: 'class BPatch_basicBlockLoop' has no member named 'getLoopHead'
 #                      loop->getLoopHead()->getStartAddress(), loop_stmts );
@@ -51,11 +48,15 @@ BuildRequires:		hwloc-devel
 # So configure can find lstopo
 BuildRequires:		hwloc-gui
 BuildRequires:		java-devel
+# Old libevent causes issues
+%if !0%{?el7}
 BuildRequires:		libevent-devel
-%ifnarch s390 s390x
+%endif
 BuildRequires:		libfabric-devel
+%ifnarch s390 s390x
 BuildRequires:		papi-devel
 %endif
+BuildRequires:		orangefs-devel
 BuildRequires:		perl-generators
 BuildRequires:		perl(Getopt::Long)
 BuildRequires:		pmix-devel
@@ -71,14 +72,16 @@ BuildRequires:		torque-devel
 BuildRequires:		ucx-devel
 %endif
 BuildRequires:		zlib-devel
+%if !0%{?el7}
 BuildRequires:		rpm-mpi-hooks
+%endif
 
 Provides:		mpi
 %if 0%{?rhel}
+# Need this for /etc/profile.d/modules.sh
 Requires:		environment-modules
-%else
-Requires:		environment(modules)
 %endif
+Requires:		environment(modules)
 # openmpi currently requires ssh to run
 # https://svn.open-mpi.org/trac/ompi/ticket/4228
 Requires:		openssh-clients
@@ -98,17 +101,17 @@ researchers. For more information, see http://www.open-mpi.org/ .
 
 %package devel
 Summary:	Development files for openmpi
-Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}, gcc-gfortran
 Provides:	mpi-devel
+%if !0%{?el7}
 Requires:	rpm-mpi-hooks
+%endif
 
 %description devel
 Contains development headers and libraries for openmpi.
 
 %package java
 Summary:	Java library
-Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 7
 Requires:	java-headless
@@ -121,7 +124,6 @@ Java library.
 
 %package java-devel
 Summary:	Java development files for openmpi
-Group:		Development/Libraries
 Requires:	%{name}-java = %{version}-%{release}
 Requires:	java-devel
 
@@ -134,7 +136,6 @@ Contains development wrapper for compiling Java with openmpi.
 
 %package -n python2-openmpi
 Summary:	OpenMPI support for Python 2
-Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 
 %description -n python2-openmpi
@@ -142,7 +143,6 @@ OpenMPI support for Python 2.
 
 %package -n python%{python3_pkgversion}-openmpi
 Summary:	OpenMPI support for Python 3
-Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 
 %description -n python%{python3_pkgversion}-openmpi
@@ -164,14 +164,15 @@ OpenMPI support for Python 3.
 	--enable-mpi-cxx \
 %endif
 	--enable-mpi-java \
+	--enable-mpi1-compatibility \
 	--with-sge \
-%ifnarch s390 s390x
 	--with-valgrind \
 	--enable-memchecker \
-%endif
 	--with-hwloc=/usr \
+%if !0%{?el7}
 	--with-libevent=external \
 	--with-pmix=external \
+%endif
 	CC=%{opt_cc} CXX=%{opt_cxx} \
 	LDFLAGS='%{__global_ldflags}' \
 	CFLAGS="%{?opt_cflags} %{!?opt_cflags:$RPM_OPT_FLAGS}" \
@@ -256,6 +257,9 @@ make check
 %{_libdir}/%{name}/lib/*.so.40*
 %{_libdir}/%{name}/lib/libmca*.so.41*
 %{_libdir}/%{name}/lib/libmca*.so.50*
+%if 0%{?el7}
+%{_libdir}/%{name}/lib/pmix/
+%endif
 %{_mandir}/%{namearch}/man1/mpi[er]*
 %{_mandir}/%{namearch}/man1/ompi*
 %{_mandir}/%{namearch}/man1/orte[-dr_]*
@@ -273,8 +277,9 @@ make check
 %dir %{_libdir}/%{name}/share/openmpi
 %{_libdir}/%{name}/share/openmpi/amca-param-sets
 %{_libdir}/%{name}/share/openmpi/help*.txt
-%ifnarch s390
 %{_libdir}/%{name}/share/openmpi/mca-btl-openib-device-params.ini
+%if 0%{?el7}
+%{_libdir}/%{name}/share/pmix/
 %endif
 
 %files devel
@@ -327,13 +332,19 @@ make check
 
 
 %changelog
+* Sun Mar 10 2019 Orion Poplawski <orion@nwra.com> - 4.0.0-2
+- Enable valgrind on s390x
+- Cleanup arch conditionals
+- Enable PVFS2/OrangeFS MPI-IO support (bug #1655010)
+- Enable mpi1 compatibility
+
 * Sat Dec 15 2018 Orion Poplawski <orion@nwra.com> - 4.0.0-1
 - Update to 4.0.0
 
 * Sat Dec 15 2018 Orion Poplawski <orion@nwra.com> - 3.1.3-1
 - Update to 3.1.3
 - Drop ppc64le patch fixed upstream
-- Use external libevent and pmix
+- Use external libevent and pmix, except on EL7
 - Fix EPEL7 builds
 
 * Wed Nov 28 2018 Orion Poplawski <orion@nwra.com> - 2.1.6-0.1.rc1
