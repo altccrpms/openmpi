@@ -20,8 +20,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		4.0.0
-Release:		2%{?dist}
+Version:		4.0.1
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
@@ -332,6 +332,9 @@ make check
 
 
 %changelog
+* Sat Mar 30 2019 Orion Poplawski <orion@nwra.com> - 4.0.1-1
+- Update to 4.0.1
+
 * Sun Mar 10 2019 Orion Poplawski <orion@nwra.com> - 4.0.0-2
 - Enable valgrind on s390x
 - Cleanup arch conditionals
