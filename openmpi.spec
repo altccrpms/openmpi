@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		3.1.3
-Release:		3%{?dist}
+Release:		4%{?dist}
 Summary:		Open Message Passing Interface
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
@@ -320,6 +320,9 @@ make check
 
 
 %changelog
+* Wed Apr 17 2019 Christoph Junghans <junghans@votca.org> - 3.1.3-4
+- Rebuild to fix ibosmcomp linkage
+
 * Sat Mar  2 2019 Orion Poplawski <orion@nwra.com> - 3.1.3-3
 - Enable valgrind on s390x
 - Cleanup arch conditionals
