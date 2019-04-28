@@ -20,8 +20,8 @@
 %global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
 
 Name:			openmpi%{?_cc_name_suffix}
-Version:		3.1.3
-Release:		5%{?dist}
+Version:		3.1.4
+Release:		1%{?dist}
 Summary:		Open Message Passing Interface
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
@@ -320,6 +320,9 @@ make check
 
 
 %changelog
+* Sun Apr 28 2019 Orion Poplawski <orion@nwra.com> - 3.1.4-1
+- Update to 3.1.4
+
 * Mon Apr 22 2019 Björn Esser <besser82@fedoraproject.org> - 3.1.3-5
 - rebuilt(opensm)
 
