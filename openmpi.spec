@@ -21,7 +21,7 @@
 
 Name:			openmpi%{?_cc_name_suffix}
 Version:		4.0.1
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
@@ -105,6 +105,10 @@ Requires:	%{name} = %{version}-%{release}, gcc-gfortran
 Provides:	mpi-devel
 %if !0%{?el7}
 Requires:	rpm-mpi-hooks
+# Make sure this package is rebuilt with correct Python version when updating
+# Otherwise mpi.req from rpm-mpi-hooks doesn't work
+# https://bugzilla.redhat.com/show_bug.cgi?id=1705296
+Requires:	(python(abi) = %{python3_version} if python3)
 %endif
 
 %description devel
@@ -137,6 +141,7 @@ Contains development wrapper for compiling Java with openmpi.
 %package -n python2-openmpi
 Summary:	OpenMPI support for Python 2
 Requires:	%{name} = %{version}-%{release}
+Requires:	python(abi) = %{python2_version}
 
 %description -n python2-openmpi
 OpenMPI support for Python 2.
@@ -144,6 +149,7 @@ OpenMPI support for Python 2.
 %package -n python%{python3_pkgversion}-openmpi
 Summary:	OpenMPI support for Python 3
 Requires:	%{name} = %{version}-%{release}
+Requires:	python(abi) = %{python3_version}
 
 %description -n python%{python3_pkgversion}-openmpi
 OpenMPI support for Python 3.
@@ -331,6 +337,10 @@ make check
 
 
 %changelog
+* Tue May  7 2019 Orion Poplawski <orion@nwra.com> - 4.0.1-2
+- Add a guard for python3 version (#1705296)
+- Add requires on python(abi) to python packages
+
 * Sun Apr 28 2019 Orion Poplawski <orion@nwra.com> - 4.0.1-1
 - Update to 4.0.1
 
@@ -779,7 +789,7 @@ make check
 - Update to fix licencing and packaging issues:
   Use the system plpa and ltdl librarires rather than the ones in the tarball
   Remove licence incompatible files from the tarball.
-- update module.in to prepend-path		PYTHONPATH
+- update module.in to prepend-path PYTHONPATH
 
 * Tue Mar 9 2010 Jay Fenlason <fenlason@redhat.com> - 1.4.1-3
 - remove the pkgconfig file completely like we did in RHEL.
