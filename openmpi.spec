@@ -159,7 +159,6 @@ OpenMPI support for Python 3.
 	--sysconfdir=%{_sysconfdir}/%{namearch} \
 	--disable-silent-rules \
 	--enable-builtin-atomics \
-	--enable-mpi-thread-multiple \
 %ifnarch %{power64}
 	--enable-mpi-cxx \
 %endif
