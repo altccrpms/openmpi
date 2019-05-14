@@ -1,5 +1,5 @@
 %global shortname openmpi
-%global shortver 3.0
+%global shortver 4.0
 %global ver %{shortver}.1
 %{?altcc_init:%altcc_init -m %{shortver}}
 
@@ -7,24 +7,23 @@
 
 Name:			openmpi%{?altcc_pkg_suffix}
 Version:		%{ver}
-Release:		1%{?dist}
+Release:		2%{?dist}
 Summary:		Open Message Passing Interface
-Group:			Development/Libraries
 License:		BSD and MIT and Romio
 URL:			http://www.open-mpi.org/
 
 # We can't use %{name} here because of _cc_name_suffix
-Source0:		https://www.open-mpi.org/software/ompi/v3.0/downloads/openmpi-%{version}.tar.bz2
+Source0:		https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-%{version}.tar.bz2
 Source1:		openmpi.module.in
 Source2:		openmpi.pth.py2
 Source3:		openmpi.pth.py3
 Source4:		macros.openmpi
 
-%ifnarch s390 s390x
 BuildRequires:		valgrind-devel
-BuildRequires:		libibverbs-devel >= 1.1.3, opensm-devel > 3.3.0
-BuildRequires:		librdmacm-devel libibcm-devel
+%ifnarch %{arm}
+BuildRequires:		opensm-devel > 3.3.0
 %endif
+BuildRequires:		rdma-core-devel
 # Doesn't compile:
 # vt_dyn.cc:958:28: error: 'class BPatch_basicBlockLoop' has no member named 'getLoopHead'
 #                      loop->getLoopHead()->getStartAddress(), loop_stmts );
@@ -35,29 +34,39 @@ BuildRequires:		hwloc-devel
 BuildRequires:		hwloc-gui
 %endif
 BuildRequires:		java-devel
-%ifnarch s390 s390x
+# Old libevent causes issues
+%if !0%{?el7}
+BuildRequires:		libevent-devel
+%endif
 BuildRequires:		libfabric-devel
+%ifnarch s390 s390x
 BuildRequires:		papi-devel
 %endif
+BuildRequires:		orangefs-devel
 BuildRequires:		perl-generators
 BuildRequires:		perl(Getopt::Long)
 BuildRequires:		pmix-devel
-BuildRequires:		python
+BuildRequires:		python2
 BuildRequires:		python2-devel
-%if 0%{?fedora}
-BuildRequires:		python3-devel
-%endif
+BuildRequires:		python%{python3_pkgversion}-devel
 %ifarch x86_64
 BuildRequires:          infinipath-psm-devel
 BuildRequires:          libpsm2-devel
 %endif
 BuildRequires:		torque-devel
+%ifarch aarch64 ppc64le x86_64
+BuildRequires:		ucx-devel
+%endif
 BuildRequires:		zlib-devel
-%if 0%{?fedora} >= 23
+%if !0%{?el7}
 BuildRequires:		rpm-mpi-hooks
 %endif
 
 Provides:		mpi
+%if 0%{?rhel}
+# Need this for /etc/profile.d/modules.sh
+Requires:		environment-modules
+%endif
 Requires:		environment(modules)
 # openmpi currently requires ssh to run
 # https://svn.open-mpi.org/trac/ompi/ticket/4228
@@ -84,16 +93,22 @@ researchers. For more information, see http://www.open-mpi.org/ .
 
 %package devel
 Summary:	Development files for openmpi
-Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
 Provides:	mpi-devel
 %{?altcc:%altcc_provide devel}
+%if !0%{?el7}
+Requires:	rpm-mpi-hooks
+# Make sure this package is rebuilt with correct Python version when updating
+# Otherwise mpi.req from rpm-mpi-hooks doesn't work
+# https://bugzilla.redhat.com/show_bug.cgi?id=1705296
+Requires:	(python(abi) = %{?python3_version} if python3)
+%endif
 
 %description devel
 Contains development headers and libraries for openmpi.
 
 %package java
 Summary:	Java library
-Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 7
 Requires:	java-headless
@@ -106,7 +121,6 @@ Java library.
 
 %package java-devel
 Summary:	Java development files for openmpi
-Group:		Development/Libraries
 Requires:	%{name}-java = %{version}-%{release}
 Requires:	java-devel
 
@@ -117,9 +131,29 @@ Contains development wrapper for compiling Java with openmpi.
 # particular package, version, compiler
 %global namearch openmpi%{?altcc_name_suffix}
 
+%package -n python2-%{name}
+Summary:	OpenMPI support for Python 2
+Requires:	%{name} = %{version}-%{release}
+%if !0%{?el7}
+Requires:	python(abi) = %{?python2_version}
+%endif
+
+%description -n python2-%{name}
+OpenMPI support for Python 2.
+
+%package -n python%{python3_pkgversion}-%{name}
+Summary:	OpenMPI support for Python 3
+Requires:	%{name} = %{version}-%{release}
+%if !0%{?el7}
+Requires:	python(abi) = %{?python3_version}
+%endif
+
+%description -n python%{python3_pkgversion}-%{name}
+OpenMPI support for Python 3.
+
 
 %prep
-%autosetup -p1 -n openmpi-%{version}
+%setup -q -n openmpi-%{version}
 
 %build
 [ "${FC/pgf/}" != "$FC" ] && export FC="$FC -noswitcherror"
@@ -127,29 +161,26 @@ Contains development wrapper for compiling Java with openmpi.
 	--libdir=%{_prefix}/%{_lib} \
 	--disable-silent-rules \
 	--enable-builtin-atomics \
-	--enable-mpi-thread-multiple \
 %ifnarch %{power64}
 	--enable-mpi-cxx \
 %endif
 	--enable-mpi-java \
+	--enable-mpi1-compatibility \
 	--with-sge \
-%ifnarch s390 s390x
 	--with-valgrind \
 	--enable-memchecker \
-%endif
 	--with-hwloc=/usr \
-	--enable-orterun-prefix-by-default \
-	LDFLAGS='%{__global_ldflags}'
-# This fails - https://github.com/open-mpi/ompi/issues/2616
-#	--with-hwloc=external \
-# We cannot use external pmix without external libevent
-#	--with-pmix=external \
+%if !0%{?el7}
+	--with-libevent=external \
+	--with-pmix=external \
+%endif
+	LDFLAGS='%{__global_ldflags}' \
 #        --with-contrib-vt-flags='CXXFLAGS="-I%{_includedir}/dyninst -L%{_libdir}/dyninst"' \
 
-make %{?_smp_mflags} V=1
+%make_build V=1
 
 %install
-make install DESTDIR=%{buildroot}
+%make_install
 find %{buildroot}%{_libdir} -name \*.la | xargs rm
 find %{buildroot}%{_mandir} -type f | xargs gzip -9
 ln -s mpicc.1.gz %{buildroot}%{_mandir}/man1/mpiCC.1.gz
@@ -162,17 +193,21 @@ mkdir %{buildroot}%{_mandir}/man{2,4,5,6,8,9,n}
 # make the rpm config file
 install -Dpm 644 %{SOURCE4} %{buildroot}/%{macrosdir}/macros.%{namearch}
 
+# Link the pkgconfig files into the main namespace as well
+mkdir -p %{buildroot}%{_libdir}/pkgconfig
+cd %{buildroot}%{_libdir}/pkgconfig
+ln -s ../%{name}/lib/pkgconfig/*.pc .
+cd -
+
 # Remove extraneous wrapper link libraries (bug 814798)
 sed -i -e s/-ldl// -e s/-lhwloc// \
   %{buildroot}%{_datadir}/openmpi/*-wrapper-data.txt
 
 # install .pth files
 mkdir -p %{buildroot}/%{python2_sitearch}/%{name}
-install -pDm0644 %{SOURCE2} %{buildroot}/%{python2_sitearch}/openmpi.pth
-%if 0%{?fedora}
+install -pDm0644 %{SOURCE2} %{buildroot}/%{python2_sitearch}/%{name}/openmpi.pth
 mkdir -p %{buildroot}/%{python3_sitearch}/%{name}
-install -pDm0644 %{SOURCE3} %{buildroot}/%{python3_sitearch}/openmpi.pth
-%endif
+install -pDm0644 %{SOURCE3} %{buildroot}/%{python3_sitearch}/%{name}/openmpi.pth
 
 %{?altcc:%altcc_license}
 
@@ -182,12 +217,6 @@ make check
 %files
 %{?altcc:%altcc_files -lm %{_bindir} %{_libdir} %{_sysconfdir} %{_mandir} %{_mandir}/man*}
 %license LICENSE opal/mca/event/libevent2022/libevent/LICENSE
-%dir %{python2_sitearch}/%{name}
-%{python2_sitearch}/openmpi.pth
-%if 0%{?fedora}
-%dir %{python3_sitearch}/%{name}
-%{python3_sitearch}/openmpi.pth
-%endif
 %config(noreplace) %{_sysconfdir}/*
 %{_bindir}/mpi[er]*
 %{_bindir}/ompi*
@@ -213,10 +242,12 @@ make check
 
 %files devel
 %{?altcc:%altcc_files %{_includedir}}
+%{_bindir}/aggregate_profile.pl
 %{_bindir}/mpi[cCf]*
 %{_bindir}/opal_*
 %{_bindir}/orte[cCf]*
 %{_bindir}/osh[cCf]*
+%{_bindir}/profile2mat.pl
 %{_bindir}/shmem[cCf]*
 %{_includedir}/*
 %{_libdir}/*.so
@@ -241,10 +272,95 @@ make check
 %{_datadir}/doc/
 %{_mandir}/man1/mpijavac.1.gz
 
+%files -n python2-%{name}
+%{python2_sitearch}/%{name}/
+
+%files -n python%{python3_pkgversion}-%{name}
+%{python3_sitearch}/%{name}/
+
 
 %changelog
-* Tue Feb 6 2018 Orion Poplawski <orion@cora.nwra.com> - 3.0.0-1
-- Update to 3.0.0
+* Tue May  7 2019 Orion Poplawski <orion@nwra.com> - 4.0.1-2
+- Add a guard for python3 version (#1705296)
+- Add requires on python(abi) to python packages
+
+* Sun Apr 28 2019 Orion Poplawski <orion@nwra.com> - 4.0.1-1
+- Update to 4.0.1
+
+* Sun Apr 28 2019 Orion Poplawski <orion@nwra.com> - 3.1.4-1
+- Update to 3.1.4
+
+* Mon Apr 22 2019 Björn Esser <besser82@fedoraproject.org> - 3.1.3-5
+- rebuilt(opensm)
+
+* Wed Apr 17 2019 Christoph Junghans <junghans@votca.org> - 3.1.3-4
+- Rebuild to fix ibosmcomp linkage
+
+* Sat Mar  2 2019 Orion Poplawski <orion@nwra.com> - 3.1.3-3
+- Enable valgrind on s390x
+- Cleanup arch conditionals
+
+* Tue Feb 19 2019 Orion Poplawski <orion@nwra.com> - 3.1.3-2
+- Enable PVFS2/OrangeFS MPI-IO support (bug #1655010)
+
+* Wed Feb 13 2019 Orion Poplawski <orion@nwra.com> - 3.1.3-1
+- Update to 3.1.3
+- Drop ppc64le patch fixed upstream
+- Use external libevent and pmix, except on EL7
+- Fix EPEL7 builds
+
+* Sat Feb 2 2019 Orion Poplawski <orion@nwra.com> - 2.1.6-1
+- Update to 2.1.6
+
+* Fri Feb 01 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.6-0.2.rc1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
+* Wed Nov 28 2018 Orion Poplawski <orion@nwra.com> - 2.1.6-0.1.rc1
+- Update to 2.1.6rc1
+
+* Thu Oct 11 2018 Orion Poplawski <orion@nwra.com> - 2.1.5-1
+- Update to 2.1.5
+
+* Sun Jul 22 2018 Orion Poplawski <orion@nwra.com> - 2.1.1-14
+- Add BR gcc-c++ (fix FTBFS bug #1605323)
+
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.1-13
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
+* Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 2.1.1-12
+- Rebuilt for Python 3.7
+
+* Thu May 10 2018 Troy Dawson <tdawson@redhat.com> - 2.1.1-11
+- Build with rdma-core-devel instead of libibcm-devel
+
+* Mon Apr 30 2018 Florian Weimer <fweimer@redhat.com> - 2.1.1-10
+- Rebuild with new flags from redhat-rpm-config
+
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2.1.1-9
+- Escape macros in %%changelog
+
+* Mon Feb 05 2018 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-8
+- Rebuild for rdma-core 16.2
+
+* Wed Jan 31 2018 Christoph Junghans <junghans@votca.org> - 2.1.1-7
+- Rebuild for gfortran-8
+
+* Fri Jan 12 2018 Iryna Shcherbina <ishcherb@redhat.com> - 2.1.1-6
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
+* Wed Aug 23 2017 Adam Williamson <awilliam@redhat.com> - 2.1.1-5
+- Disable RDMA support on 32-bit ARM (#1484155)
+- Disable hanging opal_fifo test on ppc64le (gh #2526 / #2966)
+
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.1.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
+* Wed Jul 19 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-2
+- Provide pkgconfig files in the main namespace as well (1471512)
 
 * Fri May 12 2017 Orion Poplawski <orion@cora.nwra.com> - 2.1.1-1
 - Update to 2.1.1
@@ -607,7 +723,7 @@ make check
 - Update to fix licencing and packaging issues:
   Use the system plpa and ltdl librarires rather than the ones in the tarball
   Remove licence incompatible files from the tarball.
-- update module.in to prepend-path		PYTHONPATH
+- update module.in to prepend-path PYTHONPATH
 
 * Tue Mar 9 2010 Jay Fenlason <fenlason@redhat.com> - 1.4.1-3
 - remove the pkgconfig file completely like we did in RHEL.
